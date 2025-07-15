@@ -38,8 +38,11 @@ async function getCashflowData(): Promise<CashflowData[]> {
     }
     
     invoices.forEach(invoice => {
-        const total = invoice.invoice_items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
-        // Use issue_date for cashflow calculation as per schema
+        // Ensure invoice_items is an array before reducing
+        const total = Array.isArray(invoice.invoice_items)
+            ? invoice.invoice_items.reduce((acc, item) => acc + item.quantity * item.rate, 0)
+            : 0;
+            
         const month = format(new Date(invoice.issue_date), 'MMM yyyy');
         if (monthlyData[month]) {
             monthlyData[month].income += total;
