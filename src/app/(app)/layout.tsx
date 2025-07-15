@@ -1,5 +1,5 @@
+
 'use client';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider, useSidebar } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import { LayoutDashboard, FileText, Users, Box, Settings, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,15 +12,7 @@ function AppLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <SidebarProvider>
-      <AppWithSidebar>{children}</AppWithSidebar>
-    </SidebarProvider>
-  );
-}
-
-
-function AppWithSidebar({ children }: { children: React.ReactNode }) {
+  
   const pathname = usePathname();
 
   const menuItems = [

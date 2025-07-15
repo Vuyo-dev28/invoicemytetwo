@@ -59,7 +59,8 @@ export function LoginForm() {
       })
       setLoading(false)
     } else {
-        window.location.href = '/'
+        router.push('/');
+        router.refresh();
     }
   }
 

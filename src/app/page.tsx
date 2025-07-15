@@ -1,7 +1,7 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import DashboardLayout from './(app)/layout';
+import AppLayout from './(app)/layout';
 import DashboardPage from './(app)/page';
 
 export default async function Home() {
@@ -16,8 +16,8 @@ export default async function Home() {
   }
 
   return (
-    <DashboardLayout>
+    <AppLayout>
       <DashboardPage />
-    </DashboardLayout>
+    </AppLayout>
   );
 }
