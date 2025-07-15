@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Invoice Ease',
+  title: 'InvoiceMe',
   description: 'Create and manage invoices with ease.',
   icons: {
     icon: "/favicon.ico",
