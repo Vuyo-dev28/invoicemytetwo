@@ -35,8 +35,8 @@ export type Invoice = {
   profile_id: string; // UUID of the owner
   client_id: string;
   invoice_number: string;
-  issue_date: string;
-  due_date: string | null;
+  issue_date: string; // Should be YYYY-MM-DD
+  due_date: string | null; // Should be YYYY-MM-DD
   status: InvoiceStatus;
   notes: string | null;
   tax_percent: number;

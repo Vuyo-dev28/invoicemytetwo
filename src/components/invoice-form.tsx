@@ -87,15 +87,14 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        // Since auth is removed, we'll just fetch the first profile as a placeholder
-        // In a real multi-user app, you'd link this to the logged-in user.
-        const { data: profileData, error } = await supabase.from('profiles').select('*').limit(1).single();
-        if(profileData) {
-            setProfile(profileData);
-        } else if (error && error.code === 'PGRST116') { // No rows found
-            // If no profile exists, create a default one to allow the app to function.
-            const { data: newProfile } = await supabase.from('profiles').insert({}).select().single();
-            setProfile(newProfile);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: profileData, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            if (profileData) {
+                setProfile(profileData);
+            } else if (error) {
+                console.error("Error fetching profile:", error);
+            }
         }
     }
     getProfile();
@@ -190,8 +189,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         profile_id: profile.id, 
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
-        issue_date: issueDate?.toISOString(),
-        due_date: dueDate?.toISOString(),
+        issue_date: issueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        due_date: dueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
         status,
         notes,
         tax_percent: tax,
@@ -235,6 +234,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             return;
         }
         savedInvoiceId = data.id;
+        setInvoiceId(data.id); // Set the new ID for future saves
     }
 
     if (!savedInvoiceId) return;
@@ -255,8 +255,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     toast({
-      title: `Invoice ${invoiceId ? 'Updated' : 'Saved'}`,
-      description: `Your ${documentType.toLowerCase()} has been saved.`,
+      title: `Invoice ${initialInvoice ? 'Updated' : 'Saved'}`,
+      description: `Your ${documentType.toLowerCase()} has been saved as a ${status}.`,
     });
     router.push('/invoices/list');
     router.refresh();
@@ -625,7 +625,7 @@ function ItemCombobox({
     onValueChange: (value: string) => void,
     onItemSelect: (lineItemId: string, item: Item) => void
   }) {
-  const [open, setOpen] = React.useState(false)
+  const [open, React.useState(false)
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
