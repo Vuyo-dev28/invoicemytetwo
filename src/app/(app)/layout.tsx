@@ -13,11 +13,13 @@ import {
     Truck, 
     ShoppingCart, 
     LineChart,
-    Gift
+    Gift,
+    LogOut
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
+import { logout } from '@/app/login/actions';
 
 function AppLayout({
   children,
@@ -37,7 +39,6 @@ function AppLayout({
     { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Package },
-    { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },
   ];
 
   const getHref = (href: string) => {
@@ -55,7 +56,7 @@ function AppLayout({
               <span className="">InvoiceMe</span>
             </Link>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {menuItems.map(item => (
                  <Link
@@ -67,6 +68,24 @@ function AppLayout({
                   {item.label}
                 </Link>
               ))}
+            </nav>
+            <nav className="mt-auto grid items-start px-2 text-sm font-medium lg:px-4 mb-2">
+               <Link
+                  href="/settings"
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === '/settings' ? 'bg-muted text-primary' : 'text-muted-foreground'}`}
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+                 <form action={logout}>
+                    <button
+                      type="submit"
+                      className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
+                    >
+                      <LogOut className="h-4 w-4" />
+                      Sign Out
+                    </button>
+                  </form>
             </nav>
           </div>
         </div>
@@ -104,6 +123,24 @@ function AppLayout({
                   </Link>
                 ))}
               </nav>
+              <div className="mt-auto">
+                 <Link
+                    href="/settings"
+                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${pathname === '/settings' ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                  >
+                    <Settings className="h-5 w-5" />
+                    Settings
+                  </Link>
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="w-full mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground transition-all hover:text-foreground"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Sign Out
+                  </button>
+                </form>
+              </div>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1" />

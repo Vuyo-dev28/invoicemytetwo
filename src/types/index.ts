@@ -1,6 +1,7 @@
 
+
 export type Profile = {
-  id: string; // This is a UUID
+  id: string; // This is a UUID, should match auth.users.id
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
