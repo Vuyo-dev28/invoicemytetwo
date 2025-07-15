@@ -13,7 +13,6 @@ export type Profile = {
 
 export type Client = {
   id: string;
-  user_id?: string;
   name: string;
   email: string | null;
   address: string | null;
@@ -34,7 +33,6 @@ export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 export type Invoice = {
   id: string;
   profile_id: string;
-  user_id?: string;
   client_id: string;
   invoice_number: string;
   issue_date: string;
