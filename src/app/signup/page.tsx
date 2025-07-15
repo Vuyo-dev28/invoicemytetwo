@@ -71,6 +71,14 @@ function MultiStepSignup() {
     
     const progress = ((currentStep + 1) / steps.length) * 100;
 
+    const processForm = (data: SignupFormValues) => {
+        const formData = new FormData();
+        Object.entries(data).forEach(([key, value]) => {
+            formData.append(key, value as string);
+        });
+        signup(formData);
+    }
+
     return (
         <Card className="w-full max-w-lg">
             <CardHeader>
@@ -85,13 +93,7 @@ function MultiStepSignup() {
             </CardHeader>
             <CardContent>
                 <FormProvider {...methods}>
-                    <form action={signup} onSubmit={handleSubmit((data) => {
-                        const formData = new FormData();
-                        Object.entries(data).forEach(([key, value]) => {
-                            formData.append(key, value as string);
-                        });
-                        signup(formData);
-                    })}>
+                    <form onSubmit={handleSubmit(processForm)}>
                         <div className="grid gap-4">
                             {currentStep === 0 && (
                                 <div className="grid gap-2">

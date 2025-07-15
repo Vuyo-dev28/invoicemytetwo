@@ -53,16 +53,16 @@ export async function signup(formData: FormData) {
   }
 
   if (user) {
+    // We need to INSERT a new profile, not update.
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({
-        id: user.id,
+      .insert({
+        id: user.id, // Use the user's ID from the signup response
         company_name: data.company_name,
-      })
-      .eq('id', user.id)
+      });
     
     if (profileError) {
-        // If profile update fails, we should probably handle this case.
+        // If profile creation fails, we should handle this case.
         // For now, redirect with a generic error.
         console.error("Profile creation error:", profileError);
         return redirect(`/signup?message=Could not create user profile. ${profileError.message}`);
