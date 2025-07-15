@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
@@ -10,25 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { createClient } from "@/utils/supabase/server"
-import { cookies } from "next/headers"
 import { logout } from "@/app/auth/actions"
 import { LogOut } from "lucide-react"
 
-export async function UserNav() {
-  const cookieStore = cookies()
-  const supabase = createClient(cookieStore)
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+export function UserNav({ userEmail }: { userEmail: string | undefined }) {
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/avatars/01.png" alt={user?.email || ''} />
-            <AvatarFallback>{user?.email?.[0].toUpperCase()}</AvatarFallback>
+            <AvatarImage src="/avatars/01.png" alt={userEmail || ''} />
+            <AvatarFallback>{userEmail?.[0].toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
@@ -36,17 +31,17 @@ export async function UserNav() {
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
-              {user?.email}
+              {userEmail}
             </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {user?.email}
+              {userEmail}
             </p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem>
-             <form action={logout} className="w-full">
+             <form action={logout}>
                 <button type="submit" className="flex items-center w-full">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
