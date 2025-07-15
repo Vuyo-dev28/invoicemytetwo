@@ -13,23 +13,20 @@ export default function SettingsPage() {
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .single();
-            
-            if (error) {
-                console.error('Error fetching profile:', error);
-                // It might be the first run, so return a default structure
-                setProfile({
-                    id: '1',
-                    company_name: 'Your Company',
-                    company_address: '123 Main St, Anytown, USA',
-                    logo_url: null,
-                    accent_color: 'hsl(210 40% 60%)'
-                });
-            } else {
-                 setProfile(data);
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+              const { data, error } = await supabase
+                  .from('profiles')
+                  .select('*')
+                  .eq('id', user.id)
+                  .single();
+              
+              if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+                  console.error('Error fetching profile:', error);
+              } else {
+                  setProfile(data);
+              }
             }
             setLoading(false);
         }

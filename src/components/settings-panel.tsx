@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -10,6 +11,7 @@ import { Upload, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Profile } from '@/types';
 import { createClient } from '@/utils/supabase/client';
+import type { User } from '@supabase/supabase-js';
 
 const colors = [
   'hsl(210 40% 60%)',
@@ -19,8 +21,7 @@ const colors = [
   'hsl(262.1 83.3% 57.8%)',
 ];
 
-const defaultProfile: Profile = {
-    id: '1',
+const defaultProfile: Omit<Profile, 'id'> = {
     company_name: 'Your Company',
     company_address: '123 Main St, Anytown, USA',
     logo_url: null,
@@ -28,13 +29,22 @@ const defaultProfile: Profile = {
 }
 
 export function SettingsPanel({ initialProfile }: { initialProfile: Profile | null }) {
-  const [profile, setProfile] = useState<Profile>(initialProfile || defaultProfile);
+  const [profile, setProfile] = useState<Omit<Profile, 'id'>>(initialProfile || defaultProfile);
+  const [user, setUser] = useState<User | null>(null);
   const [isUploading, setUploading] = useState(false);
   const { toast } = useToast();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
+  useEffect(() => {
+    const getUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      setUser(data.user);
+    }
+    getUser();
+  }, [supabase.auth]);
+
+  const handleUpdate = (field: keyof Omit<Profile, 'id' | 'created_at'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
   };
 
@@ -63,10 +73,14 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   };
 
   const handleSaveChanges = async () => {
-    const { id, ...updateData } = profile;
+    if (!user) {
+      toast({ title: 'Error saving settings', description: 'You must be logged in to save settings.', variant: 'destructive' });
+      return;
+    }
+    
     const { error } = await supabase
         .from('profiles')
-        .upsert({ id: '1', ...updateData });
+        .upsert({ id: user.id, ...profile }, { onConflict: 'id' });
 
     if (error) {
         toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
