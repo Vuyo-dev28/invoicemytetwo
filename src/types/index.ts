@@ -1,3 +1,4 @@
+
 export type Profile = {
   id: string; // Corresponds to auth.users.id
   first_name: string | null;

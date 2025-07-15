@@ -1,3 +1,4 @@
+
 "use client"
 import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -6,14 +7,16 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Calendar } from '@/components/ui/calendar';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send } from 'lucide-react';
+import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send, ChevronsUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image';
-import { Client } from '@/types';
+import { Client, Item } from '@/types';
+import { cn } from '@/lib/utils';
 
 type LineItem = {
   id: string;
@@ -28,7 +31,7 @@ type Profile = {
   logo_url: string;
 }
 
-export function InvoiceForm({ clients }: { clients: Client[] }) {
+export function InvoiceForm({ clients, items }: { clients: Client[], items: Item[] }) {
   const { toast } = useToast()
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
@@ -85,6 +88,12 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
   const handleItemChange = (id: string, field: keyof Omit<LineItem, 'id'>, value: string | number) => {
     setLineItems(lineItems.map(item =>
       item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  const handleItemSelect = (id: string, item: Item) => {
+    setLineItems(lineItems.map(lineItem =>
+      lineItem.id === id ? { ...lineItem, description: item.description, rate: item.rate } : lineItem
     ));
   };
   
@@ -229,7 +238,15 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
               {lineItems.map((item, index) => (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <Input className="no-print" value={item.description} onChange={(e) => handleItemChange(item.id, 'description', e.target.value)} placeholder="Item description" />
+                    <div className="no-print">
+                      <ItemCombobox 
+                        items={items}
+                        lineItemId={item.id}
+                        value={item.description}
+                        onValueChange={(value) => handleItemChange(item.id, 'description', value)}
+                        onItemSelect={handleItemSelect}
+                      />
+                    </div>
                     <p className="print-only">{item.description}</p>
                   </TableCell>
                   <TableCell>
@@ -293,4 +310,71 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
       </CardFooter>
     </Card>
   );
+}
+
+function ItemCombobox({ 
+    items, 
+    lineItemId,
+    value, 
+    onValueChange,
+    onItemSelect,
+  }: { 
+    items: Item[], 
+    lineItemId: string,
+    value: string, 
+    onValueChange: (value: string) => void,
+    onItemSelect: (lineItemId: string, item: Item) => void
+  }) {
+  const [open, setOpen] = React.useState(false)
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className="w-full justify-between font-normal"
+        >
+          <span className="truncate">
+            {value || "Select item or add new..."}
+          </span>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+        <Command shouldFilter={true}>
+          <CommandInput 
+            placeholder="Search item or add new..." 
+            value={value}
+            onValueChange={onValueChange}
+          />
+          <CommandList>
+            <CommandEmpty>
+                <div className="py-2 text-sm text-center">
+                    No item found. You can add it as a new item.
+                </div>
+            </CommandEmpty>
+            <CommandGroup>
+              {items.map((item) => (
+                <CommandItem
+                  key={item.id}
+                  value={item.description}
+                  onSelect={(currentValue) => {
+                    const selectedItem = items.find(i => i.description.toLowerCase() === currentValue.toLowerCase());
+                    if (selectedItem) {
+                      onItemSelect(lineItemId, selectedItem);
+                    }
+                    setOpen(false)
+                  }}
+                >
+                  {item.description}
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  )
 }
