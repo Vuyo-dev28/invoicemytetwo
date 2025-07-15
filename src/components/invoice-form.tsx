@@ -15,7 +15,7 @@ import { format, parseISO } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image';
-import { Client, Item, ExpandedInvoice } from '@/types';
+import { Client, Item, ExpandedInvoice, Profile } from '@/types';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -35,13 +35,6 @@ type LineItem = {
   quantity: number;
   rate: number;
 };
-
-type Profile = {
-  id: string;
-  company_name: string;
-  company_address: string;
-  logo_url: string | null;
-}
 
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
 type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
@@ -65,12 +58,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [notes, setNotes] = useState('');
   
-  const [profile, setProfile] = useState<Profile | null>({
-    id: '',
-    company_name: '',
-    company_address: '',
-    logo_url: null
-  });
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
@@ -99,9 +87,12 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        const { data: profileData } = await supabase.from('profiles').select('*').limit(1).single();
-        if(profileData) {
-            setProfile(profileData);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            if(profileData) {
+                setProfile(profileData);
+            }
         }
     }
     getProfile();
@@ -193,7 +184,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     const invoicePayload = {
-        profile_id: profile.id,
+        profile_id: profile.id, // This is the UUID of the logged-in user
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString(),

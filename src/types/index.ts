@@ -1,6 +1,6 @@
 
 export type Profile = {
-  id: string; // This is a text field in the database, representing the user's UUID
+  id: string; // This is a UUID
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
@@ -12,7 +12,7 @@ export type Profile = {
 };
 
 export type Client = {
-  id: string;
+  id: string; // UUID
   name: string;
   email: string | null;
   address: string | null;
@@ -21,7 +21,7 @@ export type Client = {
 };
 
 export type Item = {
-  id: string;
+  id: string; // UUID
   description: string;
   rate: number;
   created_at: string;
@@ -30,8 +30,8 @@ export type Item = {
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
 export type Invoice = {
-  id: string;
-  profile_id: string;
+  id: string; // UUID
+  profile_id: string; // UUID of the owner
   client_id: string;
   invoice_number: string;
   issue_date: string;
@@ -45,9 +45,9 @@ export type Invoice = {
 };
 
 export type InvoiceItem = {
-  id: string;
-  invoice_id: string;
-  item_id: string | null;
+  id: string; // UUID
+  invoice_id: string; // UUID
+  item_id: string | null; // UUID
   description: string;
   quantity: number;
   rate: number;

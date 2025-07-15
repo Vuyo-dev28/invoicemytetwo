@@ -13,18 +13,21 @@ export default function SettingsPage() {
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            // Since there is no user, we can try to fetch the first profile as a placeholder
-            // In a real multi-tenant app without auth, you'd need a different way to identify settings.
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .limit(1)
-                .single();
-            
-            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                console.error('Error fetching profile:', error);
-            } else {
-                setProfile(data);
+            // Fetch the profile for the currently logged-in user.
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id) // Match the user's UUID
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+                    console.error('Error fetching profile:', error);
+                } else {
+                    setProfile(data);
+                }
             }
             setLoading(false);
         }

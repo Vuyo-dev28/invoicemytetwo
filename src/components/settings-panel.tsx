@@ -11,6 +11,7 @@ import { Upload, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Profile } from '@/types';
 import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 const colors = [
   'hsl(210 40% 60%)',
@@ -33,10 +34,15 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const { toast } = useToast();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
       if (initialProfile) {
           setProfile(initialProfile);
+          if (initialProfile.accent_color) {
+            document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
+            document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
+          }
       }
   }, [initialProfile]);
 
@@ -49,8 +55,15 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
     if (!file) return;
 
     setUploading(true);
-    // Without a user, we store logos in a public path. This is not secure for multi-user apps.
-    const fileName = `public/${Date.now()}_${file.name}`;
+    // Use user-specific path for logos
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        toast({ title: 'Not authenticated', description: 'You must be logged in to upload a logo.', variant: 'destructive' });
+        setUploading(false);
+        return;
+    }
+
+    const fileName = `${user.id}/${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
         .from('logos')
         .upload(fileName, file);
@@ -71,7 +84,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleSaveChanges = async () => {
     if (!initialProfile) {
-       toast({ title: 'Error saving settings', description: 'Cannot save settings without a profile.', variant: 'destructive' });
+       toast({ title: 'Error saving settings', description: 'No profile found to update.', variant: 'destructive' });
       return;
     }
     
@@ -84,6 +97,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
         toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
     } else {
         toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+        router.refresh();
     }
   };
 
