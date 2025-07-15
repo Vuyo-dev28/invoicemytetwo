@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -220,4 +221,69 @@ body {
 }
 .template-playful .totals-section {
   @apply border-t-2 border-primary border-dashed pt-4;
+}
+
+/* --- Tech Template --- */
+.template-tech {
+  @apply bg-background text-foreground font-mono;
+}
+.template-tech .template-header {
+  @apply flex justify-between items-start p-8 border-b-2 border-primary;
+}
+.template-tech .invoice-title {
+  @apply text-3xl font-bold text-primary;
+}
+.template-tech .company-details {
+  @apply text-right;
+}
+.template-tech .main-content {
+  @apply p-8;
+}
+.template-tech table thead th {
+  @apply text-primary uppercase tracking-widest;
+}
+.template-tech table tr {
+  @apply border-b border-border/20;
+}
+.template-tech .totals-section {
+  @apply mt-8 pt-4 border-t-2 border-primary;
+}
+
+/* --- Elegant Template --- */
+.template-elegant {
+  font-family: 'Georgia', serif;
+  @apply bg-white text-gray-800;
+}
+.template-elegant .template-header {
+  @apply p-12 text-center flex justify-between items-start;
+}
+.template-elegant .invoice-title {
+  @apply text-5xl font-bold tracking-tight;
+}
+.template-elegant .company-details {
+  @apply mt-4 text-right;
+}
+.template-elegant .company-details h2 {
+  @apply text-lg font-semibold tracking-widest uppercase text-gray-600;
+}
+.template-elegant .main-content {
+  @apply p-12;
+}
+.template-elegant table thead {
+  @apply border-b-2 border-gray-300;
+}
+.template-elegant table thead th {
+  @apply text-left font-semibold uppercase tracking-wider text-gray-500 pb-2;
+}
+.template-elegant table tbody tr td {
+  @apply py-4;
+}
+.template-elegant .totals-section {
+  @apply mt-8 pt-4 border-t border-gray-300;
+}
+.template-elegant .totals-section .elegant-total-row {
+  @apply py-2;
+}
+.template-elegant .totals-section .elegant-total {
+  @apply font-bold text-xl;
 }

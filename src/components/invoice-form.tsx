@@ -1,7 +1,7 @@
 
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -31,7 +31,7 @@ type Profile = {
   logo_url: string;
 }
 
-type Template = "swiss" | "formal" | "playful";
+type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
 
 export function InvoiceForm({ clients, items }: { clients: Client[], items: Item[] }) {
   const { toast } = useToast()
@@ -127,18 +127,6 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
     const client = clients.find(c => c.id.toString() === clientId.toString()) || null;
     setSelectedClient(client);
   };
-  
-  const CompanyDetails = () => (
-    <div className='company-details'>
-      {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mb-2" data-ai-hint="logo" />}
-      <h2 className={cn('text-xl font-semibold')}>
-        {profile?.company_name || 'Your Company'}
-      </h2>
-      <p className={cn('text-muted-foreground text-sm')}>
-        {profile?.company_address || 'Your Address'}
-      </p>
-    </div>
-  );
 
   return (
     <div className="space-y-4">
@@ -152,9 +140,11 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                     <SelectValue placeholder="Select a template" />
                     </SelectTrigger>
                     <SelectContent>
-                    <SelectItem value="swiss">Swiss</SelectItem>
-                    <SelectItem value="formal">Formal</SelectItem>
-                    <SelectItem value="playful">Playful</SelectItem>
+                      <SelectItem value="swiss">Swiss</SelectItem>
+                      <SelectItem value="formal">Formal</SelectItem>
+                      <SelectItem value="playful">Playful</SelectItem>
+                      <SelectItem value="tech">Tech</SelectItem>
+                      <SelectItem value="elegant">Elegant</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -163,21 +153,34 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
       
       <div className={cn('invoice-container', `template-${template}`)}>
         <header className="template-header">
-            {template === 'formal' ? (
-                 <div className="company-details">
-                    {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mb-4 mx-auto" data-ai-hint="logo" />}
-                    <h2>{profile?.company_name || 'Your Company'}</h2>
-                    <p>{profile?.company_address || 'Your Address'}</p>
-                 </div>
-            ) : (
-                <>
-                    <div>
-                        <h1 className="invoice-title">INVOICE</h1>
-                        <p className="text-muted-foreground"># {invoiceNumber}</p>
-                    </div>
-                    <CompanyDetails />
-                </>
-            )}
+          {template === 'formal' ? (
+              <div className="company-details">
+                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mb-4 mx-auto" data-ai-hint="logo" />}
+                  <h2>{profile?.company_name || 'Your Company'}</h2>
+                  <p>{profile?.company_address || 'Your Address'}</p>
+              </div>
+          ) : template === 'elegant' ? (
+             <div>
+                <h1 className="invoice-title">INVOICE</h1>
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mt-4" data-ai-hint="logo" />}
+             </div>
+          ) : (
+            <>
+              <div>
+                  <h1 className="invoice-title">INVOICE</h1>
+                  <p className="text-muted-foreground"># {invoiceNumber}</p>
+              </div>
+              <div className="company-details">
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mb-2" data-ai-hint="logo" />}
+                <h2 className={cn('text-xl font-semibold')}>
+                  {profile?.company_name || 'Your Company'}
+                </h2>
+                <p className={cn('text-muted-foreground text-sm')}>
+                  {profile?.company_address || 'Your Address'}
+                </p>
+              </div>
+            </>
+          )}
         </header>
         
         {template === 'formal' && (
@@ -185,6 +188,13 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                 <h2 className="invoice-title">Invoice</h2>
                 <p className="text-sm text-muted-foreground"># {invoiceNumber}</p>
             </div>
+        )}
+        
+        {template === 'elegant' && (
+             <div className="company-details">
+                 <h2>{profile?.company_name || 'Your Company'}</h2>
+                 <p>{profile?.company_address || 'Your Address'}</p>
+             </div>
         )}
 
         <main className="main-content">
@@ -345,21 +355,21 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                 </div>
                 <div className="flex justify-end">
                     <div className="w-full max-w-sm space-y-4 totals-section">
-                        <div className="flex justify-between items-center">
+                        <div className={cn("flex justify-between items-center", template === 'elegant' && 'elegant-total-row')}>
                             <span>Subtotal</span>
                             <span className="font-medium">{formatCurrency(subtotal)}</span>
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className={cn("flex justify-between items-center", template === 'elegant' && 'elegant-total-row')}>
                             <Label htmlFor="discount" className="no-print">Discount (%)</Label>
                             <span className="print-only">Discount ({discount}%)</span>
                             <Input id="discount" type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                         </div>
-                        <div className="flex justify-between items-center">
+                        <div className={cn("flex justify-between items-center", template === 'elegant' && 'elegant-total-row')}>
                             <Label htmlFor="tax" className="no-print">Tax (%)</Label>
                             <span className="print-only">Tax ({tax}%)</span>
                             <Input id="tax" type="number" value={tax} onChange={(e) => setTax(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                         </div>
-                        <div className="flex justify-between items-center border-t pt-4 font-bold text-lg">
+                         <div className={cn("flex justify-between items-center border-t pt-4 text-lg", template === 'elegant' ? 'elegant-total' : 'font-bold' )}>
                             <span>Total</span>
                             <span>{formatCurrency(total)}</span>
                         </div>
