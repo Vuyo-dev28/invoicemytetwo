@@ -39,6 +39,7 @@ export type Invoice = {
   notes: string | null;
   tax_percent: number;
   discount_percent: number;
+  total: number;
   created_at: string;
 };
 
@@ -55,8 +56,6 @@ export type InvoiceItem = {
 // Type for invoice with client name and total amount for list view
 export type ExpandedInvoice = Invoice & {
   client_name: string;
-  total: number;
-  invoice_items: { quantity: number; rate: number }[];
 };
 
 export type CashflowData = {

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { CashflowChart } from '@/components/cashflow-chart';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
-import type { CashflowData, Invoice, InvoiceItem } from '@/types';
+import type { CashflowData, Invoice } from '@/types';
 import { subMonths, format, parse, startOfMonth } from 'date-fns';
 
 async function getCashflowData(): Promise<CashflowData[]> {
@@ -16,10 +16,10 @@ async function getCashflowData(): Promise<CashflowData[]> {
 
     const { data: invoices, error: invoicesError } = await supabase
         .from('invoices')
-        .select(`*, invoice_items ( quantity, rate )`)
+        .select(`*`)
         .eq('status', 'paid')
         .gte('issue_date', twelveMonthsAgo.toISOString());
-
+    
     if (invoicesError) {
         console.error('Error fetching paid invoices:', invoicesError);
         return [];
@@ -38,14 +38,9 @@ async function getCashflowData(): Promise<CashflowData[]> {
     }
     
     invoices.forEach(invoice => {
-        // Ensure invoice_items is an array before reducing
-        const total = Array.isArray(invoice.invoice_items)
-            ? invoice.invoice_items.reduce((acc, item) => acc + item.quantity * item.rate, 0)
-            : 0;
-            
         const month = format(new Date(invoice.issue_date), 'MMM yyyy');
         if (monthlyData[month]) {
-            monthlyData[month].income += total;
+            monthlyData[month].income += invoice.total;
         }
     });
 

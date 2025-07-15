@@ -148,7 +148,8 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
         status,
         notes,
         tax_percent: tax,
-        discount_percent: discount
+        discount_percent: discount,
+        total: total
       }])
       .select()
       .single();
@@ -185,7 +186,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
           title: "Draft Saved",
           description: `Your ${documentType.toLowerCase()} has been saved as a draft.`,
         });
-        router.push('/invoices');
+        router.push('/invoices/list');
     }
   };
 
@@ -196,7 +197,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
           title: `${documentType} Sent`,
           description: `Your ${documentType.toLowerCase()} has been sent to the client.`,
         });
-        router.push('/invoices');
+        router.push('/invoices/list');
     }
   }
 

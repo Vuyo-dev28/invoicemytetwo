@@ -12,8 +12,7 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
     .from('invoices')
     .select(`
       *,
-      clients ( name ),
-      invoice_items ( quantity, rate )
+      clients ( name )
     `)
     .order('created_at', { ascending: false });
 
@@ -24,13 +23,11 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
   
   // We need to shape the data to match ExpandedInvoice
   return data.map(invoice => {
-    const total = invoice.invoice_items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
     const clientName = Array.isArray(invoice.clients) ? invoice.clients[0].name : invoice.clients.name;
 
     return {
       ...invoice,
       client_name: clientName,
-      total: total,
     }
   }) as unknown as ExpandedInvoice[];
 }
