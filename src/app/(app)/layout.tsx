@@ -19,7 +19,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
-import { logout } from '@/app/login/actions';
 
 function AppLayout({
   children,
@@ -77,15 +76,6 @@ function AppLayout({
                   <Settings className="h-4 w-4" />
                   Settings
                 </Link>
-                 <form action={logout}>
-                    <button
-                      type="submit"
-                      className="w-full flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                    >
-                      <LogOut className="h-4 w-4" />
-                      Sign Out
-                    </button>
-                  </form>
             </nav>
           </div>
         </div>
@@ -131,15 +121,6 @@ function AppLayout({
                     <Settings className="h-5 w-5" />
                     Settings
                   </Link>
-                <form action={logout}>
-                  <button
-                    type="submit"
-                    className="w-full mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground transition-all hover:text-foreground"
-                  >
-                    <LogOut className="h-5 w-5" />
-                    Sign Out
-                  </button>
-                </form>
               </div>
             </SheetContent>
           </Sheet>

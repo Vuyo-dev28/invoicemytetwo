@@ -54,11 +54,10 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !profileId) return;
 
     setUploading(true);
-    // Use a generic path for logos since we don't have user-specific folders
-    const fileName = `${Date.now()}_${file.name}`;
+    const fileName = `${profileId}/${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
         .from('logos')
         .upload(fileName, file);
@@ -79,20 +78,34 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleSaveChanges = async () => {
     if (!profileId) {
-       toast({ title: 'Error saving settings', description: 'No profile found to update.', variant: 'destructive' });
-      return;
-    }
-    
-    const { error } = await supabase
-        .from('profiles')
-        .update(profile)
-        .eq('id', profileId)
+        // If there's no initial profile, we're creating a new one.
+        const { data, error } = await supabase
+            .from('profiles')
+            .insert(profile as Profile)
+            .select()
+            .single();
 
-    if (error) {
-        toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+        if (error) {
+            toast({ title: 'Error creating profile', description: error.message, variant: 'destructive' });
+        } else if (data) {
+            setProfile(data);
+            setProfileId(data.id);
+            toast({ title: 'Profile created', description: 'Your company details have been saved.' });
+            router.refresh();
+        }
     } else {
-        toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
-        router.refresh();
+        // Otherwise, update the existing profile
+        const { error } = await supabase
+            .from('profiles')
+            .update(profile)
+            .eq('id', profileId)
+
+        if (error) {
+            toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+        } else {
+            toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+            router.refresh();
+        }
     }
   };
 
@@ -138,7 +151,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                   </div>
                 )}
                
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading || !profileId}>
                   {isUploading ? 'Uploading...' : 'Upload'}
                 </Button>
                  <input
@@ -147,9 +160,10 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                   className="hidden"
                   accept="image/*"
                   onChange={handleLogoUpload}
-                  disabled={isUploading}
+                  disabled={isUploading || !profileId}
                 />
               </div>
+               {!profileId && <p className="text-xs text-muted-foreground">Save your profile first to enable logo uploads.</p>}
             </div>
           </CardContent>
            <CardFooter className="border-t px-6 py-4 flex justify-end">

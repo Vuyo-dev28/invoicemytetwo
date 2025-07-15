@@ -6,13 +6,8 @@ import { cookies } from "next/headers";
 async function getClients() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
-
-  const { data, error } = await supabase.from('clients').select('*').eq('profile_id', user.id);
+  
+  const { data, error } = await supabase.from('clients').select('*');
 
   if (error) {
     console.error('Error fetching clients:', error);

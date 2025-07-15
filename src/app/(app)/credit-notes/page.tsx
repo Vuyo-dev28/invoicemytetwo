@@ -7,9 +7,7 @@ import type { Client, Item } from '@/types';
 async function getClients(): Promise<Client[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
-  const { data, error } = await supabase.from('clients').select('*').eq('profile_id', user.id);
+  const { data, error } = await supabase.from('clients').select('*');
 
   if (error) {
     console.error('Error fetching clients:', error);
@@ -21,9 +19,7 @@ async function getClients(): Promise<Client[]> {
 async function getItems(): Promise<Item[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
-  const { data, error } = await supabase.from('items').select('*').eq('profile_id', user.id);
+  const { data, error } = await supabase.from('items').select('*');
 
   if (error) {
     console.error('Error fetching items:', error);

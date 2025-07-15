@@ -1,7 +1,6 @@
 
-
 export type Profile = {
-  id: string; // This is a UUID, should match auth.users.id
+  id: string; // This is a UUID
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
@@ -14,7 +13,6 @@ export type Profile = {
 
 export type Client = {
   id: string; // UUID
-  profile_id: string; // Owner's profile ID
   name: string;
   email: string | null;
   address: string | null;
@@ -24,7 +22,6 @@ export type Client = {
 
 export type Item = {
   id: string; // UUID
-  profile_id: string; // Owner's profile ID
   description: string;
   rate: number;
   created_at: string;

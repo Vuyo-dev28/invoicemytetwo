@@ -87,14 +87,11 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data: profileData, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-            if (profileData) {
-                setProfile(profileData);
-            } else if (error) {
-                console.error("Error fetching profile:", error);
-            }
+        const { data: profileData, error } = await supabase.from('profiles').select('*').limit(1).single();
+        if (profileData) {
+            setProfile(profileData);
+        } else if (error && error.code !== 'PGRST116') {
+            console.error("Error fetching profile:", error);
         }
     }
     getProfile();

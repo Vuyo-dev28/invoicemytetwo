@@ -8,9 +8,7 @@ import { notFound } from 'next/navigation';
 async function getClients(): Promise<Client[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
-  const { data, error } = await supabase.from('clients').select('*').eq('profile_id', user.id);
+  const { data, error } = await supabase.from('clients').select('*');
 
   if (error) {
     console.error('Error fetching clients:', error);
@@ -22,9 +20,7 @@ async function getClients(): Promise<Client[]> {
 async function getItems(): Promise<Item[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
-  const { data, error } = await supabase.from('items').select('*').eq('profile_id', user.id);
+  const { data, error } = await supabase.from('items').select('*');
 
   if (error) {
     console.error('Error fetching items:', error);
@@ -37,9 +33,6 @@ async function getInvoice(id: string): Promise<ExpandedInvoice | null> {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
-
     const { data, error } = await supabase
         .from('invoices')
         .select(`
@@ -48,7 +41,6 @@ async function getInvoice(id: string): Promise<ExpandedInvoice | null> {
             invoice_items ( * )
         `)
         .eq('id', id)
-        .eq('profile_id', user.id)
         .single();
 
     if (error || !data) {

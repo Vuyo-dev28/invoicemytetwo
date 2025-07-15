@@ -13,21 +13,17 @@ export default function SettingsPage() {
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            // Fetch the profile for the currently logged-in user.
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (user) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id) // Match the user's UUID
-                    .single();
-                
-                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                    console.error('Error fetching profile:', error);
-                } else {
-                    setProfile(data);
-                }
+            // Fetch the profile. In a public app, we might fetch a default or the first one.
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .limit(1)
+                .single();
+            
+            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+                console.error('Error fetching profile:', error);
+            } else {
+                setProfile(data);
             }
             setLoading(false);
         }
