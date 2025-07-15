@@ -118,32 +118,6 @@ body {
   @apply p-6 bg-muted/50 border-b;
 }
 
-/* --- Modern Template --- */
-.template-modern .template-header {
-  @apply flex justify-between items-start;
-}
-.template-modern .company-details {
-  @apply text-right flex flex-col items-end;
-}
-
-/* --- Classic Template --- */
-.template-classic .template-header {
-  @apply flex justify-between items-start;
-  font-family: 'Times New Roman', Times, serif;
-}
-.template-classic .company-details {
-  @apply text-right flex flex-col items-end;
-}
-.template-classic .template-title {
-  @apply text-4xl font-bold tracking-wider;
-}
-.template-classic table thead {
-  @apply border-y-2 border-foreground;
-}
-.template-classic .totals-section {
-  @apply border-t-2 border-foreground;
-}
-
 /* --- Creative Template --- */
 .template-creative {
   @apply relative;

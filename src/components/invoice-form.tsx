@@ -50,7 +50,6 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   const [currency, setCurrency] = useState('USD');
   const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
-  const [template, setTemplate] = useState('modern');
 
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
@@ -139,64 +138,15 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   );
 
   return (
-    <Card className={cn("template-base", `template-${template}`)}>
-      <div className={cn("template-main-content", { 'pr-0': template !== 'creative' })}>
+    <Card className="template-base template-creative">
+      <div className="template-main-content">
         <CardHeader className="template-header">
-           {template === 'classic' && (
-             <>
-                <div>
-                  <CardTitle className="text-4xl font-bold template-title">INVOICE</CardTitle>
-                </div>
-                <div className="company-details">
-                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2" data-ai-hint="logo" />}
-                  <h2 className='text-xl font-semibold'>
-                    {profile?.company_name || 'Your Company'}
-                  </h2>
-                  <p className='text-muted-foreground'>
-                    {profile?.company_address || 'Your Address'}
-                  </p>
-                </div>
-             </>
-           )}
-           {template === 'modern' && (
-              <>
-                <div>
-                  <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
-                  <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
-                </div>
-                <div className="company-details">
-                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2" data-ai-hint="logo" />}
-                  <h2 className='text-xl font-semibold'>
-                    {profile?.company_name || 'Your Company'}
-                  </h2>
-                  <p className='text-muted-foreground'>
-                    {profile?.company_address || 'Your Address'}
-                  </p>
-                </div>
-              </>
-           )}
-           {template === 'creative' && (
-             <div>
-                <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
-                <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
-             </div>
-           )}
+           <div>
+              <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
+              <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
+           </div>
         </CardHeader>
         <CardContent className="p-6 md:p-8">
-            <div className="no-print mb-8">
-                <Label htmlFor="template">Invoice Template</Label>
-                <Select value={template} onValueChange={setTemplate}>
-                <SelectTrigger id="template" className="mt-2 w-[200px]">
-                    <SelectValue placeholder="Select template" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="modern">Modern</SelectItem>
-                    <SelectItem value="classic">Classic</SelectItem>
-                    <SelectItem value="creative">Creative</SelectItem>
-                </SelectContent>
-                </Select>
-            </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
                 <Label className="font-semibold text-base">Bill To:</Label>
@@ -384,11 +334,9 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
         </CardFooter>
       </div>
       
-      {template === 'creative' && (
-        <div className="template-sidebar print-only">
-           <CompanyDetails forCreativeTemplate={true} />
-        </div>
-      )}
+      <div className="template-sidebar">
+         <CompanyDetails forCreativeTemplate={true} />
+      </div>
     </Card>
   );
 }
