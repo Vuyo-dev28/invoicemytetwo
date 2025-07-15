@@ -87,11 +87,17 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        const { data: profileData, error } = await supabase.from('profiles').select('*').limit(1).single();
+        // Fetch the profile. Since the app is public, we fetch the first one.
+        const { data: profileData, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .limit(1)
+            .single();
+        
         if (profileData) {
             setProfile(profileData);
-        } else if (error && error.code !== 'PGRST116') {
-            console.error("Error fetching profile:", error);
+        } else if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+             console.error("Error fetching profile:", error);
         }
     }
     getProfile();
@@ -622,7 +628,7 @@ function ItemCombobox({
     onValueChange: (value: string) => void,
     onItemSelect: (lineItemId: string, item: Item) => void
   }) {
-  const [open, React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -675,3 +681,5 @@ function ItemCombobox({
     </Popover>
   )
 }
+
+    
