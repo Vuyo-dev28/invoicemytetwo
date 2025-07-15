@@ -103,7 +103,7 @@ body {
     size: A4;
     margin: 0;
   }
-  .print-container {
+  .invoice-container {
     @apply w-full max-w-full m-0 p-0 shadow-none border-none;
   }
 }
@@ -116,7 +116,7 @@ body {
 
 /* --- Base --- */
 .invoice-container {
-  @apply max-w-4xl mx-auto print-container p-0 bg-card;
+  @apply max-w-4xl mx-auto p-0 bg-card;
 }
 
 /* --- Swiss Template --- */

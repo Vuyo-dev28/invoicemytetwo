@@ -257,7 +257,6 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                 </div>
                 {selectedClient && (
                 <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-                    <p className="font-semibold text-foreground print-only">{selectedClient.name}</p>
                     <p className="font-bold text-foreground">{selectedClient.name}</p>
                     <p>{selectedClient.address}</p>
                     <p>{selectedClient.email}</p>
@@ -402,7 +401,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                             {signature ? (
                                 <div className="text-center">
                                     <Image src={signature} alt="Signature" width={150} height={75} />
-                                    <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive">Remove Signature</Button>
+                                    <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive no-print">Remove Signature</Button>
                                 </div>
                             ) : (
                                 <Dialog open={isSignatureDialogOpen} onOpenChange={setSignatureDialogOpen}>
