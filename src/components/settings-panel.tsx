@@ -78,34 +78,34 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleSaveChanges = async () => {
     if (!profileId) {
-        // If there's no initial profile, we're creating a new one.
-        const { data, error } = await supabase
-            .from('profiles')
-            .insert(profile as Profile)
-            .select()
-            .single();
-
-        if (error) {
-            toast({ title: 'Error creating profile', description: error.message, variant: 'destructive' });
-        } else if (data) {
-            setProfile(data);
-            setProfileId(data.id);
-            toast({ title: 'Profile created', description: 'Your company details have been saved.' });
-            router.refresh();
-        }
+      // Create a new profile if one doesn't exist
+      const { data, error } = await supabase
+        .from('profiles')
+        .insert(profile as Profile) // The DB will assign a UUID
+        .select()
+        .single();
+  
+      if (error) {
+        toast({ title: 'Error creating profile', description: error.message, variant: 'destructive' });
+      } else if (data) {
+        setProfile(data);
+        setProfileId(data.id);
+        toast({ title: 'Profile created', description: 'Your company details have been saved.' });
+        router.refresh();
+      }
     } else {
-        // Otherwise, update the existing profile
-        const { error } = await supabase
-            .from('profiles')
-            .update(profile)
-            .eq('id', profileId)
-
-        if (error) {
-            toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
-        } else {
-            toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
-            router.refresh();
-        }
+      // Otherwise, update the existing profile
+      const { error } = await supabase
+        .from('profiles')
+        .update(profile)
+        .eq('id', profileId);
+  
+      if (error) {
+        toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+        router.refresh();
+      }
     }
   };
 

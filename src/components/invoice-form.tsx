@@ -174,7 +174,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   const saveInvoice = async (status: InvoiceStatus) => {
     if (!profile) {
-        toast({ title: "Profile not loaded", description: "Cannot save invoice without a profile.", variant: "destructive" });
+        toast({ title: "Profile not loaded", description: "Cannot save invoice without a profile. Please configure it in settings.", variant: "destructive" });
         return;
     }
     if (!selectedClient) {

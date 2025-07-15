@@ -13,7 +13,7 @@ export default function SettingsPage() {
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            // Fetch the profile. In a public app, we might fetch a default or the first one.
+            // Fetch the profile. In a public app, we fetch the first one.
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')

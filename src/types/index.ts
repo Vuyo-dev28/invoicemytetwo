@@ -18,6 +18,7 @@ export type Client = {
   address: string | null;
   vat_number: string | null;
   created_at: string;
+  profile_id?: string; // Optional for shared clients
 };
 
 export type Item = {
@@ -25,6 +26,7 @@ export type Item = {
   description: string;
   rate: number;
   created_at: string;
+  profile_id?: string; // Optional for shared items
 };
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
