@@ -1,5 +1,4 @@
 
-
 export type Profile = {
   id: string; // Corresponds to auth.users.id
   first_name: string | null;
@@ -57,6 +56,7 @@ export type InvoiceItem = {
 export type ExpandedInvoice = Invoice & {
   client_name: string;
   total: number;
+  invoice_items: { quantity: number; rate: number }[];
 };
 
 export type Expense = {

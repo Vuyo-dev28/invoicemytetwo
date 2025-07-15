@@ -27,7 +27,7 @@ async function getCashflowData(): Promise<CashflowData[]> {
     
     const { data: expenses, error: expensesError } = await supabase
         .from('expenses')
-        .select('date, amount')
+        .select('*')
         .gte('date', twelveMonthsAgo.toISOString());
 
     if (expensesError) {
