@@ -1,12 +1,17 @@
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ClientList } from "@/components/client-list";
+import { supabase } from "@/lib/supabase";
+import { Client } from "@/types";
 
-export default function ClientsPage() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Clients</CardTitle>
-        <CardDescription>Manage your clients here.</CardDescription>
-      </CardHeader>
-    </Card>
-  );
+async function getClients(): Promise<Client[]> {
+    const { data, error } = await supabase.from('clients').select('*');
+    if (error) {
+        console.error('Error fetching clients:', error);
+        return [];
+    }
+    return data;
+}
+
+export default async function ClientsPage() {
+  const clients = await getClients();
+  return <ClientList initialClients={clients} />;
 }
