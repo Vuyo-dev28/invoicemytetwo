@@ -12,38 +12,37 @@ export default function LoginPage() {
         <Card className="mx-auto max-w-sm">
         <CardHeader className="text-center">
             <Gift className="mx-auto h-12 w-12 text-primary mb-4" />
-            <CardTitle className="text-2xl">Login to InvoiceMe</CardTitle>
+            <CardTitle className="text-2xl">InvoiceMe</CardTitle>
             <CardDescription>
-            Enter your email below to login to your account
+            Enter your email and password to sign in or create an account.
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <form className="grid gap-4">
-            <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="m@example.com"
-                required
-                />
-            </div>
-            <div className="grid gap-2">
-                <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                {/* Optional: Add a "Forgot password?" link here */}
-                </div>
-                <Input id="password" type="password" name="password" required />
-            </div>
-            <div className="flex gap-2">
-                <Button formAction={login} type="submit" className="w-full">
-                    Login
-                </Button>
-                 <Button formAction={signup} type="submit" className="w-full" variant="outline">
-                    Sign Up
-                </Button>
-            </div>
+            <form action={login} className="grid gap-4">
+              <div className="grid gap-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                  id="email"
+                  type="email"
+                  name="email"
+                  placeholder="m@example.com"
+                  required
+                  />
+              </div>
+              <div className="grid gap-2">
+                  <div className="flex items-center">
+                  <Label htmlFor="password">Password</Label>
+                  </div>
+                  <Input id="password" type="password" name="password" required />
+              </div>
+              <div className="flex gap-2">
+                  <Button type="submit" className="w-full">
+                      Login
+                  </Button>
+                  <Button formAction={signup} type="submit" className="w-full" variant="outline">
+                      Sign Up
+                  </Button>
+              </div>
             </form>
         </CardContent>
         </Card>
