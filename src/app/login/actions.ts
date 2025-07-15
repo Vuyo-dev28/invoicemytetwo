@@ -33,7 +33,7 @@ export async function signup(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
-  const { error } = await supabase.auth.signUp({
+  const { data: { user }, error: signupError } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -41,14 +41,18 @@ export async function signup(formData: FormData) {
     },
   });
 
-  if (error) {
-    return redirect("/login?message=Could not authenticate user");
+  if (signupError) {
+    return redirect(`/login?message=${signupError.message}`);
   }
   
-  // Also create a profile for the new user
-  const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    await supabase.from('profiles').insert({ id: user.id });
+    // Also create a profile for the new user.
+    const { error: profileError } = await supabase.from('profiles').insert({ id: user.id });
+    if (profileError) {
+        // This is a critical error, but we'll still let the user know they need to verify.
+        console.error("Error creating profile:", profileError);
+        return redirect(`/login?message=Could not create profile. Please contact support. But first, check email to continue sign in process.`);
+    }
   }
 
   revalidatePath("/", "layout");
