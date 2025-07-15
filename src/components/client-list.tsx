@@ -53,7 +53,7 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
             return;
         }
 
-        const payload = { ...values };
+        const payload = { ...values, user_id: user.id };
         const { data, error } = await supabase.from('clients').insert([payload]).select();
         
         if (error) {
