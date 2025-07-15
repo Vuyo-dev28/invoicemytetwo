@@ -1,6 +1,6 @@
 
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,13 +10,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Calendar } from '@/components/ui/calendar';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send, ChevronsUpDown } from 'lucide-react';
+import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send, ChevronsUpDown, Pencil } from 'lucide-react';
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image';
 import { Client, Item } from '@/types';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import SignatureCanvas from 'react-signature-canvas';
 
 type LineItem = {
   id: string;
@@ -59,6 +62,9 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
   
   const [paymentTerms, setPaymentTerms] = useState("net30");
   const [template, setTemplate] = useState<Template>("swiss");
+  const [signature, setSignature] = useState<string | null>(null);
+  const [isSignatureDialogOpen, setSignatureDialogOpen] = useState(false);
+  const signatureRef = useRef<SignatureCanvas>(null);
 
   const documentTypePrefixes = {
     "Invoice": "INV",
@@ -139,6 +145,33 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
   };
 
   const isFinancialDocument = ["Invoice", "Credit note"].includes(documentType);
+  
+  const handleSaveSignature = () => {
+    if (signatureRef.current) {
+      if(signatureRef.current.isEmpty()){
+        toast({ title: "Signature is empty", description: "Please draw a signature before saving.", variant: "destructive" });
+        return;
+      }
+      setSignature(signatureRef.current.toDataURL('image/png'));
+      setSignatureDialogOpen(false);
+    }
+  };
+
+  const handleClearSignature = () => {
+    signatureRef.current?.clear();
+  };
+
+  const handleSignatureUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSignature(reader.result as string);
+        setSignatureDialogOpen(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -167,24 +200,17 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
       
       <div className={cn('invoice-container', `template-${template}`)}>
         <header className="template-header">
-          {template === 'formal' ? (
-              <div className="company-details">
-                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
-                  <h2>{profile?.company_name || 'Your Company'}</h2>
-                  <p>{profile?.company_address || 'Your Address'}</p>
-              </div>
-          ) : template === 'elegant' ? (
+          {template === 'formal' || template === 'elegant' ? (
             <div className="w-full flex flex-col items-center">
-              <div className="company-details flex flex-col items-center">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4" data-ai-hint="logo" />}
-              </div>
-              <div>
-                <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
-              </div>
-             <div className="company-details">
+               <div className="company-details">
+                 {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4" data-ai-hint="logo" />}
                  <h2>{profile?.company_name || 'Your Company'}</h2>
                  <p>{profile?.company_address || 'Your Address'}</p>
-             </div>
+               </div>
+               <div className={cn("invoice-title-section", template === 'elegant' && 'mt-8')}>
+                 <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
+                 {template === 'formal' && <p className="text-sm text-muted-foreground mt-2"># {invoiceNumber}</p>}
+               </div>
             </div>
           ) : (
             <>
@@ -204,13 +230,6 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
             </>
           )}
         </header>
-        
-        {template === 'formal' && (
-            <div className="invoice-title-section">
-                <h2 className="invoice-title">{documentType.toUpperCase()}</h2>
-                <p className="text-sm text-muted-foreground"># {invoiceNumber}</p>
-            </div>
-        )}
         
         <main className="main-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -371,6 +390,61 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                 <div>
                     <Label className="font-semibold">Notes</Label>
                     <Textarea placeholder="Any additional notes..." className="mt-2 no-print" />
+                    <div className="mt-4">
+                        <Label className="font-semibold">Signature</Label>
+                        <div className="mt-2 border rounded-md p-4 min-h-[100px] flex items-center justify-center">
+                            {signature ? (
+                                <div className="text-center">
+                                    <Image src={signature} alt="Signature" width={150} height={75} />
+                                    <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive">Remove Signature</Button>
+                                </div>
+                            ) : (
+                                <Dialog open={isSignatureDialogOpen} onOpenChange={setSignatureDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="no-print">
+                                            <Pencil className="mr-2 h-4 w-4" />
+                                            Add Signature
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Add Your Signature</DialogTitle>
+                                        </DialogHeader>
+                                        <Tabs defaultValue="draw">
+                                            <TabsList className="grid w-full grid-cols-2">
+                                                <TabsTrigger value="draw">Draw</TabsTrigger>
+                                                <TabsTrigger value="upload">Upload</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="draw">
+                                                <div className="border rounded-md bg-muted/20 my-4">
+                                                     <SignatureCanvas
+                                                        ref={signatureRef}
+                                                        penColor='black'
+                                                        canvasProps={{className: 'w-full h-48'}}
+                                                    />
+                                                </div>
+                                                <div className="flex justify-end gap-2">
+                                                    <Button variant="outline" onClick={handleClearSignature}>Clear</Button>
+                                                    <Button onClick={handleSaveSignature}>Save</Button>
+                                                </div>
+                                            </TabsContent>
+                                            <TabsContent value="upload">
+                                                <div className="flex flex-col items-center justify-center p-8 space-y-4">
+                                                    <Label htmlFor="signature-upload" className="cursor-pointer">
+                                                        <Button asChild variant="outline">
+                                                           <span>Upload Image</span>
+                                                        </Button>
+                                                    </Label>
+                                                    <Input id="signature-upload" type="file" accept="image/*" className="hidden" onChange={handleSignatureUpload}/>
+                                                    <p className="text-xs text-muted-foreground">Upload a PNG or JPG file.</p>
+                                                </div>
+                                            </TabsContent>
+                                        </Tabs>
+                                    </DialogContent>
+                                </Dialog>
+                            )}
+                        </div>
+                    </div>
                 </div>
                 <div className="flex justify-end">
                     <div className="w-full max-w-sm space-y-4 totals-section">
