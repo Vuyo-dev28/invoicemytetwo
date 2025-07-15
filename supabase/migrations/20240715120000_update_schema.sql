@@ -1,41 +1,78 @@
--- Drop existing trigger and function to ensure idempotency
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-DROP FUNCTION IF EXISTS handle_new_user;
+-- Create the clients table with a user_id
+create table if not exists clients (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  name text not null,
+  email text,
+  address text,
+  vat_number text,
+  business_type text,
+  currency text,
+  created_at timestamptz default now()
+);
 
--- Add user_id to clients, items, and invoices
-alter table clients add column if not exists user_id uuid references auth.users(id);
-alter table items add column if not exists user_id uuid references auth.users(id);
-alter table invoices add column if not exists user_id uuid references auth.users(id);
+-- Create the items table with a user_id
+create table if not exists items (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  description text not null,
+  rate numeric not null default 0,
+  created_at timestamptz default now()
+);
 
--- Add signup data columns to clients table
-alter table clients add column if not exists business_type text;
-alter table clients add column if not exists currency text;
+-- Create the invoices table with a user_id
+create table if not exists invoices (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users(id) on delete cascade not null,
+  invoice_number text not null,
+  issue_date date not null,
+  due_date date,
+  client_id uuid references clients(id) on delete set null,
+  status text not null default 'draft', -- e.g., 'draft', 'sent', 'paid', 'overdue'
+  notes text,
+  tax_percent numeric default 0,
+  discount_percent numeric default 0,
+  created_at timestamptz default now()
+);
 
+-- Create the invoice_items join table
+create table if not exists invoice_items (
+  id uuid primary key default gen_random_uuid(),
+  invoice_id uuid not null references invoices(id) on delete cascade,
+  item_id uuid references items(id) on delete set null, -- Can be null if it's a custom item
+  description text not null,
+  quantity numeric not null,
+  rate numeric not null,
+  created_at timestamptz default now()
+);
 
--- Drop old public policies if they exist
--- Note: Supabase might name policies differently if created via UI. 
--- This is a best-effort attempt to clean up.
-drop policy if exists "Allow public read access" on clients;
-drop policy if exists "Allow public insert access" on clients;
-drop policy if exists "Allow public update access" on clients;
-drop policy if exists "Allow public delete access" on clients;
+-- Enable Row Level Security (RLS) for all tables
+alter table clients enable row level security;
+alter table items enable row level security;
+alter table invoices enable row level security;
+alter table invoice_items enable row level security;
 
-drop policy if exists "Allow public read access" on items;
-drop policy if exists "Allow public insert access" on items;
-drop policy if exists "Allow public update access" on items;
-drop policy if exists "Allow public delete access" on items;
+-- Drop existing policies to ensure the script is re-runnable
+DROP POLICY IF EXISTS "Users can view their own clients" ON clients;
+DROP POLICY IF EXISTS "Users can insert their own clients" ON clients;
+DROP POLICY IF EXISTS "Users can update their own clients" ON clients;
+DROP POLICY IF EXISTS "Users can delete their own clients" ON clients;
 
-drop policy if exists "Allow public read access" on invoices;
-drop policy if exists "Allow public insert access" on invoices;
-drop policy if exists "Allow public update access" on invoices;
-drop policy if exists "Allow public delete access" on invoices;
+DROP POLICY IF EXISTS "Users can view their own items" ON items;
+DROP POLICY IF EXISTS "Users can insert their own items" ON items;
+DROP POLICY IF EXISTS "Users can update their own items" ON items;
+DROP POLICY IF EXISTS "Users can delete their own items" ON items;
 
-drop policy if exists "Allow public read access" on invoice_items;
-drop policy if exists "Allow public insert access" on invoice_items;
-drop policy if exists "Allow public update access" on invoice_items;
-drop policy if exists "Allow public delete access" on invoice_items;
+DROP POLICY IF EXISTS "Users can view their own invoices" ON invoices;
+DROP POLICY IF EXISTS "Users can insert their own invoices" ON invoices;
+DROP POLICY IF EXISTS "Users can update their own invoices" ON invoices;
+DROP POLICY IF EXISTS "Users can delete their own invoices" ON invoices;
 
--- Secure RLS policies based on user_id
+DROP POLICY IF EXISTS "Users can view their own invoice_items" ON invoice_items;
+DROP POLICY IF EXISTS "Users can insert their own invoice_items" ON invoice_items;
+DROP POLICY IF EXISTS "Users can update their own invoice_items" ON invoice_items;
+DROP POLICY IF EXISTS "Users can delete their own invoice_items" ON invoice_items;
+
 
 -- Policies for clients
 create policy "Users can view their own clients" on clients for select using (auth.uid() = user_id);
@@ -56,23 +93,23 @@ create policy "Users can update their own invoices" on invoices for update using
 create policy "Users can delete their own invoices" on invoices for delete using (auth.uid() = user_id);
 
 -- Policies for invoice_items
--- This policy assumes that if a user can see an invoice, they can see its items.
-create policy "Users can view their own invoice items" on invoice_items for select using (
+-- Users can manage invoice_items if they own the parent invoice.
+create policy "Users can view their own invoice_items" on invoice_items for select using (
   exists (
     select 1 from invoices where invoices.id = invoice_items.invoice_id and invoices.user_id = auth.uid()
   )
 );
-create policy "Users can insert their own invoice items" on invoice_items for insert with check (
+create policy "Users can insert their own invoice_items" on invoice_items for insert with check (
   exists (
     select 1 from invoices where invoices.id = invoice_items.invoice_id and invoices.user_id = auth.uid()
   )
 );
-create policy "Users can update their own invoice items" on invoice_items for update using (
+create policy "Users can update their own invoice_items" on invoice_items for update using (
   exists (
     select 1 from invoices where invoices.id = invoice_items.invoice_id and invoices.user_id = auth.uid()
   )
 );
-create policy "Users can delete their own invoice items" on invoice_items for delete using (
+create policy "Users can delete their own invoice_items" on invoice_items for delete using (
   exists (
     select 1 from invoices where invoices.id = invoice_items.invoice_id and invoices.user_id = auth.uid()
   )
@@ -80,26 +117,25 @@ create policy "Users can delete their own invoice items" on invoice_items for de
 
 
 -- Function to create a client for a new user
-create or replace function handle_new_user()
-returns trigger
-language plpgsql
-security definer set search_path = public
-as $$
+-- Drop the function and trigger if they exist to make the script re-runnable
+DROP TRIGGER if exists on_auth_user_created on auth.users;
+DROP FUNCTION if exists handle_new_user;
+
+create or replace function public.handle_new_user()
+returns trigger as $$
 begin
-  insert into public.clients (id, user_id, name, business_type, currency, email)
+  insert into public.clients (user_id, name, business_type, currency)
   values (
-    gen_random_uuid(),
     new.id,
-    new.raw_user_meta_data->>'company_name',
-    new.raw_user_meta_data->>'business_type',
-    new.raw_user_meta_data->>'currency',
-    new.email
+    new.raw_user_meta_data->>'companyName',
+    new.raw_user_meta_data->>'businessType',
+    new.raw_user_meta_data->>'currency'
   );
   return new;
 end;
-$$;
+$$ language plpgsql security definer;
 
 -- Trigger to call the function when a new user signs up
 create trigger on_auth_user_created
   after insert on auth.users
-  for each row execute procedure handle_new_user();
+  for each row execute procedure public.handle_new_user();
