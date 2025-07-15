@@ -107,14 +107,31 @@ export function SignupForm() {
                 description: error.message,
                 variant: 'destructive',
             });
+            setLoading(false);
         } else {
-            toast({
-                title: 'Success!',
-                description: 'Please check your email to verify your account.',
+            // Also sign in the user
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+                email: data.email,
+                password: data.password,
             });
-            router.push('/login');
+
+            if (signInError) {
+                toast({
+                    title: 'Error signing in after signup',
+                    description: signInError.message,
+                    variant: 'destructive',
+                });
+                router.push('/login');
+            } else {
+                toast({
+                    title: 'Welcome!',
+                    description: 'Your account has been created successfully.',
+                });
+                router.push('/');
+                router.refresh();
+            }
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     return (
