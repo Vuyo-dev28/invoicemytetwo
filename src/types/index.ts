@@ -67,3 +67,10 @@ export type Expense = {
     category: string | null;
     created_at: string;
 };
+
+export type CashflowData = {
+  month: string;
+  income: number;
+  expense: number;
+  net: number;
+};

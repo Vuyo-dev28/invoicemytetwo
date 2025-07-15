@@ -1,123 +1,87 @@
 
-'use client';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart, RefreshCw } from 'lucide-react';
-import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { BarChart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CashflowChart } from '@/components/cashflow-chart';
+import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
+import type { CashflowData, Invoice, InvoiceItem, Expense } from '@/types';
+import { subMonths, format, startOfMonth, endOfMonth } from 'date-fns';
 
-const chartData: any[] = [
-  // Dummy data removed. This will be populated from the database.
-];
+async function getCashflowData(): Promise<CashflowData[]> {
+    const cookieStore = cookies();
+    const supabase = createClient(cookieStore);
 
-export default function CashflowPage() {
+    const twelveMonthsAgo = subMonths(new Date(), 12);
+
+    const { data: invoices, error: invoicesError } = await supabase
+        .from('invoices')
+        .select(`*, invoice_items ( quantity, rate )`)
+        .eq('status', 'paid')
+        .gte('issue_date', twelveMonthsAgo.toISOString());
+
+    if (invoicesError) {
+        console.error('Error fetching paid invoices:', invoicesError);
+        return [];
+    }
+    
+    const { data: expenses, error: expensesError } = await supabase
+        .from('expenses')
+        .select('*')
+        .gte('date', twelveMonthsAgo.toISOString());
+
+    if (expensesError) {
+        console.error('Error fetching expenses:', expensesError);
+        return [];
+    }
+
+    const monthlyData: { [key: string]: { income: number, expense: number } } = {};
+
+    // Initialize last 12 months
+    for (let i = 0; i < 12; i++) {
+        const month = format(subMonths(new Date(), i), 'MMM yyyy');
+        monthlyData[month] = { income: 0, expense: 0 };
+    }
+    
+    invoices.forEach(invoice => {
+        const total = invoice.invoice_items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
+        const month = format(new Date(invoice.issue_date), 'MMM yyyy');
+        if (monthlyData[month]) {
+            monthlyData[month].income += total;
+        }
+    });
+
+    expenses.forEach(expense => {
+        const month = format(new Date(expense.date), 'MMM yyyy');
+        if (monthlyData[month]) {
+            monthlyData[month].expense += expense.amount;
+        }
+    });
+
+    return Object.entries(monthlyData)
+        .map(([month, { income, expense }]) => ({
+            month,
+            income,
+            expense,
+            net: income - expense,
+        }))
+        .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime()); // Sort by month
+}
+
+
+export default async function CashflowPage() {
+  const chartData = await getCashflowData();
+
   return (
     <div className="space-y-6">
        <h1 className="text-3xl font-bold">Cashflow</h1>
 
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <BarChart className="h-6 w-6" />
-              <CardTitle>Income & expense</CardTitle>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-sm text-muted-foreground whitespace-nowrap">Aug 1, 2024 - Jul 31</p>
-              <Select defaultValue="12m">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="3m">Past 3 months</SelectItem>
-                  <SelectItem value="6m">Past 6 months</SelectItem>
-                  <SelectItem value="12m">Past 12 months</SelectItem>
-                </SelectContent>
-              </Select>
-               <Select defaultValue="monthly">
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Select period" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="yearly">Yearly</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Invoice data
-              </Button>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip
-                  content={({ active, payload, label }) => {
-                    if (active && payload?.length) {
-                      return (
-                        <div className="rounded-lg border bg-background p-2 shadow-sm">
-                          <div className="grid grid-cols-3 gap-2">
-                            <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                Income
-                              </span>
-                              <span className="font-bold text-muted-foreground">
-                                {payload[0].value}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                Expense
-                              </span>
-                              <span className="font-bold text-muted-foreground">
-                                 {payload[1].value}
-                              </span>
-                            </div>
-                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                Net
-                              </span>
-                              <span className="font-bold text-foreground">
-                                 {payload[2].value}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      )
-                    }
-                    return null
-                  }}
-                />
-                <Legend />
-                <Line type="monotone" dataKey="income" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Income" />
-                <Line type="monotone" dataKey="expense" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Expense"/>
-                <Line type="monotone" dataKey="net" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Net cashflow"/>
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
+      <CashflowChart initialData={chartData} />
       
       <Card>
         <CardHeader>
            <div className="flex items-center justify-between">
             <CardTitle>Expenses</CardTitle>
-             <Select defaultValue="this-month">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select month" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="this-month">This month</SelectItem>
-                  <SelectItem value="last-month">Last month</SelectItem>
-                </SelectContent>
-              </Select>
            </div>
         </CardHeader>
         <CardContent>
