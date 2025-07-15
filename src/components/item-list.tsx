@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -49,7 +50,7 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
             return;
         }
 
-        const payload = { ...values, user_id: user.id };
+        const payload = { ...values };
         const { data, error } = await supabase.from('items').insert([payload]).select();
         
         if (error) {

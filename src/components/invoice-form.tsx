@@ -1,3 +1,4 @@
+
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -37,7 +38,7 @@ type LineItem = {
 };
 
 type Profile = {
-  user_id: string;
+  id: string;
   company_name: string;
   company_address: string;
   logo_url: string | null;
@@ -67,7 +68,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [notes, setNotes] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>({
-    user_id: '',
+    id: '',
     company_name: '',
     company_address: '',
     logo_url: null
@@ -192,7 +193,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     const invoicePayload = {
-        user_id: user.id,
+        profile_id: user.id,
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString(),
