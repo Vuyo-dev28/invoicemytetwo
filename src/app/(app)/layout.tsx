@@ -22,7 +22,6 @@ function AppLayout({
     { href: '/credit-notes', label: 'Credit Notes', icon: FileMinus },
     { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck },
     { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
-    { href: '/expenses', label: 'Expenses', icon: Banknote },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Box },
     { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },

@@ -59,18 +59,7 @@ export type ExpandedInvoice = Invoice & {
   invoice_items: { quantity: number; rate: number }[];
 };
 
-export type Expense = {
-    id: string;
-    description: string;
-    amount: number;
-    date: string;
-    category: string | null;
-    created_at: string;
-};
-
 export type CashflowData = {
   month: string;
   income: number;
-  expense: number;
-  net: number;
 };

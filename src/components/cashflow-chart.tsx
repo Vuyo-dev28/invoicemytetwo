@@ -19,7 +19,7 @@ export function CashflowChart({ initialData }: { initialData: CashflowData[] }) 
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <BarChart className="h-6 w-6" />
-              <CardTitle>Income & expense</CardTitle>
+              <CardTitle>Income</CardTitle>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-sm text-muted-foreground whitespace-nowrap">Past 12 months</p>
@@ -63,29 +63,13 @@ export function CashflowChart({ initialData }: { initialData: CashflowData[] }) 
                     if (active && payload?.length) {
                       return (
                         <div className="rounded-lg border bg-background p-2 shadow-sm">
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-1 gap-2">
                             <div className="flex flex-col">
                               <span className="text-[0.70rem] uppercase text-muted-foreground">
                                 Income
                               </span>
-                              <span className="font-bold text-muted-foreground">
-                                {payload[0].value}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                Expense
-                              </span>
-                              <span className="font-bold text-muted-foreground">
-                                 {payload[1].value}
-                              </span>
-                            </div>
-                             <div className="flex flex-col">
-                              <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                Net
-                              </span>
                               <span className="font-bold text-foreground">
-                                 {payload[2].value}
+                                {payload[0].value}
                               </span>
                             </div>
                           </div>
@@ -97,8 +81,6 @@ export function CashflowChart({ initialData }: { initialData: CashflowData[] }) 
                 />
                 <Legend />
                 <Line type="monotone" dataKey="income" stroke="hsl(var(--chart-1))" strokeWidth={2} name="Income" />
-                <Line type="monotone" dataKey="expense" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Expense"/>
-                <Line type="monotone" dataKey="net" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Net cashflow"/>
               </LineChart>
             </ResponsiveContainer>
           </div>
