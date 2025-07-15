@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
 import { Progress } from '@/components/ui/progress';
+import { useSearchParams } from 'next/navigation';
 
 const signupSchema = z.object({
   company_name: z.string().min(1, 'Company name is required'),
@@ -32,8 +33,11 @@ const steps = [
     { id: 4, title: "Finally, what's your email?", fields: ['email', 'password'] },
 ];
 
-function MultiStepSignup({ searchParams }: { searchParams: { message: string } }) {
+function MultiStepSignup() {
     const [currentStep, setCurrentStep] = useState(0);
+    const searchParams = useSearchParams();
+    const message = searchParams.get('message');
+
     const methods = useForm<SignupFormValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
@@ -165,9 +169,9 @@ function MultiStepSignup({ searchParams }: { searchParams: { message: string } }
                         </div>
                     </form>
                 </FormProvider>
-                {searchParams?.message && (
+                {message && (
                     <div className="text-sm font-medium text-destructive text-center mt-4">
-                        {searchParams.message}
+                        {message}
                     </div>
                 )}
             </CardContent>
@@ -191,11 +195,11 @@ function MultiStepSignup({ searchParams }: { searchParams: { message: string } }
     );
 }
 
-export default function SignupPage({ searchParams }: { searchParams: { message: string } }) {
+export default function SignupPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
         <div className="w-full max-w-lg flex flex-col items-center gap-6">
-            <MultiStepSignup searchParams={searchParams} />
+            <MultiStepSignup />
             <div className="text-sm text-center">
                 <p>Already have an account?{' '}
                     <Link href="/login" className="underline">
