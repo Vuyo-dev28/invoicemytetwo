@@ -2,18 +2,18 @@
 'use client';
 import Link from 'next/link';
 import { 
-    GaugeCircle, 
-    FileText, 
+    Activity,
+    Landmark,
     Users, 
     Package, 
     Settings, 
     PanelLeft, 
-    ClipboardList, 
+    Receipt,
     FileScan, 
     FileDiff, 
-    Rocket, 
-    ShoppingBasket, 
-    TrendingUp,
+    Truck, 
+    ShoppingCart, 
+    LineChart,
     Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -29,15 +29,16 @@ function AppLayout({
   const pathname = usePathname();
 
   const menuItems = [
-    { href: '/', label: 'Dashboard', icon: GaugeCircle },
-    { href: '/cashflow', label: 'Cashflow', icon: TrendingUp },
-    { href: '/invoices/list', label: 'Invoices', icon: ClipboardList },
+    { href: '/', label: 'Dashboard', icon: Activity },
+    { href: '/cashflow', label: 'Cashflow', icon: LineChart },
+    { href: '/invoices/list', label: 'Invoices', icon: Receipt },
     { href: '/estimates', label: 'Estimates', icon: FileScan },
     { href: '/credit-notes', label: 'Credit Notes', icon: FileDiff },
-    { href: '/delivery-notes', label: 'Delivery Notes', icon: Rocket },
-    { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingBasket },
+    { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck },
+    { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Package },
+    { href: '/expenses', label: 'Expenses', icon: Landmark },
     { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },
   ];
 
