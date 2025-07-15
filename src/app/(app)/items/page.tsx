@@ -1,12 +1,20 @@
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { ItemList } from "@/components/item-list";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
-export default function ItemsPage() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Items</CardTitle>
-        <CardDescription>Manage your items and services here.</CardDescription>
-      </CardHeader>
-    </Card>
-  );
+async function getItems() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
+  const { data, error } = await supabase.from('items').select('*');
+
+  if (error) {
+    console.error('Error fetching items:', error);
+    return [];
+  }
+  return data;
+}
+
+export default async function ItemsPage() {
+  const items = await getItems();
+  return <ItemList initialItems={items} />;
 }
