@@ -11,11 +11,11 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Calendar } from '@/components/ui/calendar';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send, ChevronsUpDown, Pencil } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image';
-import { Client, Item } from '@/types';
+import { Client, Item, ExpandedInvoice } from '@/types';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -46,10 +46,19 @@ type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
 type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
 type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
-export function InvoiceForm({ clients, items, documentType }: { clients: Client[], items: Item[], documentType: DocumentType }) {
+interface InvoiceFormProps {
+  clients: Client[];
+  items: Item[];
+  documentType: DocumentType;
+  initialInvoice?: ExpandedInvoice | null;
+}
+
+export function InvoiceForm({ clients, items, documentType, initialInvoice = null }: InvoiceFormProps) {
   const { toast } = useToast()
   const router = useRouter();
   const supabase = createClient();
+  
+  const [invoiceId, setInvoiceId] = useState<string | null>(initialInvoice?.id || null);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
@@ -87,15 +96,43 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
   }
 
   useEffect(() => {
-    setInvoiceNumber(`${documentTypePrefixes[documentType]}-${Math.floor(1000 + Math.random() * 9000)}`);
-    if(clients.length > 0) {
-      setSelectedClient(clients[0]);
+    if (initialInvoice) {
+      // Pre-populate form if we're editing an existing invoice
+      setInvoiceId(initialInvoice.id);
+      setInvoiceNumber(initialInvoice.invoice_number);
+      setIssueDate(initialInvoice.issue_date ? parseISO(initialInvoice.issue_date) : undefined);
+      setDueDate(initialInvoice.due_date ? parseISO(initialInvoice.due_date) : undefined);
+      setNotes(initialInvoice.notes || '');
+      setTax(initialInvoice.tax_percent || 0);
+      setDiscount(initialInvoice.discount_percent || 0);
+      setTotal(initialInvoice.total || 0);
+      
+      const client = clients.find(c => c.id === initialInvoice.client_id) || null;
+      setSelectedClient(client);
+
+      if (initialInvoice.invoice_items && initialInvoice.invoice_items.length > 0) {
+        setLineItems(initialInvoice.invoice_items.map(item => ({
+          id: item.id, // Use existing item ID
+          description: item.description,
+          quantity: item.quantity,
+          rate: item.rate,
+        })));
+      } else {
+         setLineItems([{ id: `item-${Date.now()}`, description: '', quantity: 1, rate: 0 }]);
+      }
+
+    } else {
+      // New invoice logic
+      setInvoiceNumber(`${documentTypePrefixes[documentType]}-${Math.floor(1000 + Math.random() * 9000)}`);
+      if(clients.length > 0) {
+        setSelectedClient(clients[0]);
+      }
+      setLineItems([
+        { id: `item-${Date.now()}`, description: '', quantity: 1, rate: 0 },
+      ])
     }
-    setLineItems([
-      { id: `item-${Date.now()}`, description: '', quantity: 1, rate: 0 },
-    ])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [documentType, clients]);
+  }, [initialInvoice, documentType, clients]);
 
 
   useEffect(() => {
@@ -138,9 +175,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
         return;
     }
 
-    const { data: invoiceData, error: invoiceError } = await supabase
-      .from('invoices')
-      .insert([{
+    const invoicePayload = {
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString(),
@@ -150,18 +185,50 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
         tax_percent: tax,
         discount_percent: discount,
         total: total
-      }])
-      .select()
-      .single();
+    };
+    
+    let savedInvoiceId = invoiceId;
 
-    if (invoiceError) {
-      toast({ title: "Error saving invoice", description: invoiceError.message, variant: "destructive" });
-      return null;
+    if (invoiceId) {
+        // Update existing invoice
+        const { data, error } = await supabase
+            .from('invoices')
+            .update(invoicePayload)
+            .eq('id', invoiceId)
+            .select()
+            .single();
+
+        if (error) {
+            toast({ title: "Error updating invoice", description: error.message, variant: "destructive" });
+            return;
+        }
+
+        // Delete existing items before inserting new ones to handle removals/updates
+        const { error: deleteError } = await supabase.from('invoice_items').delete().eq('invoice_id', invoiceId);
+        if (deleteError) {
+             toast({ title: "Error updating items", description: deleteError.message, variant: "destructive" });
+            return;
+        }
+
+    } else {
+        // Insert new invoice
+        const { data, error } = await supabase
+            .from('invoices')
+            .insert(invoicePayload)
+            .select()
+            .single();
+
+        if (error || !data) {
+            toast({ title: "Error saving invoice", description: error?.message, variant: "destructive" });
+            return;
+        }
+        savedInvoiceId = data.id;
     }
 
-    const invoiceId = invoiceData.id;
+    if (!savedInvoiceId) return;
+
     const itemsToInsert = lineItems.map(item => ({
-        invoice_id: invoiceId,
+        invoice_id: savedInvoiceId,
         description: item.description,
         quantity: item.quantity,
         rate: item.rate
@@ -171,35 +238,20 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
 
     if (itemsError) {
         toast({ title: "Error saving items", description: itemsError.message, variant: "destructive" });
-        // Optionally delete the invoice if items fail to save
-        await supabase.from('invoices').delete().match({ id: invoiceId });
-        return null;
+        // In a real app, you might want to handle rollback logic here.
+        return;
     }
-    
-    return invoiceData;
+
+    toast({
+      title: `Invoice ${invoiceId ? 'Updated' : 'Saved'}`,
+      description: `Your ${documentType.toLowerCase()} has been saved.`,
+    });
+    router.push('/invoices/list');
+    router.refresh();
   }
 
-  const handleSaveDraft = async () => {
-    const savedInvoice = await saveInvoice('draft');
-    if (savedInvoice) {
-        toast({
-          title: "Draft Saved",
-          description: `Your ${documentType.toLowerCase()} has been saved as a draft.`,
-        });
-        router.push('/invoices/list');
-    }
-  };
-
-  const handleSend = async () => {
-    const savedInvoice = await saveInvoice('sent');
-    if (savedInvoice) {
-        toast({
-          title: `${documentType} Sent`,
-          description: `Your ${documentType.toLowerCase()} has been sent to the client.`,
-        });
-        router.push('/invoices/list');
-    }
-  }
+  const handleSaveDraft = () => saveInvoice('draft');
+  const handleSend = () => saveInvoice('sent');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
@@ -244,7 +296,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
       <Card className="no-print">
         <CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-                 <h1 className="text-2xl font-bold">{documentType}</h1>
+                 <h1 className="text-2xl font-bold">{initialInvoice ? `Edit ${documentType}` : `New ${documentType}`}</h1>
             </div>
              <div className="flex items-center gap-2">
                 <Label htmlFor="template">Template</Label>
@@ -302,7 +354,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
             <div>
                 <Label className="font-semibold text-base">Bill To:</Label>
                 <div className="no-print">
-                    <Select onValueChange={handleClientChange} defaultValue={selectedClient?.id}>
+                    <Select onValueChange={handleClientChange} value={selectedClient?.id}>
                     <SelectTrigger className="mt-2">
                         <SelectValue placeholder="Select a client" />
                     </SelectTrigger>

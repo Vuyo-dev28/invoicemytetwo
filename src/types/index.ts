@@ -56,6 +56,7 @@ export type InvoiceItem = {
 // Type for invoice with client name and total amount for list view
 export type ExpandedInvoice = Invoice & {
   client_name: string;
+  invoice_items: InvoiceItem[];
 };
 
 export type CashflowData = {

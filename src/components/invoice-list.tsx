@@ -8,7 +8,7 @@ import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { ExpandedInvoice, InvoiceStatus } from '@/types';
-import { PlusCircle, MoreHorizontal } from 'lucide-react';
+import { PlusCircle, MoreHorizontal, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Badge } from './ui/badge';
@@ -106,6 +106,12 @@ export function InvoiceList({ initialInvoices }: { initialInvoices: ExpandedInvo
                                                     </Button>
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
+                                                    <DropdownMenuItem asChild disabled={invoice.status !== 'draft'}>
+                                                        <Link href={`/invoices/${invoice.id}/edit`}>
+                                                          <Edit className="mr-2 h-4 w-4" />
+                                                          Edit
+                                                        </Link>
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuItem onClick={() => handleStatusChange(invoice.id, 'paid')}>
                                                         Mark as paid
                                                     </DropdownMenuItem>
