@@ -142,14 +142,30 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
     <Card className={cn("template-base", `template-${template}`)}>
       <div className={cn("template-main-content", { 'pr-0': template !== 'creative' })}>
         <CardHeader className="template-header">
-           {template !== 'creative' && (
+           {template === 'classic' && (
              <>
                 <div>
-                    <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
-                    <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
+                    <CardTitle className="text-4xl font-bold template-title">INVOICE</CardTitle>
                 </div>
                 <CompanyDetails />
              </>
+           )}
+           {template === 'modern' && (
+              <>
+                <div>
+                  <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
+                  <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
+                </div>
+                <div className="company-details">
+                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2" data-ai-hint="logo" />}
+                  <h2 className='text-xl font-semibold'>
+                    {profile?.company_name || 'Your Company'}
+                  </h2>
+                  <p className='text-muted-foreground'>
+                    {profile?.company_address || 'Your Address'}
+                  </p>
+                </div>
+              </>
            )}
            {template === 'creative' && (
              <div>

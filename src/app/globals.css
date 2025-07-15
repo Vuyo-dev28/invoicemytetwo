@@ -123,7 +123,7 @@ body {
   @apply flex justify-between items-start;
 }
 .template-modern .company-details {
-  @apply flex flex-col items-end;
+  @apply text-right flex flex-col items-end;
 }
 
 /* --- Classic Template --- */
@@ -140,7 +140,6 @@ body {
 .template-classic table thead {
   @apply border-y-2 border-foreground;
 }
-.template-classic table tfoot,
 .template-classic .totals-section {
   @apply border-t-2 border-foreground;
 }
