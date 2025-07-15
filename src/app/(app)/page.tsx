@@ -10,8 +10,8 @@ export default function DashboardPage() {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">$45,231.89</div>
-          <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+          <div className="text-2xl font-bold">$0.00</div>
+          <p className="text-xs text-muted-foreground">No data available</p>
         </CardContent>
       </Card>
       <Card>
@@ -20,8 +20,8 @@ export default function DashboardPage() {
           <Users className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">+23</div>
-          <p className="text-xs text-muted-foreground">+5 since last month</p>
+          <div className="text-2xl font-bold">0</div>
+          <p className="text-xs text-muted-foreground">No data available</p>
         </CardContent>
       </Card>
       <Card>
@@ -30,8 +30,8 @@ export default function DashboardPage() {
           <CreditCard className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">+12,234</div>
-          <p className="text-xs text-muted-foreground">+19% from last month</p>
+          <div className="text-2xl font-bold">0</div>
+          <p className="text-xs text-muted-foreground">No data available</p>
         </CardContent>
       </Card>
       <Card>
@@ -40,8 +40,8 @@ export default function DashboardPage() {
           <Activity className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">+573</div>
-          <p className="text-xs text-muted-foreground">+201 since last hour</p>
+          <div className="text-2xl font-bold">0</div>
+          <p className="text-xs text-muted-foreground">No data available</p>
         </CardContent>
       </Card>
     </div>

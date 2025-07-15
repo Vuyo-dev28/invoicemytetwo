@@ -39,7 +39,7 @@ type LineItem = {
 type Profile = {
   company_name: string;
   company_address: string;
-  logo_url: string;
+  logo_url: string | null;
 }
 
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
@@ -56,9 +56,9 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
   const [notes, setNotes] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>({
-    company_name: 'Your Company',
-    company_address: '123 Main St, Anytown, USA',
-    logo_url: 'https://placehold.co/100x100.png'
+    company_name: '',
+    company_address: '',
+    logo_url: null
   });
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);

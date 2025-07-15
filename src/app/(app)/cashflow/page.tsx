@@ -6,19 +6,8 @@ import { BarChart, RefreshCw } from 'lucide-react';
 import { Line, LineChart, CartesianGrid, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 
-const chartData = [
-  { month: 'Aug', income: 1800, expense: 1200, net: 600 },
-  { month: 'Sep', income: 2200, expense: 1500, net: 700 },
-  { month: 'Oct', income: 3000, expense: 1800, net: 1200 },
-  { month: 'Nov', income: 2500, expense: 2000, net: 500 },
-  { month: 'Dec', income: 4500, expense: 2500, net: 2000 },
-  { month: 'Jan', income: 3200, expense: 1700, net: 1500 },
-  { month: 'Feb', income: 3500, expense: 2100, net: 1400 },
-  { month: 'Mar', income: 4000, expense: 2300, net: 1700 },
-  { month: 'Apr', income: 3800, expense: 2600, net: 1200 },
-  { month: 'May', income: 4200, expense: 2800, net: 1400 },
-  { month: 'Jun', income: 5000, expense: 3000, net: 2000 },
-  { month: 'Jul', income: 4800, expense: 3200, net: 1600 },
+const chartData: any[] = [
+  // Dummy data removed. This will be populated from the database.
 ];
 
 export default function CashflowPage() {
