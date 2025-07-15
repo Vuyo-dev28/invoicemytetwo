@@ -93,10 +93,10 @@ body {
     print-color-adjust: exact;
   }
   .no-print {
-    display: none;
+    display: none !important;
   }
   .print-only {
-    display: block;
+    display: block !important;
   }
   @page {
     size: A4;
@@ -110,37 +110,66 @@ body {
   }
 }
 
-/* Invoice Template Styles */
-.template-classic .print-only, .template-classic p, .template-classic span, .template-classic div {
+/* --- Base Template Styles --- */
+.template-base {
+  @apply max-w-4xl mx-auto print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:max-w-full;
+}
+.template-base .template-header {
+  @apply p-6 bg-muted/50 border-b;
+}
+
+/* --- Modern Template --- */
+.template-modern .template-header {
+  @apply flex justify-between items-start;
+}
+.template-modern .company-details {
+  @apply text-right;
+}
+
+/* --- Classic Template --- */
+.template-classic .template-header {
+  @apply flex justify-between items-start;
   font-family: 'Times New Roman', Times, serif;
 }
 .template-classic .template-title {
-  font-family: 'Times New Roman', Times, serif;
-  font-size: 2.5rem;
-  border-bottom: 2px solid hsl(var(--foreground));
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
+  @apply text-4xl font-bold tracking-wider;
+}
+.template-classic .company-details {
+  @apply text-right;
 }
 .template-classic table thead {
-  border-top: 2px solid hsl(var(--foreground));
-  border-bottom: 2px solid hsl(var(--foreground));
+  @apply border-y-2 border-foreground;
+}
+.template-classic table tfoot,
+.template-classic .totals-section {
+  @apply border-t-2 border-foreground;
 }
 
-.template-creative .template-header {
-  background-color: hsl(var(--primary));
-  color: hsl(var(--primary-foreground));
-  padding: 2rem !important;
-  border-radius: 0.5rem 0.5rem 0 0;
+/* --- Creative Template --- */
+.template-creative {
+  @apply relative;
+}
+.template-creative .template-main-content {
+  @apply pr-[220px] print:pr-[220px];
+}
+.template-creative .template-sidebar {
+  @apply absolute top-0 right-0 w-[200px] h-full bg-primary text-primary-foreground p-6 print:block;
+}
+.template-creative .template-sidebar .company-details {
+  @apply space-y-2;
+}
+.template-creative .template-sidebar h2 {
+  @apply text-lg font-bold text-primary-foreground;
+}
+.template-creative .template-sidebar p {
+  @apply text-sm text-primary-foreground/90;
 }
 .template-creative .template-title {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  font-weight: 700;
-  font-size: 3rem;
+ @apply text-primary;
 }
-.template-creative .template-header * {
-  color: hsl(var(--primary-foreground));
-}
-
 .template-creative table thead {
-  background-color: hsl(var(--muted));
+  @apply border-b-2 border-primary;
+}
+.template-creative .totals-section {
+  @apply border-t-2 border-primary pt-4;
 }
