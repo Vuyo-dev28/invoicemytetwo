@@ -31,7 +31,6 @@ const formSchema = z.object({
 type UserFormValue = z.infer<typeof formSchema>
 
 export function LoginForm() {
-  const router = useRouter()
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
   const supabase = createClientComponentClient()
@@ -60,10 +59,8 @@ export function LoginForm() {
       })
       setLoading(false)
     } else {
-      // Navigate to the dashboard and then refresh to ensure the session is picked up.
-      router.push('/');
-      router.refresh();
-      setLoading(false);
+      // Use a full page reload to ensure the session is picked up reliably.
+      window.location.href = '/';
     }
   }
 
