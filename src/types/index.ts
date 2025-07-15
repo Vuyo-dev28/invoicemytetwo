@@ -22,7 +22,6 @@ export type Client = {
 
 export type Item = {
   id: string;
-  user_id?: string;
   description: string;
   rate: number;
   created_at: string;

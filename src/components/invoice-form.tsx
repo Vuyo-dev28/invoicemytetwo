@@ -100,12 +100,16 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   }
 
   useEffect(() => {
-    const getUser = async () => {
-        const { data } = await supabase.auth.getUser();
-        setUser(data.user);
+    const getUserAndProfile = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+        if (user) {
+            const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+            setProfile(profileData);
+        }
     }
-    getUser();
-  }, [supabase.auth]);
+    getUserAndProfile();
+  }, [supabase, supabase.auth]);
 
 
   useEffect(() => {
