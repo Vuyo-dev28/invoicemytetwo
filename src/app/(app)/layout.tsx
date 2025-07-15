@@ -1,7 +1,21 @@
 
 'use client';
 import Link from 'next/link';
-import { LayoutDashboard, FileText, Users, Box, Settings, PanelLeft, Receipt, FilePlus, FileMinus, Truck, ShoppingCart, BarChart, Banknote } from 'lucide-react';
+import { 
+    GaugeCircle, 
+    FileText, 
+    Users, 
+    Package, 
+    Settings, 
+    PanelLeft, 
+    ClipboardList, 
+    FileScan, 
+    FileDiff, 
+    Rocket, 
+    ShoppingBasket, 
+    TrendingUp,
+    Gift
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
@@ -15,15 +29,15 @@ function AppLayout({
   const pathname = usePathname();
 
   const menuItems = [
-    { href: '/', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/cashflow', label: 'Cashflow', icon: BarChart },
-    { href: '/invoices/list', label: 'Invoices', icon: Receipt },
-    { href: '/estimates', label: 'Estimates', icon: FilePlus },
-    { href: '/credit-notes', label: 'Credit Notes', icon: FileMinus },
-    { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck },
-    { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
+    { href: '/', label: 'Dashboard', icon: GaugeCircle },
+    { href: '/cashflow', label: 'Cashflow', icon: TrendingUp },
+    { href: '/invoices/list', label: 'Invoices', icon: ClipboardList },
+    { href: '/estimates', label: 'Estimates', icon: FileScan },
+    { href: '/credit-notes', label: 'Credit Notes', icon: FileDiff },
+    { href: '/delivery-notes', label: 'Delivery Notes', icon: Rocket },
+    { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingBasket },
     { href: '/clients', label: 'Clients', icon: Users },
-    { href: '/items', label: 'Items', icon: Box },
+    { href: '/items', label: 'Items', icon: Package },
     { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },
   ];
 
@@ -38,7 +52,7 @@ function AppLayout({
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
-              <FileText className="h-6 w-6 text-primary" />
+              <Gift className="h-6 w-6 text-primary" />
               <span className="">InvoiceMe</span>
             </Link>
           </div>
@@ -77,7 +91,7 @@ function AppLayout({
                   href="/"
                   className="flex items-center gap-2 text-lg font-semibold"
                 >
-                  <FileText className="h-6 w-6 text-primary" />
+                  <Gift className="h-6 w-6 text-primary" />
                   <span className="sr-only">InvoiceMe</span>
                 </Link>
                 {menuItems.map(item => (
