@@ -392,16 +392,18 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
             </Button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                <div>
-                    <Label className="font-semibold">Notes</Label>
-                    <Textarea placeholder="Any additional notes..." className="mt-2 no-print" />
-                    <div className="mt-2">
+                <div className="flex gap-4">
+                    <div className="w-1/2">
+                        <Label className="font-semibold">Notes</Label>
+                        <Textarea placeholder="Any additional notes..." className="mt-2 no-print h-28" />
+                    </div>
+                    <div className="w-1/2">
                         <Label className="font-semibold">Signature</Label>
-                        <div className="mt-2 border rounded-md p-4 min-h-[60px] flex items-center justify-center">
+                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center">
                             {signature ? (
                                 <div className="text-center">
-                                    <Image src={signature} alt="Signature" width={150} height={75} />
-                                    <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive no-print">Remove Signature</Button>
+                                    <Image src={signature} alt="Signature" width={100} height={100} className="object-contain" />
+                                    <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive no-print -mt-2">Remove</Button>
                                 </div>
                             ) : (
                                 <Dialog open={isSignatureDialogOpen} onOpenChange={setSignatureDialogOpen}>
