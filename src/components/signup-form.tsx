@@ -105,9 +105,7 @@ export function SignupForm() {
         if (error) {
             toast({
                 title: 'Error signing up',
-                description: error.message === "User already registered" 
-                    ? "This email address is already in use. Please use a different email or log in." 
-                    : error.message,
+                description: error.message,
                 variant: 'destructive',
             });
             setLoading(false);

@@ -1,11 +1,11 @@
 export type Profile = {
-  id: string;
-  company_name: string | null;
-  business_type: string | null;
-  currency: string | null;
+  id: string; // Corresponds to auth.users.id
   first_name: string | null;
   last_name: string | null;
+  company_name: string | null;
   company_address: string | null;
+  business_type: string | null;
+  currency: string | null;
   logo_url: string | null;
   accent_color: string | null;
 };
@@ -31,10 +31,10 @@ export type Item = {
 export type Invoice = {
   id: string;
   user_id: string;
+  client_id: string | null;
   invoice_number: string;
   issue_date: string;
   due_date: string | null;
-  client_id: string | null;
   status: 'draft' | 'sent' | 'paid' | 'overdue';
   notes: string | null;
   tax_percent: number;

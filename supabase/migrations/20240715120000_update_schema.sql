@@ -1,140 +1,137 @@
--- Drop existing tables and types if they exist to ensure a clean slate.
-DROP TABLE IF EXISTS "public"."invoice_items";
-DROP TABLE IF EXISTS "public"."invoices";
-DROP TABLE IF EXISTS "public"."items";
-DROP TABLE IF EXISTS "public"."clients";
-DROP TABLE IF EXISTS "public"."profiles";
-DROP TYPE IF EXISTS "public"."invoice_status";
+-- Drop existing policies, triggers, and functions to ensure a clean slate.
+DROP POLICY IF EXISTS "Users can view their own profiles." ON public.profiles;
+DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
+DROP POLICY IF EXISTS "Users can update their own profile." ON public.profiles;
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user;
 
--- Recreate the invoice_status type
-CREATE TYPE "public"."invoice_status" AS ENUM ('draft', 'sent', 'paid', 'overdue');
+-- Drop tables in reverse order of dependency to avoid foreign key constraints.
+DROP TABLE IF EXISTS public.invoice_items;
+DROP TABLE IF EXISTS public.invoices;
+DROP TABLE IF EXISTS public.items;
+DROP TABLE IF EXISTS public.clients;
+DROP TABLE IF EXISTS public.profiles;
 
--- Create the profiles table to store user-specific data
-CREATE TABLE "public"."profiles" (
-    "id" "uuid" NOT NULL,
-    "company_name" "text",
-    "business_type" "text",
-    "currency" "text",
-    "first_name" "text",
-    "last_name" "text",
-    "company_address" "text",
-    "logo_url" "text",
-    "accent_color" "text"
+-- PROFILES TABLE
+-- This table stores user-specific information that doesn't belong in auth.users.
+CREATE TABLE public.profiles (
+  id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  first_name text,
+  last_name text,
+  company_name text,
+  company_address text,
+  business_type text,
+  currency text,
+  logo_url text,
+  accent_color text
 );
-ALTER TABLE "public"."profiles" ENABLE ROW LEVEL SECURITY;
-CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id);
-ALTER TABLE "public"."profiles" ADD CONSTRAINT "profiles_pkey" PRIMARY KEY USING INDEX "profiles_pkey";
-ALTER TABLE "public"."profiles" ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE;
+COMMENT ON TABLE public.profiles IS 'Profile data for each user.';
 
--- Create the clients table
-CREATE TABLE "public"."clients" (
-    "id" "uuid" NOT NULL DEFAULT "gen_random_uuid"(),
-    "user_id" "uuid" NOT NULL,
-    "name" "text" NOT NULL,
-    "email" "text",
-    "address" "text",
-    "vat_number" "text",
-    "created_at" "timestamp with time zone" NOT NULL DEFAULT "now"()
+-- CLIENTS TABLE
+-- This table stores the customers of each user.
+CREATE TABLE public.clients (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  name text NOT NULL,
+  email text,
+  address text,
+  vat_number text,
+  created_at timestamptz DEFAULT now() NOT NULL
 );
-ALTER TABLE "public"."clients" ENABLE ROW LEVEL SECURITY;
-CREATE UNIQUE INDEX clients_pkey ON public.clients USING btree (id);
-ALTER TABLE "public"."clients" ADD CONSTRAINT "clients_pkey" PRIMARY KEY USING INDEX "clients_pkey";
-ALTER TABLE "public"."clients" ADD CONSTRAINT "clients_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+COMMENT ON TABLE public.clients IS 'Stores client information for each user.';
 
--- Create the items table
-CREATE TABLE "public"."items" (
-    "id" "uuid" NOT NULL DEFAULT "gen_random_uuid"(),
-    "user_id" "uuid" NOT NULL,
-    "description" "text" NOT NULL,
-    "rate" "numeric" NOT NULL DEFAULT 0,
-    "created_at" "timestamp with time zone" NOT NULL DEFAULT "now"()
+-- ITEMS TABLE
+-- This table stores the products or services each user sells.
+CREATE TABLE public.items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  description text NOT NULL,
+  rate numeric NOT NULL DEFAULT 0,
+  created_at timestamptz DEFAULT now() NOT NULL
 );
-ALTER TABLE "public"."items" ENABLE ROW LEVEL SECURITY;
-CREATE UNIQUE INDEX items_pkey ON public.items USING btree (id);
-ALTER TABLE "public"."items" ADD CONSTRAINT "items_pkey" PRIMARY KEY USING INDEX "items_pkey";
-ALTER TABLE "public"."items" ADD CONSTRAINT "items_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+COMMENT ON TABLE public.items IS 'Stores items or services for each user.';
 
-
--- Create the invoices table
-CREATE TABLE "public"."invoices" (
-    "id" "uuid" NOT NULL DEFAULT "gen_random_uuid"(),
-    "user_id" "uuid" NOT NULL,
-    "invoice_number" "text" NOT NULL,
-    "issue_date" "date" NOT NULL,
-    "due_date" "date",
-    "client_id" "uuid",
-    "status" "public"."invoice_status" NOT NULL DEFAULT 'draft',
-    "notes" "text",
-    "tax_percent" "numeric" DEFAULT 0,
-    "discount_percent" "numeric" DEFAULT 0,
-    "created_at" "timestamp with time zone" NOT NULL DEFAULT "now"()
+-- INVOICES TABLE
+-- This table stores invoice records for each user.
+CREATE TABLE public.invoices (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  client_id uuid REFERENCES public.clients(id) ON DELETE SET NULL,
+  invoice_number text NOT NULL,
+  issue_date date NOT NULL,
+  due_date date,
+  status text NOT NULL DEFAULT 'draft',
+  notes text,
+  tax_percent numeric DEFAULT 0,
+  discount_percent numeric DEFAULT 0,
+  created_at timestamptz DEFAULT now() NOT NULL
 );
-ALTER TABLE "public"."invoices" ENABLE ROW LEVEL SECURITY;
-CREATE UNIQUE INDEX invoices_pkey ON public.invoices USING btree (id);
-ALTER TABLE "public"."invoices" ADD CONSTRAINT "invoices_pkey" PRIMARY KEY USING INDEX "invoices_pkey";
-ALTER TABLE "public"."invoices" ADD CONSTRAINT "invoices_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE "public"."invoices" ADD CONSTRAINT "invoices_client_id_fkey" FOREIGN KEY (client_id) REFERENCES public.clients(id) ON DELETE SET NULL;
+COMMENT ON TABLE public.invoices IS 'Stores invoice information for each user.';
 
-
--- Create the invoice_items table
-CREATE TABLE "public"."invoice_items" (
-    "id" "uuid" NOT NULL DEFAULT "gen_random_uuid"(),
-    "user_id" "uuid" NOT NULL,
-    "invoice_id" "uuid" NOT NULL,
-    "item_id" "uuid",
-    "description" "text" NOT NULL,
-    "quantity" "numeric" NOT NULL,
-    "rate" "numeric" NOT NULL,
-    "created_at" "timestamp with time zone" NOT NULL DEFAULT "now"()
+-- INVOICE_ITEMS TABLE
+-- This is the join table between invoices and items.
+CREATE TABLE public.invoice_items (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  invoice_id uuid NOT NULL REFERENCES public.invoices(id) ON DELETE CASCADE,
+  item_id uuid REFERENCES public.items(id) ON DELETE SET NULL,
+  description text NOT NULL,
+  quantity numeric NOT NULL,
+  rate numeric NOT NULL,
+  created_at timestamptz DEFAULT now() NOT NULL
 );
-ALTER TABLE "public"."invoice_items" ENABLE ROW LEVEL SECURITY;
-CREATE UNIQUE INDEX invoice_items_pkey ON public.invoice_items USING btree (id);
-ALTER TABLE "public"."invoice_items" ADD CONSTRAINT "invoice_items_pkey" PRIMARY KEY USING INDEX "invoice_items_pkey";
-ALTER TABLE "public"."invoice_items" ADD CONSTRAINT "invoice_items_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE "public"."invoice_items" ADD CONSTRAINT "invoice_items_invoice_id_fkey" FOREIGN KEY (invoice_id) REFERENCES public.invoices(id) ON DELETE CASCADE;
-ALTER TABLE "public"."invoice_items" ADD CONSTRAINT "invoice_items_item_id_fkey" FOREIGN KEY (item_id) REFERENCES public.items(id) ON DELETE SET NULL;
+COMMENT ON TABLE public.invoice_items IS 'Stores line items for each invoice.';
 
-
--- Policies for profiles
-CREATE POLICY "Users can insert their own profile." ON "public"."profiles" FOR INSERT WITH CHECK (("auth"."uid"() = "id"));
-CREATE POLICY "Users can update their own profile." ON "public"."profiles" FOR UPDATE USING (("auth"."uid"() = "id"));
-CREATE POLICY "Users can view their own profile." ON "public"."profiles" FOR SELECT USING (("auth"."uid"() = "id"));
-
--- Policies for clients
-CREATE POLICY "Users can manage their own clients" ON "public"."clients" FOR ALL USING (("auth"."uid"() = "user_id"));
-
--- Policies for items
-CREATE POLICY "Users can manage their own items" ON "public"."items" FOR ALL USING (("auth"."uid"() = "user_id"));
-
--- Policies for invoices
-CREATE POLICY "Users can manage their own invoices" ON "public"."invoices" FOR ALL USING (("auth"."uid"() = "user_id"));
-
--- Policies for invoice_items
-CREATE POLICY "Users can manage their own invoice items" ON "public"."invoice_items" FOR ALL USING (("auth"."uid"() = "user_id"));
-
-
--- Trigger function to create a profile when a new user signs up
-CREATE OR REPLACE FUNCTION "public"."handle_new_user"()
-RETURNS "trigger"
-LANGUAGE "plpgsql"
-SECURITY DEFINER AS $$
+-- FUNCTION: handle_new_user
+-- This function is triggered when a new user signs up.
+-- It inserts a new row into the public.profiles table.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER SET search_path = public
+AS $$
 BEGIN
-  INSERT INTO public.profiles (id, company_name, business_type, currency, first_name, last_name)
+  INSERT INTO public.profiles (id, first_name, last_name, company_name, business_type, currency)
   VALUES (
-    NEW.id,
-    NEW.raw_user_meta_data ->> 'company_name',
-    NEW.raw_user_meta_data ->> 'business_type',
-    NEW.raw_user_meta_data ->> 'currency',
-    NEW.raw_user_meta_data ->> 'first_name',
-    NEW.raw_user_meta_data ->> 'last_name'
+    new.id,
+    new.raw_user_meta_data ->> 'first_name',
+    new.raw_user_meta_data ->> 'last_name',
+    new.raw_user_meta_data ->> 'company_name',
+    new.raw_user_meta_data ->> 'business_type',
+    new.raw_user_meta_data ->> 'currency'
   );
-  RETURN NEW;
+  RETURN new;
 END;
 $$;
+COMMENT ON FUNCTION public.handle_new_user() IS 'Creates a profile for a new user.';
 
--- Drop existing trigger if it's there
-DROP TRIGGER IF EXISTS "on_auth_user_created" ON "auth"."users";
--- Create the trigger
-CREATE TRIGGER "on_auth_user_created"
-AFTER INSERT ON "auth"."users"
-FOR EACH ROW EXECUTE PROCEDURE "public"."handle_new_user"();
+-- TRIGGER: on_auth_user_created
+-- This trigger calls the handle_new_user function after a new user is created.
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- ROW LEVEL SECURITY (RLS) POLICIES
+-- Enable RLS for all tables.
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoice_items ENABLE ROW LEVEL SECURITY;
+
+-- Policies for PROFILES table
+CREATE POLICY "Users can view their own profiles." ON public.profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can insert their own profile." ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update their own profile." ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Policies for CLIENTS table
+CREATE POLICY "Users can manage their own clients." ON public.clients FOR ALL USING (auth.uid() = user_id);
+
+-- Policies for ITEMS table
+CREATE POLICY "Users can manage their own items." ON public.items FOR ALL USING (auth.uid() = user_id);
+
+-- Policies for INVOICES table
+CREATE POLICY "Users can manage their own invoices." ON public.invoices FOR ALL USING (auth.uid() = user_id);
+
+-- Policies for INVOICE_ITEMS table
+CREATE POLICY "Users can manage their own invoice items." ON public.invoice_items FOR ALL USING (auth.uid() = user_id);
