@@ -14,6 +14,7 @@ export type Profile = {
 
 export type Client = {
   id: string; // UUID
+  profile_id: string; // Owner's profile ID
   name: string;
   email: string | null;
   address: string | null;
@@ -23,6 +24,7 @@ export type Client = {
 
 export type Item = {
   id: string; // UUID
+  profile_id: string; // Owner's profile ID
   description: string;
   rate: number;
   created_at: string;
