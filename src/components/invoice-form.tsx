@@ -87,16 +87,18 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        // Fetch the profile. Since the app is public, we fetch the first one.
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
         const { data: profileData, error } = await supabase
             .from('profiles')
             .select('*')
-            .limit(1)
+            .eq('id', user.id)
             .single();
         
         if (profileData) {
             setProfile(profileData);
-        } else if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        } else if (error && error.code !== 'PGRST116') {
              console.error("Error fetching profile:", error);
         }
     }
@@ -253,7 +255,6 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
     if (itemsError) {
         toast({ title: "Error saving items", description: itemsError.message, variant: "destructive" });
-        // In a real app, you might want to handle rollback logic here.
         return;
     }
 
@@ -681,5 +682,3 @@ function ItemCombobox({
     </Popover>
   )
 }
-
-    

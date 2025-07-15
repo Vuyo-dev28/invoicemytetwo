@@ -46,7 +46,18 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
     const { register, handleSubmit, formState: { errors }, reset } = form;
 
     const onSubmit = async (values: ClientFormValues) => {
-        const { data, error } = await supabase.from('clients').insert([values]).select();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            toast({ title: "Not authenticated", description: "You must be logged in to create a client.", variant: "destructive" });
+            return;
+        }
+
+        const clientPayload = {
+            ...values,
+            profile_id: user.id
+        };
+
+        const { data, error } = await supabase.from('clients').insert([clientPayload]).select();
         
         if (error) {
             toast({

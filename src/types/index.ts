@@ -1,6 +1,6 @@
 
 export type Profile = {
-  id: string; // This is a UUID
+  id: string; // This is a UUID from auth.users.id
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
@@ -13,27 +13,27 @@ export type Profile = {
 
 export type Client = {
   id: string; // UUID
+  profile_id: string;
   name: string;
   email: string | null;
   address: string | null;
   vat_number: string | null;
   created_at: string;
-  profile_id?: string; // Optional for shared clients
 };
 
 export type Item = {
   id: string; // UUID
+  profile_id: string;
   description: string;
   rate: number;
   created_at: string;
-  profile_id?: string; // Optional for shared items
 };
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
 export type Invoice = {
   id: string; // UUID
-  profile_id: string; // UUID of the owner
+  profile_id: string;
   client_id: string;
   invoice_number: string;
   issue_date: string; // Should be YYYY-MM-DD

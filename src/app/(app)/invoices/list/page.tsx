@@ -3,10 +3,16 @@ import { InvoiceList } from "@/components/invoice-list";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { ExpandedInvoice } from "@/types";
+import { redirect } from 'next/navigation';
 
 async function getInvoices(): Promise<ExpandedInvoice[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return redirect('/login');
+  }
   
   const { data, error } = await supabase
     .from('invoices')
@@ -14,6 +20,7 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
       *,
       clients ( name )
     `)
+    .eq('profile_id', user.id)
     .order('created_at', { ascending: false });
 
   if (error) {

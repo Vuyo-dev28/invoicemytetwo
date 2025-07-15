@@ -21,7 +21,7 @@ const colors = [
   'hsl(262.1 83.3% 57.8%)',
 ];
 
-const defaultProfile: Omit<Profile, 'id'> = {
+const defaultProfile: Partial<Profile> = {
     company_name: 'Your Company',
     company_address: '123 Main St, Anytown, USA',
     logo_url: null,
@@ -29,7 +29,7 @@ const defaultProfile: Omit<Profile, 'id'> = {
 }
 
 export function SettingsPanel({ initialProfile }: { initialProfile: Profile | null }) {
-  const [profile, setProfile] = useState<Omit<Profile, 'id'>>(initialProfile || defaultProfile);
+  const [profile, setProfile] = useState<Partial<Profile>>(initialProfile || defaultProfile);
   const [isUploading, setUploading] = useState(false);
   const { toast } = useToast();
   const supabase = createClient();
@@ -45,8 +45,17 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
             document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
             document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
           }
+      } else {
+        // If there's no initial profile, get the user ID to set the profileId
+        const setupProfileId = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                setProfileId(user.id);
+            }
+        };
+        setupProfileId();
       }
-  }, [initialProfile]);
+  }, [initialProfile, supabase.auth]);
 
   const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
@@ -78,34 +87,21 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleSaveChanges = async () => {
     if (!profileId) {
-      // Create a new profile if one doesn't exist
-      const { data, error } = await supabase
-        .from('profiles')
-        .insert(profile as Profile) // The DB will assign a UUID
-        .select()
-        .single();
-  
-      if (error) {
-        toast({ title: 'Error creating profile', description: error.message, variant: 'destructive' });
-      } else if (data) {
-        setProfile(data);
-        setProfileId(data.id);
-        toast({ title: 'Profile created', description: 'Your company details have been saved.' });
-        router.refresh();
-      }
-    } else {
-      // Otherwise, update the existing profile
-      const { error } = await supabase
+      toast({ title: 'Error', description: 'User not authenticated.', variant: 'destructive' });
+      return;
+    }
+    
+    // Always an update now because the profile is created by a trigger
+    const { error } = await supabase
         .from('profiles')
         .update(profile)
         .eq('id', profileId);
-  
-      if (error) {
-        toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
-        router.refresh();
-      }
+
+    if (error) {
+    toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+    } else {
+    toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+    router.refresh();
     }
   };
 
@@ -163,7 +159,6 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                   disabled={isUploading || !profileId}
                 />
               </div>
-               {!profileId && <p className="text-xs text-muted-foreground">Save your profile first to enable logo uploads.</p>}
             </div>
           </CardContent>
            <CardFooter className="border-t px-6 py-4 flex justify-end">

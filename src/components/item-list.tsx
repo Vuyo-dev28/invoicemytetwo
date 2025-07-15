@@ -43,7 +43,18 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
     const { register, handleSubmit, formState: { errors }, reset } = form;
 
     const onSubmit = async (values: ItemFormValues) => {
-        const { data, error } = await supabase.from('items').insert([values]).select();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            toast({ title: "Not authenticated", description: "You must be logged in to create an item.", variant: "destructive" });
+            return;
+        }
+
+        const itemPayload = {
+            ...values,
+            profile_id: user.id,
+        };
+
+        const { data, error } = await supabase.from('items').insert([itemPayload]).select();
         
         if (error) {
             toast({
