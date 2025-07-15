@@ -19,7 +19,13 @@ import { Client, Item } from '@/types';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import SignatureCanvas from 'react-signature-canvas';
+import type SignatureCanvas from 'react-signature-canvas';
+import dynamic from 'next/dynamic';
+
+const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
+  ssr: false,
+  loading: () => <p>Loading signature pad...</p>,
+});
 
 type LineItem = {
   id: string;
@@ -417,7 +423,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                                             </TabsList>
                                             <TabsContent value="draw">
                                                 <div className="border rounded-md bg-muted/20 my-4">
-                                                     <SignatureCanvas
+                                                     <DynamicSignatureCanvas
                                                         ref={signatureRef}
                                                         penColor='black'
                                                         canvasProps={{className: 'w-full h-48'}}
