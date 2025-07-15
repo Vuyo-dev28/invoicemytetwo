@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -36,8 +37,8 @@ export function LoginForm() {
   const supabase = createClientComponentClient()
 
   const defaultValues = {
-    email: "demo@example.com",
-    password: "password",
+    email: "",
+    password: "",
   }
   const form = useForm<UserFormValue>({
     resolver: zodResolver(formSchema),
