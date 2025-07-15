@@ -28,13 +28,15 @@ export type Item = {
   created_at: string;
 };
 
+export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
+
 export type Invoice = {
   id: string;
   client_id: string;
   invoice_number: string;
   issue_date: string;
   due_date: string | null;
-  status: 'draft' | 'sent' | 'paid' | 'overdue';
+  status: InvoiceStatus;
   notes: string | null;
   tax_percent: number;
   discount_percent: number;
@@ -49,6 +51,12 @@ export type InvoiceItem = {
   quantity: number;
   rate: number;
   created_at: string;
+};
+
+// Type for invoice with client name and total amount for list view
+export type ExpandedInvoice = Invoice & {
+  client_name: string;
+  total: number;
 };
 
 export type Expense = {

@@ -17,7 +17,7 @@ function AppLayout({
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/cashflow', label: 'Cashflow', icon: BarChart },
-    { href: '/invoices', label: 'Invoices', icon: Receipt },
+    { href: '/invoices/list', label: 'Invoices', icon: Receipt },
     { href: '/estimates', label: 'Estimates', icon: FilePlus },
     { href: '/credit-notes', label: 'Credit Notes', icon: FileMinus },
     { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck },
@@ -27,6 +27,11 @@ function AppLayout({
     { href: '/items', label: 'Items', icon: Box },
     { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },
   ];
+
+  const getHref = (href: string) => {
+    if(href === '/invoices') return '/invoices/list';
+    return href;
+  }
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -43,8 +48,8 @@ function AppLayout({
               {menuItems.map(item => (
                  <Link
                   key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === item.href ? 'bg-muted text-primary' : 'text-muted-foreground'}`}
+                  href={getHref(item.href)}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === getHref(item.href) ? 'bg-muted text-primary' : 'text-muted-foreground'}`}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
@@ -79,8 +84,8 @@ function AppLayout({
                 {menuItems.map(item => (
                   <Link
                     key={item.href}
-                    href={item.href}
-                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${pathname === item.href ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    href={getHref(item.href)}
+                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${pathname === getHref(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.label}
