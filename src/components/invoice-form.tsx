@@ -209,7 +209,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
           {template === 'formal' || template === 'elegant' ? (
             <div className="w-full flex flex-col items-center">
                <div className="company-details">
-                 {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4" data-ai-hint="logo" />}
+                 {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
                  <h2>{profile?.company_name || 'Your Company'}</h2>
                  <p>{profile?.company_address || 'Your Address'}</p>
                </div>
@@ -225,7 +225,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                   <p className="text-muted-foreground"># {invoiceNumber}</p>
               </div>
               <div className="company-details">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4" data-ai-hint="logo" />}
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 ml-auto" data-ai-hint="logo" />}
                 <h2 className={cn('text-xl font-semibold')}>
                   {profile?.company_name || 'Your Company'}
                 </h2>
@@ -399,7 +399,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                     </div>
                     <div className="w-1/2">
                         <Label className="font-semibold">Signature</Label>
-                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center">
+                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center print:border-none">
                             {signature ? (
                                 <div className="text-center">
                                     <Image src={signature} alt="Signature" width={100} height={100} className="object-contain" />
