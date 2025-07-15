@@ -213,7 +213,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                  <h2>{profile?.company_name || 'Your Company'}</h2>
                  <p>{profile?.company_address || 'Your Address'}</p>
                </div>
-               <div className={cn("invoice-title-section", template === 'elegant' && 'mt-8')}>
+               <div className={cn("invoice-title-section", template === 'elegant' && 'mt-4')}>
                  <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
                  {template === 'formal' && <p className="text-sm text-muted-foreground mt-2"># {invoiceNumber}</p>}
                </div>
@@ -238,7 +238,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
         </header>
         
         <main className="main-content">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
             <div>
                 <Label className="font-semibold text-base">Bill To:</Label>
                 <div className="no-print">
@@ -391,11 +391,11 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
             <PlusCircle className="mr-2 h-4 w-4" /> Add Item
             </Button>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                 <div>
                     <Label className="font-semibold">Notes</Label>
                     <Textarea placeholder="Any additional notes..." className="mt-2 no-print" />
-                    <div className="mt-4">
+                    <div className="mt-2">
                         <Label className="font-semibold">Signature</Label>
                         <div className="mt-2 border rounded-md p-4 min-h-[60px] flex items-center justify-center">
                             {signature ? (
@@ -452,7 +452,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                     </div>
                 </div>
                 <div className="flex justify-end">
-                    <div className="w-full max-w-sm space-y-4 totals-section">
+                    <div className="w-full max-w-sm space-y-2 totals-section">
                         <div className={cn("flex justify-between items-center elegant-total-row", template === 'formal' && 'elegant-total-row')}>
                             <span>Subtotal</span>
                             <span className="font-medium">{formatCurrency(subtotal)}</span>
@@ -467,7 +467,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                             <span className="print-only">Tax ({tax}%)</span>
                             <Input id="tax" type="number" value={tax} onChange={(e) => setTax(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                         </div>
-                         <div className={cn("flex justify-between items-center border-t pt-4 text-lg elegant-total", template !== 'elegant' && 'font-bold' )}>
+                         <div className={cn("flex justify-between items-center border-t pt-2 text-lg elegant-total", template !== 'elegant' && 'font-bold' )}>
                             <span>Total</span>
                             <span>{formatCurrency(total)}</span>
                         </div>
@@ -476,7 +476,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
             </div>
 
         </main>
-        <CardFooter className="p-6 bg-muted/50 border-t flex justify-end gap-2 no-print">
+        <CardFooter className="p-4 bg-muted/50 border-t flex justify-end gap-2 no-print">
             <Button variant="outline" onClick={handleSaveDraft}>Save Draft</Button>
             <Button onClick={handlePrint} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PDF</Button>
             <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send {documentType}</Button>
