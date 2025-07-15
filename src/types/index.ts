@@ -1,6 +1,6 @@
 export type Profile = {
   id: string;
-  company_name: string;
+  company_name: string | null;
   business_type: string | null;
   currency: string | null;
   first_name: string | null;

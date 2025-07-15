@@ -19,17 +19,17 @@ import Link from 'next/link';
 import { FileText } from 'lucide-react';
 
 const step1Schema = z.object({
-    companyName: z.string().min(1, 'Company name is required'),
+    company_name: z.string().min(1, 'Company name is required'),
 });
 
 const step2Schema = z.object({
-    businessType: z.string().min(1, 'Business type is required'),
+    business_type: z.string().min(1, 'Business type is required'),
     currency: z.string().min(1, 'Currency is required'),
 });
 
 const step3Schema = z.object({
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().optional(),
+    first_name: z.string().min(1, 'First name is required'),
+    last_name: z.string().optional(),
 });
 
 const step4Schema = z.object({
@@ -65,11 +65,11 @@ export function SignupForm() {
             step4Schema
         ),
         defaultValues: {
-            companyName: '',
-            businessType: '',
-            currency: 'ZAR',
-            firstName: '',
-            lastName: '',
+            company_name: '',
+            business_type: '',
+            currency: 'USD',
+            first_name: '',
+            last_name: '',
             email: '',
             password: '',
         },
@@ -93,11 +93,11 @@ export function SignupForm() {
             password: data.password,
             options: {
                 data: {
-                    company_name: data.companyName,
-                    business_type: data.businessType,
+                    company_name: data.company_name,
+                    business_type: data.business_type,
                     currency: data.currency,
-                    first_name: data.firstName,
-                    last_name: data.lastName,
+                    first_name: data.first_name,
+                    last_name: data.last_name,
                 },
             },
         });
@@ -159,7 +159,7 @@ export function SignupForm() {
                         {step === 1 && (
                             <FormField
                                 control={control}
-                                name="companyName"
+                                name="company_name"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Company Name</FormLabel>
@@ -176,7 +176,7 @@ export function SignupForm() {
                             <>
                                 <FormField
                                     control={control}
-                                    name="businessType"
+                                    name="business_type"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Business Type</FormLabel>
@@ -229,7 +229,7 @@ export function SignupForm() {
                             <>
                                 <FormField
                                     control={control}
-                                    name="firstName"
+                                    name="first_name"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>First Name</FormLabel>
@@ -242,7 +242,7 @@ export function SignupForm() {
                                 />
                                 <FormField
                                     control={control}
-                                    name="lastName"
+                                    name="last_name"
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Last Name (Optional)</FormLabel>
