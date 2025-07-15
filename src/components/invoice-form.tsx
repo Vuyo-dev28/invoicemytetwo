@@ -21,6 +21,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import type SignatureCanvas from 'react-signature-canvas';
 import dynamic from 'next/dynamic';
+import { createClient } from '@/utils/supabase/client';
+import { useRouter } from 'next/navigation';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -42,12 +44,16 @@ type Profile = {
 
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
 type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
+type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
 export function InvoiceForm({ clients, items, documentType }: { clients: Client[], items: Item[], documentType: DocumentType }) {
   const { toast } = useToast()
+  const router = useRouter();
+  const supabase = createClient();
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
+  const [notes, setNotes] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>({
     company_name: 'Your Company',
@@ -126,19 +132,72 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
     window.print();
   };
 
-  const handleSaveDraft = () => {
-    toast({
-      title: "Draft Saved",
-      description: `Your ${documentType.toLowerCase()} has been saved as a draft.`,
-    });
+  const saveInvoice = async (status: InvoiceStatus) => {
+    if (!selectedClient) {
+        toast({ title: "Client not selected", description: "Please select a client.", variant: "destructive" });
+        return;
+    }
+
+    const { data: invoiceData, error: invoiceError } = await supabase
+      .from('invoices')
+      .insert([{
+        client_id: selectedClient.id,
+        invoice_number: invoiceNumber,
+        issue_date: issueDate?.toISOString(),
+        due_date: dueDate?.toISOString(),
+        status,
+        notes,
+        tax_percent: tax,
+        discount_percent: discount
+      }])
+      .select()
+      .single();
+
+    if (invoiceError) {
+      toast({ title: "Error saving invoice", description: invoiceError.message, variant: "destructive" });
+      return null;
+    }
+
+    const invoiceId = invoiceData.id;
+    const itemsToInsert = lineItems.map(item => ({
+        invoice_id: invoiceId,
+        description: item.description,
+        quantity: item.quantity,
+        rate: item.rate
+    }));
+
+    const { error: itemsError } = await supabase.from('invoice_items').insert(itemsToInsert);
+
+    if (itemsError) {
+        toast({ title: "Error saving items", description: itemsError.message, variant: "destructive" });
+        // Optionally delete the invoice if items fail to save
+        await supabase.from('invoices').delete().match({ id: invoiceId });
+        return null;
+    }
+    
+    return invoiceData;
+  }
+
+  const handleSaveDraft = async () => {
+    const savedInvoice = await saveInvoice('draft');
+    if (savedInvoice) {
+        toast({
+          title: "Draft Saved",
+          description: `Your ${documentType.toLowerCase()} has been saved as a draft.`,
+        });
+        router.push('/invoices');
+    }
   };
 
-  const handleSend = () => {
-    toast({
-      title: `${documentType} Sent`,
-      description: `Your ${documentType.toLowerCase()} has been sent to the client.`,
-      variant: 'default',
-    });
+  const handleSend = async () => {
+    const savedInvoice = await saveInvoice('sent');
+    if (savedInvoice) {
+        toast({
+          title: `${documentType} Sent`,
+          description: `Your ${documentType.toLowerCase()} has been sent to the client.`,
+        });
+        router.push('/invoices');
+    }
   }
 
   const formatCurrency = (amount: number) => {
@@ -395,7 +454,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                 <div className="flex gap-4">
                     <div className="w-1/2">
                         <Label className="font-semibold">Notes</Label>
-                        <Textarea placeholder="Any additional notes..." className="mt-2 no-print h-28" />
+                        <Textarea placeholder="Any additional notes..." className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
                     </div>
                     <div className="w-1/2">
                         <Label className="font-semibold">Signature</Label>

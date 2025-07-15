@@ -1,4 +1,5 @@
 
+
 export type Profile = {
   id: string; // Corresponds to auth.users.id
   first_name: string | null;
@@ -29,7 +30,7 @@ export type Item = {
 
 export type Invoice = {
   id: string;
-  client_id: string | null;
+  client_id: string;
   invoice_number: string;
   issue_date: string;
   due_date: string | null;
@@ -48,4 +49,13 @@ export type InvoiceItem = {
   quantity: number;
   rate: number;
   created_at: string;
+};
+
+export type Expense = {
+    id: string;
+    description: string;
+    amount: number;
+    date: string;
+    category: string | null;
+    created_at: string;
 };

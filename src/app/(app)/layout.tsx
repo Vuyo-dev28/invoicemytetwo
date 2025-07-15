@@ -1,7 +1,7 @@
 
 'use client';
 import Link from 'next/link';
-import { LayoutDashboard, FileText, Users, Box, Settings, PanelLeft, Receipt, FilePlus, FileMinus, Truck, ShoppingCart } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Box, Settings, PanelLeft, Receipt, FilePlus, FileMinus, Truck, ShoppingCart, BarChart, Banknote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
@@ -16,11 +16,13 @@ function AppLayout({
 
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/cashflow', label: 'Cashflow', icon: BarChart },
     { href: '/invoices', label: 'Invoices', icon: Receipt },
     { href: '/estimates', label: 'Estimates', icon: FilePlus },
     { href: '/credit-notes', label: 'Credit Notes', icon: FileMinus },
     { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck },
     { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
+    { href: '/expenses', label: 'Expenses', icon: Banknote },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Box },
     { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },
