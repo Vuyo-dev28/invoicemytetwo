@@ -1,14 +1,19 @@
-
 export type Profile = {
   id: string; // This will be the user's UUID from auth.users
+  user_id: string; // This is redundant but added for consistency
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
   accent_color: string | null;
+  business_type?: string | null;
+  currency?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
 };
 
 export type Client = {
   id: string;
+  user_id: string;
   name: string;
   email: string | null;
   address: string | null;
@@ -18,6 +23,7 @@ export type Client = {
 
 export type Item = {
   id: string;
+  user_id: string;
   description: string;
   rate: number;
   created_at: string;
@@ -27,6 +33,7 @@ export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
 export type Invoice = {
   id: string;
+  user_id: string;
   client_id: string;
   invoice_number: string;
   issue_date: string;

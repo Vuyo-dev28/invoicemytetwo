@@ -1,4 +1,3 @@
-
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -23,6 +22,7 @@ import type SignatureCanvas from 'react-signature-canvas';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -37,6 +37,7 @@ type LineItem = {
 };
 
 type Profile = {
+  user_id: string;
   company_name: string;
   company_address: string;
   logo_url: string | null;
@@ -58,6 +59,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const router = useRouter();
   const supabase = createClient();
   
+  const [user, setUser] = useState<User | null>(null);
   const [invoiceId, setInvoiceId] = useState<string | null>(initialInvoice?.id || null);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
@@ -65,6 +67,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [notes, setNotes] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>({
+    user_id: '',
     company_name: '',
     company_address: '',
     logo_url: null
@@ -94,6 +97,15 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     "Delivery note": "DN",
     "Purchase order": "PO",
   }
+
+  useEffect(() => {
+    const getUser = async () => {
+        const { data } = await supabase.auth.getUser();
+        setUser(data.user);
+    }
+    getUser();
+  }, [supabase.auth]);
+
 
   useEffect(() => {
     if (initialInvoice) {
@@ -170,12 +182,17 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   };
 
   const saveInvoice = async (status: InvoiceStatus) => {
+    if (!user) {
+        toast({ title: "Not authenticated", description: "You must be logged in.", variant: "destructive" });
+        return;
+    }
     if (!selectedClient) {
         toast({ title: "Client not selected", description: "Please select a client.", variant: "destructive" });
         return;
     }
 
     const invoicePayload = {
+        user_id: user.id,
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString(),

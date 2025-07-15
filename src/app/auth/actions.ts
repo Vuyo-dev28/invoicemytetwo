@@ -1,11 +1,9 @@
-
 'use server'
  
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { Profile } from '@/types'
  
 export async function login(formData: FormData) {
   const cookieStore = cookies()
@@ -41,6 +39,10 @@ export async function signup(formData: FormData) {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     company_name: formData.get('company_name') as string,
+    business_type: formData.get('business_type') as string,
+    currency: formData.get('currency') as string,
+    first_name: formData.get('first_name') as string,
+    last_name: formData.get('last_name') as string,
   };
 
   const { data: { user }, error: signUpError } = await supabase.auth.signUp({
@@ -58,7 +60,12 @@ export async function signup(formData: FormData) {
       .from('profiles')
       .insert({
         id: user.id, // Use the user's ID from the signup response
+        user_id: user.id,
         company_name: data.company_name,
+        business_type: data.business_type,
+        currency: data.currency,
+        first_name: data.first_name,
+        last_name: data.last_name,
       });
     
     if (profileError) {
