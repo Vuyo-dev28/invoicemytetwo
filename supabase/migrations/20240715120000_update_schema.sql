@@ -1,36 +1,7 @@
--- Drop existing policies and tables to start fresh.
-DROP POLICY IF EXISTS "Users can view their own clients" ON public.clients;
-DROP POLICY IF EXISTS "Users can insert their own clients" ON public.clients;
-DROP POLICY IF EXISTS "Users can update their own clients" ON public.clients;
-DROP POLICY IF EXISTS "Users can delete their own clients" ON public.clients;
-DROP POLICY IF EXISTS "Users can view their own items" ON public.items;
-DROP POLICY IF EXISTS "Users can insert their own items" ON public.items;
-DROP POLICY IF EXISTS "Users can update their own items" ON public.items;
-DROP POLICY IF EXISTS "Users can delete their own items" ON public.items;
-DROP POLICY IF EXISTS "Users can view their own invoices" ON public.invoices;
-DROP POLICY IF EXISTS "Users can insert their own invoices" ON public.invoices;
-DROP POLICY IF EXISTS "Users can update their own invoices" ON public.invoices;
-DROP POLICY IF EXISTS "Users can delete their own invoices" ON public.invoices;
-DROP POLICY IF EXISTS "Users can CRUD their own invoice_items" ON public.invoice_items;
-DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
-DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
-
-
--- Drop trigger and function if they exist
-DROP TRIGGER IF EXISTS on_auth_user_created on auth.users;
-DROP FUNCTION IF EXISTS public.handle_new_user;
-
--- Drop tables if they exist
-DROP TABLE IF EXISTS public.invoice_items;
-DROP TABLE IF EXISTS public.invoices;
-DROP TABLE IF EXISTS public.items;
-DROP TABLE IF EXISTS public.clients;
-DROP TABLE IF EXISTS public.profiles;
-
 -- Create the profiles table to store user-specific data
-create table profiles (
+create table if not exists profiles (
   id uuid primary key references auth.users(id) on delete cascade,
-  company_name text not null,
+  company_name text,
   business_type text,
   currency text,
   first_name text,
@@ -40,8 +11,8 @@ create table profiles (
   accent_color text
 );
 
--- Create the clients table for storing customer data
-create table clients (
+-- Create the clients table
+create table if not exists clients (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   name text not null,
@@ -52,7 +23,7 @@ create table clients (
 );
 
 -- Create the items table
-create table items (
+create table if not exists items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   description text not null,
@@ -61,7 +32,7 @@ create table items (
 );
 
 -- Create the invoices table
-create table invoices (
+create table if not exists invoices (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   invoice_number text not null,
@@ -76,7 +47,7 @@ create table invoices (
 );
 
 -- Create the invoice_items join table
-create table invoice_items (
+create table if not exists invoice_items (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade not null,
   invoice_id uuid not null references invoices(id) on delete cascade,
@@ -87,6 +58,29 @@ create table invoice_items (
   created_at timestamptz default now()
 );
 
+-- Function to create a profile for a new user
+create or replace function handle_new_user()
+returns trigger as $$
+begin
+  insert into public.profiles (id, company_name, business_type, currency, first_name, last_name)
+  values (
+    new.id,
+    new.raw_user_meta_data->>'company_name',
+    new.raw_user_meta_data->>'business_type',
+    new.raw_user_meta_data->>'currency',
+    new.raw_user_meta_data->>'first_name',
+    new.raw_user_meta_data->>'last_name'
+  );
+  return new;
+end;
+$$ language plpgsql security definer;
+
+-- Trigger to execute the function on new user creation
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure handle_new_user();
+
 -- Enable Row Level Security (RLS) for all tables
 alter table profiles enable row level security;
 alter table clients enable row level security;
@@ -94,49 +88,48 @@ alter table items enable row level security;
 alter table invoices enable row level security;
 alter table invoice_items enable row level security;
 
--- Function to create a profile for a new user
-create or replace function public.handle_new_user()
-returns trigger as $$
-begin
-  insert into public.profiles (id, company_name, business_type, currency, first_name, last_name)
-  values (
-    new.id,
-    new.raw_user_meta_data ->> 'company_name',
-    new.raw_user_meta_data ->> 'business_type',
-    new.raw_user_meta_data ->> 'currency',
-    new.raw_user_meta_data ->> 'first_name',
-    new.raw_user_meta_data ->> 'last_name'
-  );
-  return new;
-end;
-$$ language plpgsql security definer;
-
--- Trigger to execute the function on new user creation
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_user();
-
--- Policies for profiles
+-- Policies for profiles table
+drop policy if exists "Users can view their own profile" on profiles;
 create policy "Users can view their own profile" on profiles for select using (auth.uid() = id);
+drop policy if exists "Users can update their own profile" on profiles;
 create policy "Users can update their own profile" on profiles for update using (auth.uid() = id) with check (auth.uid() = id);
 
--- Policies for clients
+-- Policies for clients table
+drop policy if exists "Users can view their own clients" on clients;
 create policy "Users can view their own clients" on clients for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own clients" on clients;
 create policy "Users can insert their own clients" on clients for insert with check (auth.uid() = user_id);
-create policy "Users can update their own clients" on clients for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own clients" on clients;
+create policy "Users can update their own clients" on clients for update using (auth.uid() = user_id);
+drop policy if exists "Users can delete their own clients" on clients;
 create policy "Users can delete their own clients" on clients for delete using (auth.uid() = user_id);
 
--- Policies for items
+-- Policies for items table
+drop policy if exists "Users can view their own items" on items;
 create policy "Users can view their own items" on items for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own items" on items;
 create policy "Users can insert their own items" on items for insert with check (auth.uid() = user_id);
-create policy "Users can update their own items" on items for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own items" on items;
+create policy "Users can update their own items" on items for update using (auth.uid() = user_id);
+drop policy if exists "Users can delete their own items" on items;
 create policy "Users can delete their own items" on items for delete using (auth.uid() = user_id);
 
--- Policies for invoices
+-- Policies for invoices table
+drop policy if exists "Users can view their own invoices" on invoices;
 create policy "Users can view their own invoices" on invoices for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own invoices" on invoices;
 create policy "Users can insert their own invoices" on invoices for insert with check (auth.uid() = user_id);
-create policy "Users can update their own invoices" on invoices for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own invoices" on invoices;
+create policy "Users can update their own invoices" on invoices for update using (auth.uid() = user_id);
+drop policy if exists "Users can delete their own invoices" on invoices;
 create policy "Users can delete their own invoices" on invoices for delete using (auth.uid() = user_id);
 
--- Policies for invoice_items
-create policy "Users can CRUD their own invoice_items" on invoice_items for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+-- Policies for invoice_items table
+drop policy if exists "Users can view their own invoice_items" on invoice_items;
+create policy "Users can view their own invoice_items" on invoice_items for select using (auth.uid() = user_id);
+drop policy if exists "Users can insert their own invoice_items" on invoice_items;
+create policy "Users can insert their own invoice_items" on invoice_items for insert with check (auth.uid() = user_id);
+drop policy if exists "Users can update their own invoice_items" on invoice_items;
+create policy "Users can update their own invoice_items" on invoice_items for update using (auth.uid() = user_id);
+drop policy if exists "Users can delete their own invoice_items" on invoice_items;
+create policy "Users can delete their own invoice_items" on invoice_items for delete using (auth.uid() = user_id);
