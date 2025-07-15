@@ -1,41 +1,49 @@
-import { InvoiceForm } from '@/components/invoice-form';
-import { UserNav } from '@/components/user-nav';
-import { FileText } from 'lucide-react';
-import { Sidebar, SidebarContent, SidebarHeader, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
-import { SettingsPanel } from '@/components/settings-panel';
-import { Separator } from '@/components/ui/separator';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Activity, CreditCard, DollarSign, Users } from "lucide-react";
 
-export default function Home() {
+export default function DashboardPage() {
   return (
-    <div className="bg-background min-h-screen">
-      <Sidebar variant="inset" collapsible="offcanvas" side="right">
-        <SidebarHeader>
-          <h2 className="text-lg font-semibold">Settings</h2>
-        </SidebarHeader>
-        <Separator />
-        <SidebarContent className="p-4">
-           <SettingsPanel />
-        </SidebarContent>
-      </Sidebar>
-      <SidebarInset>
-        <header className="bg-card border-b sticky top-0 z-40 no-print">
-          <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                  <FileText className="text-primary h-6 w-6" />
-              </div>
-              <h1 className="text-2xl font-bold text-foreground">Invoice Ease</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <UserNav />
-              <SidebarTrigger />
-            </div>
-          </div>
-        </header>
-        <main className="container mx-auto px-4 py-8">
-          <InvoiceForm />
-        </main>
-      </SidebarInset>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">$45,231.89</div>
+          <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Clients</CardTitle>
+          <Users className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">+23</div>
+          <p className="text-xs text-muted-foreground">+5 since last month</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Sales</CardTitle>
+          <CreditCard className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">+12,234</div>
+          <p className="text-xs text-muted-foreground">+19% from last month</p>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+          <Activity className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          <div className="text-2xl font-bold">+573</div>
+          <p className="text-xs text-muted-foreground">+201 since last hour</p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
