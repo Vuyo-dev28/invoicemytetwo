@@ -12,6 +12,8 @@ import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send } from 'lu
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
+import { useLocalStorage } from '@/hooks/use-local-storage';
+import Image from 'next/image';
 
 type LineItem = {
   id: string;
@@ -26,6 +28,10 @@ export function InvoiceForm() {
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
   
+  const [companyName] = useLocalStorage('companyName', 'Your Company Inc.');
+  const [companyAddress] = useLocalStorage('companyAddress', '123 Business Rd, Suite 100, Business City, 12345');
+  const [companyLogo] = useLocalStorage('companyLogo', '');
+
   const [lineItems, setLineItems] = useState<LineItem[]>([
     { id: `item-${Date.now()}`, description: 'Web Design Services', quantity: 10, rate: 100 },
     { id: `item-${Date.now()+1}`, description: 'SEO Optimization', quantity: 5, rate: 75 },
@@ -99,8 +105,9 @@ export function InvoiceForm() {
             <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
           </div>
           <div className="text-right">
-             <h2 className="text-xl font-semibold">Your Company Inc.</h2>
-             <p className="text-muted-foreground">123 Business Rd, Suite 100, Business City, 12345</p>
+            {companyLogo && <Image src={companyLogo as string} alt="Company Logo" width={100} height={100} className="mb-2 ml-auto" />}
+            <h2 className="text-xl font-semibold">{companyName}</h2>
+            <p className="text-muted-foreground">{companyAddress}</p>
           </div>
         </div>
       </CardHeader>
