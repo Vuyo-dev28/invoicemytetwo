@@ -40,7 +40,6 @@ export type Invoice = {
   tax_percent: number;
   discount_percent: number;
   created_at: string;
-  paid_at: string | null;
 };
 
 export type InvoiceItem = {

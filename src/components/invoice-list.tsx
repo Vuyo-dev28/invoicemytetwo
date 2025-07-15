@@ -29,14 +29,9 @@ export function InvoiceList({ initialInvoices }: { initialInvoices: ExpandedInvo
     const supabase = createClient();
 
     const handleStatusChange = async (invoiceId: string, status: InvoiceStatus) => {
-        const updatePayload: { status: InvoiceStatus; paid_at?: string } = { status };
-        if (status === 'paid') {
-            updatePayload.paid_at = new Date().toISOString();
-        }
-
         const { data, error } = await supabase
             .from('invoices')
-            .update(updatePayload)
+            .update({ status })
             .eq('id', invoiceId)
             .select()
             .single();
@@ -52,7 +47,7 @@ export function InvoiceList({ initialInvoices }: { initialInvoices: ExpandedInvo
                 title: "Status updated",
                 description: `Invoice marked as ${status}.`,
             });
-            setInvoices(prev => prev.map(inv => inv.id === invoiceId ? { ...inv, status: data.status, paid_at: data.paid_at } : inv));
+            setInvoices(prev => prev.map(inv => inv.id === invoiceId ? { ...inv, status: data.status } : inv));
             router.refresh();
         }
     };

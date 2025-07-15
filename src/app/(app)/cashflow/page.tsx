@@ -6,7 +6,7 @@ import { CashflowChart } from '@/components/cashflow-chart';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import type { CashflowData, Invoice, InvoiceItem } from '@/types';
-import { subMonths, format } from 'date-fns';
+import { subMonths, format, parse, startOfMonth } from 'date-fns';
 
 async function getCashflowData(): Promise<CashflowData[]> {
     const cookieStore = cookies();
@@ -18,7 +18,7 @@ async function getCashflowData(): Promise<CashflowData[]> {
         .from('invoices')
         .select(`*, invoice_items ( quantity, rate )`)
         .eq('status', 'paid')
-        .gte('paid_at', twelveMonthsAgo.toISOString());
+        .gte('issue_date', twelveMonthsAgo.toISOString());
 
     if (invoicesError) {
         console.error('Error fetching paid invoices:', invoicesError);
@@ -39,8 +39,8 @@ async function getCashflowData(): Promise<CashflowData[]> {
     
     invoices.forEach(invoice => {
         const total = invoice.invoice_items.reduce((acc, item) => acc + item.quantity * item.rate, 0);
-        // Use paid_at date for cashflow calculation
-        const month = format(new Date(invoice.paid_at!), 'MMM yyyy');
+        // Use issue_date for cashflow calculation as per schema
+        const month = format(new Date(invoice.issue_date), 'MMM yyyy');
         if (monthlyData[month]) {
             monthlyData[month].income += total;
         }
@@ -48,14 +48,18 @@ async function getCashflowData(): Promise<CashflowData[]> {
 
     return Object.entries(monthlyData)
         .map(([month, { income }]) => ({
-            month: month.split(' ')[0], // Format to just 'MMM'
+            month,
             income,
         }))
         .sort((a, b) => {
-            const monthA = new Date(`${a.month} 1, 2023`); // Use a consistent year for sorting
-            const monthB = new Date(`${b.month} 1, 2023`);
-            return monthA.getTime() - monthB.getTime();
-        });
+            const dateA = parse(a.month, 'MMM yyyy', new Date());
+            const dateB = parse(b.month, 'MMM yyyy', new Date());
+            return dateA.getTime() - dateB.getTime();
+        })
+        .map(item => ({
+            ...item,
+            month: item.month.split(' ')[0], // Format to just 'MMM' after sorting
+        }));
 }
 
 
