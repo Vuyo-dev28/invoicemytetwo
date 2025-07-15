@@ -5,10 +5,6 @@ export type Profile = {
   company_address: string | null;
   logo_url: string | null;
   accent_color: string | null;
-  business_type: string | null;
-  currency: string | null;
-  first_name: string | null;
-  last_name: string | null;
 };
 
 export type Client = {

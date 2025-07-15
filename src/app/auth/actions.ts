@@ -41,10 +41,6 @@ export async function signup(formData: FormData) {
     email: formData.get('email') as string,
     password: formData.get('password') as string,
     company_name: formData.get('company_name') as string,
-    business_type: formData.get('business_type') as string,
-    currency: formData.get('currency') as string,
-    first_name: formData.get('first_name') as string,
-    last_name: formData.get('last_name') as string,
   };
 
   const { data: { user }, error: signUpError } = await supabase.auth.signUp({
@@ -60,14 +56,9 @@ export async function signup(formData: FormData) {
     const { error: profileError } = await supabase
       .from('profiles')
       .update({
-        id: user.id, // This should be an upsert, but update works if the row is created by trigger
+        id: user.id,
         company_name: data.company_name,
-        business_type: data.business_type,
-        currency: data.currency,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        // company_address can be left null or set to a default
-      } as Profile)
+      })
       .eq('id', user.id)
     
     if (profileError) {
