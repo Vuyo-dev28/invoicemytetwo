@@ -50,6 +50,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   const [currency, setCurrency] = useState('USD');
   const [tax, setTax] = useState(0);
   const [discount, setDiscount] = useState(0);
+  const [template, setTemplate] = useState('modern');
 
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
@@ -127,11 +128,14 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
 
 
   return (
-    <Card className="max-w-4xl mx-auto print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:max-w-full">
-      <CardHeader className="p-6 bg-muted/50 border-b">
+    <Card className={cn(
+        "max-w-4xl mx-auto print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:max-w-full",
+        `template-${template}`
+    )}>
+      <CardHeader className="p-6 bg-muted/50 border-b template-header">
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle className="text-3xl font-bold">Invoice</CardTitle>
+            <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
             <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
           </div>
           <div className="text-right">
@@ -139,6 +143,19 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
             <h2 className="text-xl font-semibold">{profile?.company_name || 'Your Company'}</h2>
             <p className="text-muted-foreground">{profile?.company_address || 'Your Address'}</p>
           </div>
+        </div>
+        <div className="no-print mt-4">
+            <Label htmlFor="template">Invoice Template</Label>
+            <Select value={template} onValueChange={setTemplate}>
+              <SelectTrigger id="template" className="mt-2 w-[200px]">
+                <SelectValue placeholder="Select template" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="modern">Modern</SelectItem>
+                <SelectItem value="classic">Classic</SelectItem>
+                <SelectItem value="creative">Creative</SelectItem>
+              </SelectContent>
+            </Select>
         </div>
       </CardHeader>
       <CardContent className="p-6 md:p-8">
