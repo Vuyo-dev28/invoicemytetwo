@@ -1,23 +1,24 @@
+import { LoginForm } from '@/components/login-form';
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import DashboardLayout from './(app)/layout';
-import DashboardPage from './(app)/page';
 
-export default async function Home() {
+export default async function LoginPage() {
   const supabase = createServerComponentClient({ cookies });
 
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  if (!session) {
-    redirect('/login');
+  if (session) {
+    redirect('/');
   }
 
   return (
-    <DashboardLayout>
-      <DashboardPage />
-    </DashboardLayout>
+    <div className="flex min-h-screen flex-col items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <LoginForm />
+      </div>
+    </div>
   );
 }

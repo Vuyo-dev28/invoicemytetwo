@@ -12,24 +12,51 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { LogOut, User, CreditCard, Settings } from "lucide-react"
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 
 export function UserNav() {
+  const supabase = createClientComponentClient();
+  const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+    }
+    getUser();
+  }, [supabase.auth])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
+
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('');
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src="https://placehold.co/40x40.png" alt="@user" data-ai-hint="person face" />
-            <AvatarFallback>U</AvatarFallback>
+            <AvatarImage src={user?.user_metadata?.avatar_url} alt="@user" />
+            <AvatarFallback>
+                {user?.user_metadata?.first_name ? getInitials(user.user_metadata.first_name) : 'U'}
+            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Admin User</p>
+            <p className="text-sm font-medium leading-none">{user?.user_metadata?.first_name} {user?.user_metadata?.last_name}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              admin@invoice-ease.com
+              {user?.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -43,13 +70,13 @@ export function UserNav() {
             <CreditCard className="mr-2 h-4 w-4" />
             <span>Billing</span>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+          <DropdownMenuItem onClick={() => router.push('/settings')}>
             <Settings className="mr-2 h-4 w-4" />
             <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
         </DropdownMenuItem>
