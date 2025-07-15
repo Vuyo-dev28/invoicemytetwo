@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import Image from 'next/image';
-import { Upload } from 'lucide-react';
+import { Upload, Save } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import type { Profile } from '@/types';
@@ -160,7 +160,10 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
       <Separator className="my-6" />
 
       <div className="flex justify-end">
-        <Button onClick={handleSaveChanges}>Save Changes</Button>
+        <Button onClick={handleSaveChanges}>
+            <Save className="mr-2 h-4 w-4" />
+            Save Changes
+        </Button>
       </div>
     </div>
   );
