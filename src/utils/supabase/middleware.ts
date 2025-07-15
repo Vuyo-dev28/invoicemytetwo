@@ -3,10 +3,8 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  let response = NextResponse.next({
-    request: {
-      headers: request.headers,
-    },
+  let supabaseResponse = NextResponse.next({
+    request,
   });
 
   const supabase = createServerClient(
@@ -23,12 +21,10 @@ export async function updateSession(request: NextRequest) {
             value,
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+          supabaseResponse = NextResponse.next({
+            request,
           });
-          response.cookies.set({
+          supabaseResponse.cookies.set({
             name,
             value,
             ...options,
@@ -40,12 +36,10 @@ export async function updateSession(request: NextRequest) {
             value: "",
             ...options,
           });
-          response = NextResponse.next({
-            request: {
-              headers: request.headers,
-            },
+          supabaseResponse = NextResponse.next({
+            request,
           });
-          response.cookies.set({
+          supabaseResponse.cookies.set({
             name,
             value: "",
             ...options,
@@ -55,13 +49,21 @@ export async function updateSession(request: NextRequest) {
     },
   );
 
+  // refreshing the session will automatically send the headers if the
+  // session is still valid, or clear if the session is expired
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && !request.nextUrl.pathname.startsWith("/login")) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith('/login')
+  ) {
+    // no user, potentially respond by redirecting the user to the login page
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    return NextResponse.redirect(url)
   }
 
-  return response;
+  return supabaseResponse;
 }
