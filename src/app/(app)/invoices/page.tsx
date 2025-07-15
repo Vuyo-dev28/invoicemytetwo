@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import type { Client } from '@/types';
 
 async function getClients(): Promise<Client[]> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('clients').select('*');
 

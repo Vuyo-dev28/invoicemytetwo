@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Item } from '@/types';
 import { PlusCircle } from 'lucide-react';
+import { Textarea } from './ui/textarea';
 
 const itemSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -90,7 +91,7 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
                             <div className="grid gap-4 py-4">
                                 <div className="grid gap-2">
                                     <Label htmlFor="description">Description</Label>
-                                    <Input id="description" {...register('description')} />
+                                    <Textarea id="description" {...register('description')} />
                                     {errors.description && <p className="text-destructive text-sm">{errors.description.message}</p>}
                                 </div>
                                 <div className="grid gap-2">
