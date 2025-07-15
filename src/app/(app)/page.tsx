@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
 type DashboardStats = {
-  totalRevenue: number;
+  totalAmount: number;
   totalClients: number;
   paidInvoices: number;
   pendingInvoices: number;
@@ -15,16 +15,16 @@ async function getDashboardStats(): Promise<DashboardStats> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  // Fetch total revenue from paid invoices
-  const { data: revenueData, error: revenueError } = await supabase
+  // Fetch total amount from paid invoices
+  const { data: amountData, error: amountError } = await supabase
     .from('invoices')
     .select('total')
     .eq('status', 'paid');
 
-  if (revenueError) {
-    console.error('Error fetching revenue:', revenueError.message);
+  if (amountError) {
+    console.error('Error fetching total amount:', amountError.message);
   }
-  const totalRevenue = revenueData?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
+  const totalAmount = amountData?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
 
   // Fetch total clients
   const { count: clientCount, error: clientError } = await supabase
@@ -56,7 +56,7 @@ async function getDashboardStats(): Promise<DashboardStats> {
   }
 
   return {
-    totalRevenue,
+    totalAmount,
     totalClients: clientCount || 0,
     paidInvoices: paidInvoicesCount || 0,
     pendingInvoices: pendingInvoicesCount || 0
@@ -74,11 +74,11 @@ export default async function DashboardPage() {
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+          <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{formatCurrency(stats.totalRevenue)}</div>
+          <div className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</div>
           <p className="text-xs text-muted-foreground">From all paid invoices</p>
         </CardContent>
       </Card>
