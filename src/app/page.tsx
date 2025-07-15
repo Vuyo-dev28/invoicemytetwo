@@ -1,8 +1,6 @@
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import AppLayout from './(app)/layout';
-import DashboardPage from './(app)/page';
 
 export default async function Home() {
   const supabase = createServerComponentClient({ cookies });
@@ -15,9 +13,6 @@ export default async function Home() {
     redirect('/login');
   }
 
-  return (
-    <AppLayout>
-      <DashboardPage />
-    </AppLayout>
-  );
+  // If there is a session, redirect to the dashboard
+  redirect('/invoices');
 }
