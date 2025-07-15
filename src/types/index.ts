@@ -12,7 +12,6 @@ export type Profile = {
 
 export type Client = {
   id: string;
-  user_id: string;
   name: string;
   email: string | null;
   address: string | null;
@@ -22,7 +21,6 @@ export type Client = {
 
 export type Item = {
   id: string;
-  user_id: string;
   description: string;
   rate: number;
   created_at: string;
@@ -30,7 +28,6 @@ export type Item = {
 
 export type Invoice = {
   id: string;
-  user_id: string;
   client_id: string | null;
   invoice_number: string;
   issue_date: string;
@@ -44,7 +41,6 @@ export type Invoice = {
 
 export type InvoiceItem = {
   id: string;
-  user_id: string;
   invoice_id: string;
   item_id: string | null;
   description: string;
