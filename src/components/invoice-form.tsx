@@ -220,6 +220,25 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                 </div>
                 <p className="print-only mt-2 text-sm">{paymentTerms.replace('net', 'Net ')}</p>
               </div>
+              <div>
+                  <Label htmlFor="currency" className="font-semibold">Currency</Label>
+                   <div className="no-print">
+                      <Select value={currency} onValueChange={setCurrency}>
+                        <SelectTrigger id="currency" className="mt-2">
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                          <SelectItem value="JPY">JPY</SelectItem>
+                          <SelectItem value="AUD">AUD</SelectItem>
+                          <SelectItem value="CAD">CAD</SelectItem>
+                        </SelectContent>
+                      </Select>
+                   </div>
+                   <p className="print-only mt-2 text-sm">{currency}</p>
+              </div>
           </div>
         </div>
         
