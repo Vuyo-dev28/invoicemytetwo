@@ -42,7 +42,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   const [profile, setProfile] = useState<Profile | null>({
     company_name: 'Your Company',
     company_address: '123 Main St, Anytown, USA',
-    logo_url: 'https://placehold.co/300x300.png'
+    logo_url: 'https://placehold.co/100x100.png'
   });
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -155,14 +155,14 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
         <header className="template-header">
           {template === 'formal' ? (
               <div className="company-details">
-                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={300} height={300} className="mb-4" data-ai-hint="logo" />}
+                  {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
                   <h2>{profile?.company_name || 'Your Company'}</h2>
                   <p>{profile?.company_address || 'Your Address'}</p>
               </div>
           ) : template === 'elegant' ? (
-            <>
+            <div className="w-full flex flex-col items-center">
               <div className="company-details">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={300} height={300} className="mb-4" data-ai-hint="logo" />}
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
               </div>
               <div>
                 <h1 className="invoice-title">INVOICE</h1>
@@ -171,7 +171,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                  <h2>{profile?.company_name || 'Your Company'}</h2>
                  <p>{profile?.company_address || 'Your Address'}</p>
              </div>
-            </>
+            </div>
           ) : (
             <>
               <div>
@@ -179,7 +179,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                   <p className="text-muted-foreground"># {invoiceNumber}</p>
               </div>
               <div className="company-details">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={300} height={300} className="mb-4" data-ai-hint="logo" />}
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
                 <h2 className={cn('text-xl font-semibold')}>
                   {profile?.company_name || 'Your Company'}
                 </h2>
