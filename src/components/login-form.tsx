@@ -57,11 +57,10 @@ export function LoginForm() {
         description: error.message,
         variant: "destructive",
       })
+      setLoading(false)
     } else {
-        router.push('/')
-        router.refresh()
+        window.location.href = '/'
     }
-    setLoading(false)
   }
 
   return (
