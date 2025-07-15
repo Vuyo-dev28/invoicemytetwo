@@ -129,7 +129,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
 
   const CompanyDetails = () => (
     <div className="company-details">
-      {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2 ml-auto" data-ai-hint="logo" />}
+      {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2" data-ai-hint="logo" />}
       <h2 className="text-xl font-semibold">{profile?.company_name || 'Your Company'}</h2>
       <p className="text-muted-foreground">{profile?.company_address || 'Your Address'}</p>
     </div>
