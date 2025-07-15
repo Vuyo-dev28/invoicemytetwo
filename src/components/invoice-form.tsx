@@ -32,6 +32,7 @@ type Profile = {
 }
 
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
+type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
 
 export function InvoiceForm({ clients, items }: { clients: Client[], items: Item[] }) {
   const { toast } = useToast()
@@ -58,10 +59,18 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   
   const [paymentTerms, setPaymentTerms] = useState("net30");
   const [template, setTemplate] = useState<Template>("swiss");
+  const [documentType, setDocumentType] = useState<DocumentType>("Invoice");
 
+  const documentTypePrefixes = {
+    "Invoice": "INV",
+    "Estimate": "EST",
+    "Credit note": "CN",
+    "Delivery note": "DN",
+    "Purchase order": "PO",
+  }
 
   useEffect(() => {
-    setInvoiceNumber(`INV-${Math.floor(1000 + Math.random() * 9000)}`);
+    setInvoiceNumber(`${documentTypePrefixes[documentType]}-${Math.floor(1000 + Math.random() * 9000)}`);
     if(clients.length > 0) {
       setSelectedClient(clients[0]);
     }
@@ -69,6 +78,10 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
       { id: `item-${Date.now()}`, description: '', quantity: 1, rate: 0 },
     ])
   }, [clients]);
+
+  useEffect(() => {
+    setInvoiceNumber(`${documentTypePrefixes[documentType]}-${Math.floor(1000 + Math.random() * 9000)}`);
+  }, [documentType]);
 
   useEffect(() => {
     const newSubtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.rate), 0);
@@ -107,14 +120,14 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   const handleSaveDraft = () => {
     toast({
       title: "Draft Saved",
-      description: "Your invoice has been saved as a draft.",
+      description: `Your ${documentType.toLowerCase()} has been saved as a draft.`,
     });
   };
 
   const handleSend = () => {
     toast({
-      title: "Invoice Sent",
-      description: "Your invoice has been sent to the client.",
+      title: `${documentType} Sent`,
+      description: `Your ${documentType.toLowerCase()} has been sent to the client.`,
       variant: 'default',
     });
   }
@@ -128,11 +141,26 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
     setSelectedClient(client);
   };
 
+  const isFinancialDocument = ["Invoice", "Credit note"].includes(documentType);
+
   return (
     <div className="space-y-4">
       <Card className="no-print">
         <CardContent className="p-4 flex items-center justify-between">
-            <h1 className="text-2xl font-bold">New Invoice</h1>
+            <div className="flex items-center gap-2">
+                <Select value={documentType} onValueChange={(value) => setDocumentType(value as DocumentType)}>
+                    <SelectTrigger id="documentType" className="w-[180px] text-2xl font-bold h-auto border-0 shadow-none focus:ring-0">
+                        <SelectValue placeholder="Select a document type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Invoice">Invoice</SelectItem>
+                        <SelectItem value="Estimate">Estimate</SelectItem>
+                        <SelectItem value="Credit note">Credit note</SelectItem>
+                        <SelectItem value="Delivery note">Delivery note</SelectItem>
+                        <SelectItem value="Purchase order">Purchase order</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
              <div className="flex items-center gap-2">
                 <Label htmlFor="template">Template</Label>
                 <Select value={template} onValueChange={(value) => setTemplate(value as Template)}>
@@ -165,7 +193,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                 {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
               </div>
               <div>
-                <h1 className="invoice-title">INVOICE</h1>
+                <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
               </div>
              <div className="company-details">
                  <h2>{profile?.company_name || 'Your Company'}</h2>
@@ -175,7 +203,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
           ) : (
             <>
               <div>
-                  <h1 className="invoice-title">INVOICE</h1>
+                  <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
                   <p className="text-muted-foreground"># {invoiceNumber}</p>
               </div>
               <div className="company-details">
@@ -193,7 +221,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
         
         {template === 'formal' && (
             <div className="invoice-title-section">
-                <h2 className="invoice-title">Invoice</h2>
+                <h2 className="invoice-title">{documentType.toUpperCase()}</h2>
                 <p className="text-sm text-muted-foreground"># {invoiceNumber}</p>
             </div>
         )}
@@ -244,39 +272,43 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                     </div>
                     <p className="print-only mt-2">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
                 </div>
-                <div>
-                    <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
-                    <div className="no-print">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                        <Button id="due-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
-                        </PopoverContent>
-                    </Popover>
+                {isFinancialDocument && (
+                  <>
+                    <div>
+                        <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
+                        <div className="no-print">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <Button id="due-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                            </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
+                            </PopoverContent>
+                        </Popover>
+                        </div>
+                        <p className="print-only mt-2">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
                     </div>
-                    <p className="print-only mt-2">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
-                </div>
-                <div>
-                    <Label htmlFor="payment-terms" className="font-semibold">Payment Terms</Label>
-                    <div className="no-print">
-                        <Select value={paymentTerms} onValueChange={setPaymentTerms}>
-                        <SelectTrigger id="payment-terms" className="mt-2">
-                            <SelectValue placeholder="Select terms" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="net15">Net 15</SelectItem>
-                            <SelectItem value="net30">Net 30</SelectItem>
-                            <SelectItem value="net60">Net 60</SelectItem>
-                        </SelectContent>
-                        </Select>
+                    <div>
+                        <Label htmlFor="payment-terms" className="font-semibold">Payment Terms</Label>
+                        <div className="no-print">
+                            <Select value={paymentTerms} onValueChange={setPaymentTerms}>
+                            <SelectTrigger id="payment-terms" className="mt-2">
+                                <SelectValue placeholder="Select terms" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="net15">Net 15</SelectItem>
+                                <SelectItem value="net30">Net 30</SelectItem>
+                                <SelectItem value="net60">Net 60</SelectItem>
+                            </SelectContent>
+                            </Select>
+                        </div>
+                        <p className="print-only mt-2">{paymentTerms.replace('net', 'Net ')}</p>
                     </div>
-                    <p className="print-only mt-2">{paymentTerms.replace('net', 'Net ')}</p>
-                </div>
+                  </>
+                )}
                 <div>
                     <Label htmlFor="currency" className="font-semibold">Currency</Label>
                     <div className="no-print">
@@ -382,7 +414,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
         <CardFooter className="p-6 bg-muted/50 border-t flex justify-end gap-2 no-print">
             <Button variant="outline" onClick={handleSaveDraft}>Save Draft</Button>
             <Button onClick={handlePrint} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PDF</Button>
-            <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send Invoice</Button>
+            <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send {documentType}</Button>
         </CardFooter>
       </div>
     </div>
