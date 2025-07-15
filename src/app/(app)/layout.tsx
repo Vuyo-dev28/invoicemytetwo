@@ -13,14 +13,11 @@ import {
     Truck, 
     ShoppingCart, 
     LineChart,
-    Gift,
-    LogOut
+    Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
-import { createClient } from '@/utils/supabase/client';
-import { useRouter } from 'next/navigation';
 
 function AppLayout({
   children,
@@ -29,13 +26,6 @@ function AppLayout({
 }>) {
   
   const pathname = usePathname();
-  const router = useRouter();
-
-  const handleSignOut = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push('/login');
-  };
 
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: Activity },
@@ -85,10 +75,6 @@ function AppLayout({
                   <Settings className="h-4 w-4" />
                   Settings
                 </Link>
-                <Button variant="ghost" onClick={handleSignOut} className="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground justify-start transition-all hover:text-primary">
-                    <LogOut className="h-4 w-4" />
-                    Log Out
-                </Button>
             </nav>
           </div>
         </div>
@@ -134,10 +120,6 @@ function AppLayout({
                     <Settings className="h-5 w-5" />
                     Settings
                   </Link>
-                  <Button variant="ghost" onClick={handleSignOut} className="mx-[-0.65rem] w-full flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground justify-start transition-all hover:text-foreground">
-                    <LogOut className="h-5 w-5" />
-                    Log Out
-                 </Button>
               </div>
             </SheetContent>
           </Sheet>

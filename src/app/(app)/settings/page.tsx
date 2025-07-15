@@ -5,27 +5,21 @@ import type { Profile } from "@/types";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from 'next/navigation';
 
 export default function SettingsPage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
 
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-
-            if (!user) {
-              router.push('/login');
-              return;
-            }
             
+            // Assuming there's only one profile for the public app for now.
+            // A more robust solution might involve a specific ID.
             const { data, error } = await supabase
                 .from('profiles')
                 .select('*')
-                .eq('id', user.id)
+                .limit(1)
                 .single();
             
             if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
@@ -36,7 +30,7 @@ export default function SettingsPage() {
             setLoading(false);
         }
         getProfile();
-    }, [router]);
+    }, []);
 
 
     if (loading) {

@@ -38,23 +38,15 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const [profileId, setProfileId] = useState<string | null>(initialProfile?.id || null);
 
   useEffect(() => {
-      const setupProfile = async () => {
-        if (initialProfile) {
-            setProfile(initialProfile);
-            setProfileId(initialProfile.id);
-            if (initialProfile.accent_color) {
-              document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
-              document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
-            }
-        } else {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                setProfileId(user.id);
-            }
-        }
+      if (initialProfile) {
+          setProfile(initialProfile);
+          setProfileId(initialProfile.id);
+          if (initialProfile.accent_color) {
+            document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
+            document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
+          }
       }
-      setupProfile();
-  }, [initialProfile, supabase.auth]);
+  }, [initialProfile]);
 
   const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
@@ -86,14 +78,14 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleSaveChanges = async () => {
     if (!profileId) {
-      toast({ title: 'Error', description: 'User not authenticated.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'No profile to save.', variant: 'destructive' });
       return;
     }
     
-    // The profile is created by a DB trigger, so we only need to update it.
+    // The profile might not exist, so we upsert it.
     const { error } = await supabase
         .from('profiles')
-        .update(profile)
+        .upsert({ ...profile, id: profileId })
         .eq('id', profileId);
 
     if (error) {
@@ -146,7 +138,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                   </div>
                 )}
                
-                <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading || !profileId}>
+                <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
                   {isUploading ? 'Uploading...' : 'Upload'}
                 </Button>
                  <input
@@ -155,7 +147,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                   className="hidden"
                   accept="image/*"
                   onChange={handleLogoUpload}
-                  disabled={isUploading || !profileId}
+                  disabled={isUploading}
                 />
               </div>
             </div>

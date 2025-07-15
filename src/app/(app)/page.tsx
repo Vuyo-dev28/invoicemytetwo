@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DollarSign, Users, CreditCard, Send } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-import { redirect } from 'next/navigation';
 
 type DashboardStats = {
   totalAmount: number;
@@ -16,50 +15,41 @@ async function getDashboardStats(): Promise<DashboardStats> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
-    return { totalAmount: 0, totalClients: 0, paidInvoices: 0, pendingInvoices: 0 };
-  }
-
-  // Fetch total amount from paid invoices for the current user
+  // Fetch total amount from paid invoices
   const { data: amountData, error: amountError } = await supabase
     .from('invoices')
     .select('total')
-    .eq('status', 'paid')
-    .eq('profile_id', user.id);
+    .eq('status', 'paid');
 
   if (amountError) {
     console.error('Error fetching total amount:', amountError.message);
   }
   const totalAmount = amountData?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
 
-  // Fetch total clients for the current user
+  // Fetch total clients
    const { count: clientCount, error: clientError } = await supabase
     .from('clients')
-    .select('*', { count: 'exact', head: true })
-    .eq('profile_id', user.id);
+    .select('*', { count: 'exact', head: true });
   
   if (clientError) {
     console.error('Error fetching client count:', clientError.message);
   }
 
-  // Fetch paid invoices count for the current user
+  // Fetch paid invoices count
   const { count: paidInvoicesCount, error: paidInvoicesError } = await supabase
     .from('invoices')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'paid')
-    .eq('profile_id', user.id);
+    .eq('status', 'paid');
 
   if (paidInvoicesError) {
     console.error('Error fetching paid invoices count:', paidInvoicesError.message);
   }
 
-  // Fetch pending (sent) invoices count for the current user
+  // Fetch pending (sent) invoices count
   const { count: pendingInvoicesCount, error: pendingInvoicesError } = await supabase
     .from('invoices')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'sent')
-    .eq('profile_id', user.id);
+    .eq('status', 'sent');
 
   if (pendingInvoicesError) {
     console.error('Error fetching pending invoices count:', pendingInvoicesError.message);
@@ -74,15 +64,6 @@ async function getDashboardStats(): Promise<DashboardStats> {
 }
 
 export default async function DashboardPage() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    redirect('/login');
-  }
-
   const stats = await getDashboardStats();
 
   const formatCurrency = (amount: number) => {

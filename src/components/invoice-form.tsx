@@ -87,13 +87,11 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        
+        // Fetch the first profile available, as it's a public app
         const { data: profileData, error } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', user.id)
+            .limit(1)
             .single();
         
         if (profileData) {

@@ -46,16 +46,7 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
     const { register, handleSubmit, formState: { errors }, reset } = form;
 
     const onSubmit = async (values: ClientFormValues) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-            toast({ title: "Not authenticated", description: "You must be logged in to create a client.", variant: "destructive" });
-            return;
-        }
-
-        // The client payload does not include profile_id as per schema
-        const clientPayload = { ...values };
-
-        const { data, error } = await supabase.from('clients').insert([clientPayload]).select();
+        const { data, error } = await supabase.from('clients').insert([values]).select();
         
         if (error) {
             toast({
