@@ -22,7 +22,7 @@ async function getDashboardStats(): Promise<DashboardStats> {
     .eq('status', 'paid');
 
   if (revenueError) {
-    console.error('Error fetching revenue:', revenueError);
+    console.error('Error fetching revenue:', revenueError.message);
   }
   const totalRevenue = revenueData?.reduce((sum, item) => sum + (item.total || 0), 0) || 0;
 
@@ -32,7 +32,7 @@ async function getDashboardStats(): Promise<DashboardStats> {
     .select('*', { count: 'exact', head: true });
   
   if (clientError) {
-    console.error('Error fetching client count:', clientError);
+    console.error('Error fetching client count:', clientError.message);
   }
 
   // Fetch paid invoices count
@@ -42,7 +42,7 @@ async function getDashboardStats(): Promise<DashboardStats> {
     .eq('status', 'paid');
 
   if (paidInvoicesError) {
-    console.error('Error fetching paid invoices count:', paidInvoicesError);
+    console.error('Error fetching paid invoices count:', paidInvoicesError.message);
   }
 
   // Fetch pending (sent) invoices count
@@ -52,7 +52,7 @@ async function getDashboardStats(): Promise<DashboardStats> {
     .eq('status', 'sent');
 
   if (pendingInvoicesError) {
-    console.error('Error fetching pending invoices count:', pendingInvoicesError);
+    console.error('Error fetching pending invoices count:', pendingInvoicesError.message);
   }
 
   return {
