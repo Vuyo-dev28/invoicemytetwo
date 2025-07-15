@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image';
+import { Client } from '@/types';
 
 type LineItem = {
   id: string;
@@ -27,7 +28,7 @@ type Profile = {
   logo_url: string;
 }
 
-export function InvoiceForm() {
+export function InvoiceForm({ clients }: { clients: Client[] }) {
   const { toast } = useToast()
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
@@ -38,6 +39,8 @@ export function InvoiceForm() {
     company_address: '123 Main St, Anytown, USA',
     logo_url: 'https://placehold.co/100x100.png'
   });
+
+  const [selectedClient, setSelectedClient] = useState<Client | null>(clients.length > 0 ? clients[0] : null);
 
   const [lineItems, setLineItems] = useState<LineItem[]>([
     { id: `item-${Date.now()}`, description: 'Web Design Services', quantity: 10, rate: 100 },
@@ -102,6 +105,12 @@ export function InvoiceForm() {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
   };
 
+  const handleClientChange = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId) || null;
+    setSelectedClient(client);
+  };
+
+
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader className="p-6 bg-muted/50 border-b">
@@ -121,10 +130,27 @@ export function InvoiceForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
             <Label className="font-semibold text-base">Bill To:</Label>
-            <Input placeholder="Client Name" className="mt-2" defaultValue="Client Corp" />
-            <Input placeholder="Client Address" className="mt-2" defaultValue="456 Client Ave, Client Town, 54321" />
-            <Input placeholder="Client Email" className="mt-2" type="email" defaultValue="contact@clientcorp.com" />
-            <Input placeholder="VAT/Tax Number" className="mt-2" defaultValue="VAT12345678" />
+            <Select onValueChange={handleClientChange} defaultValue={selectedClient?.id}>
+              <SelectTrigger className="mt-2">
+                <SelectValue placeholder="Select a client" />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map(client => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {selectedClient && (
+              <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                <p>{selectedClient.address}</p>
+                <p>{selectedClient.email}</p>
+                <p>VAT: {selectedClient.vat_number}</p>
+              </div>
+            )}
+            
           </div>
           <div className="grid grid-cols-2 gap-4">
               <div>
