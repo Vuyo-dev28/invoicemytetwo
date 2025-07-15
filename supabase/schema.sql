@@ -1,53 +1,54 @@
 -- Create Clients Table
 CREATE TABLE clients (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name TEXT NOT NULL,
     email TEXT,
     address TEXT,
     vat_number TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT now()
 );
--- Disable RLS for clients table
-ALTER TABLE public.clients DISABLE ROW LEVEL SECURITY;
-
 
 -- Create Items Table
 CREATE TABLE items (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     description TEXT NOT NULL,
     rate NUMERIC(10, 2) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT now()
 );
--- Disable RLS for items table
-ALTER TABLE public.items DISABLE ROW LEVEL SECURITY;
-
 
 -- Create Invoices Table
 CREATE TABLE invoices (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    client_id uuid REFERENCES clients(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
     invoice_number TEXT NOT NULL,
     issue_date DATE NOT NULL,
     due_date DATE,
-    status TEXT DEFAULT 'draft'::text NOT NULL, -- draft, sent, paid, overdue
+    status TEXT NOT NULL DEFAULT 'draft', -- e.g., 'draft', 'sent', 'paid', 'overdue'
     notes TEXT,
     tax_percent NUMERIC(5, 2) DEFAULT 0,
     discount_percent NUMERIC(5, 2) DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT now()
 );
--- Disable RLS for invoices table
-ALTER TABLE public.invoices DISABLE ROW LEVEL SECURITY;
-
 
 -- Create Invoice Items Table
 CREATE TABLE invoice_items (
-    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-    invoice_id uuid REFERENCES invoices(id) ON DELETE CASCADE NOT NULL,
-    item_id uuid REFERENCES items(id) ON DELETE SET NULL,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+    item_id UUID REFERENCES items(id) ON DELETE SET NULL, -- optional link to a predefined item
     description TEXT NOT NULL,
     quantity NUMERIC(10, 2) NOT NULL,
     rate NUMERIC(10, 2) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+    created_at TIMESTAMPTZ DEFAULT now()
 );
--- Disable RLS for invoice_items table
-ALTER TABLE public.invoice_items DISABLE ROW LEVEL SECURITY;
+
+-- Enable Row Level Security (RLS) for all tables
+ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoices ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.invoice_items ENABLE ROW LEVEL SECURITY;
+
+-- Create policies to allow full public access since there is no authentication
+CREATE POLICY "Allow public access to clients" ON public.clients FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public access to items" ON public.items FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public access to invoices" ON public.invoices FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow public access to invoice_items" ON public.invoice_items FOR ALL USING (true) WITH CHECK (true);
