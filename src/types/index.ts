@@ -1,3 +1,15 @@
+export type Profile = {
+  id: string;
+  company_name: string;
+  business_type: string | null;
+  currency: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  company_address: string | null;
+  logo_url: string | null;
+  accent_color: string | null;
+};
+
 export type Client = {
   id: string;
   user_id: string;
@@ -5,8 +17,6 @@ export type Client = {
   email: string | null;
   address: string | null;
   vat_number: string | null;
-  business_type: string | null;
-  currency: string | null;
   created_at: string;
 };
 
@@ -34,6 +44,7 @@ export type Invoice = {
 
 export type InvoiceItem = {
   id: string;
+  user_id: string;
   invoice_id: string;
   item_id: string | null;
   description: string;

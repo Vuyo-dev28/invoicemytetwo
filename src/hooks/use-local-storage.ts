@@ -6,15 +6,24 @@ function getValueFromLocalStorage<T>(key: string) {
     if (typeof window === 'undefined') {
         return null;
     }
-    const item = window.localStorage.getItem(key);
-    return item ? JSON.parse(item) : null;
+    try {
+        const item = window.localStorage.getItem(key);
+        return item ? JSON.parse(item) : null;
+    } catch (error) {
+        console.warn(`Error reading localStorage key “${key}”:`, error);
+        return null;
+    }
 }
 
 function saveValueToLocalStorage<T>(key: string, value: T) {
     if (typeof window === 'undefined') {
         return;
     }
-    window.localStorage.setItem(key, JSON.stringify(value));
+    try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+        console.warn(`Error setting localStorage key “${key}”:`, error);
+    }
 }
 
 export function useLocalStorage<T>(key: string, initialValue: T) {

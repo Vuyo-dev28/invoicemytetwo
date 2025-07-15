@@ -12,8 +12,9 @@ import { Calendar as CalendarIcon, PlusCircle, Trash2, Download, Send } from 'lu
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
-import { useLocalStorage } from '@/hooks/use-local-storage';
 import Image from 'next/image';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 type LineItem = {
   id: string;
@@ -22,15 +23,20 @@ type LineItem = {
   rate: number;
 };
 
+type Profile = {
+  company_name: string;
+  company_address: string;
+  logo_url: string;
+}
+
 export function InvoiceForm() {
   const { toast } = useToast()
+  const router = useRouter();
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
   
-  const [companyName] = useLocalStorage('companyName', 'Your Company Inc.');
-  const [companyAddress] = useLocalStorage('companyAddress', '123 Business Rd, Suite 100, Business City, 12345');
-  const [companyLogo] = useLocalStorage('companyLogo', '');
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   const [lineItems, setLineItems] = useState<LineItem[]>([
     { id: `item-${Date.now()}`, description: 'Web Design Services', quantity: 10, rate: 100 },
@@ -45,9 +51,27 @@ export function InvoiceForm() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    // Avoid hydration error for random number
     setInvoiceNumber(`INV-${Math.floor(1000 + Math.random() * 9000)}`);
-  }, []);
+
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('company_name, company_address, logo_url')
+        .eq('id', user.id)
+        .single();
+      
+      if (data) {
+        setProfile(data);
+      }
+    };
+    fetchProfile();
+  }, [router]);
 
   useEffect(() => {
     const newSubtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.rate), 0);
@@ -105,9 +129,9 @@ export function InvoiceForm() {
             <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
           </div>
           <div className="text-right">
-            {companyLogo && <Image src={companyLogo as string} alt="Company Logo" width={100} height={100} className="mb-2 ml-auto" />}
-            <h2 className="text-xl font-semibold">{companyName}</h2>
-            <p className="text-muted-foreground">{companyAddress}</p>
+            {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2 ml-auto" />}
+            <h2 className="text-xl font-semibold">{profile?.company_name || 'Your Company'}</h2>
+            <p className="text-muted-foreground">{profile?.company_address || 'Your Address'}</p>
           </div>
         </div>
       </CardHeader>
