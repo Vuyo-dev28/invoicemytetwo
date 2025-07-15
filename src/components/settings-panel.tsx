@@ -38,23 +38,22 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const [profileId, setProfileId] = useState<string | null>(initialProfile?.id || null);
 
   useEffect(() => {
-      if (initialProfile) {
-          setProfile(initialProfile);
-          setProfileId(initialProfile.id);
-          if (initialProfile.accent_color) {
-            document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
-            document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
-          }
-      } else {
-        // If there's no initial profile, get the user ID to set the profileId
-        const setupProfileId = async () => {
+      const setupProfile = async () => {
+        if (initialProfile) {
+            setProfile(initialProfile);
+            setProfileId(initialProfile.id);
+            if (initialProfile.accent_color) {
+              document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
+              document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
+            }
+        } else {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 setProfileId(user.id);
             }
-        };
-        setupProfileId();
+        }
       }
+      setupProfile();
   }, [initialProfile, supabase.auth]);
 
   const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
@@ -91,17 +90,17 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
       return;
     }
     
-    // Always an update now because the profile is created by a trigger
+    // The profile is created by a DB trigger, so we only need to update it.
     const { error } = await supabase
         .from('profiles')
         .update(profile)
         .eq('id', profileId);
 
     if (error) {
-    toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
     } else {
-    toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
-    router.refresh();
+      toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+      router.refresh();
     }
   };
 
