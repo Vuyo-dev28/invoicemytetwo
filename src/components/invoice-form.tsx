@@ -397,7 +397,7 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                     <Textarea placeholder="Any additional notes..." className="mt-2 no-print" />
                     <div className="mt-4">
                         <Label className="font-semibold">Signature</Label>
-                        <div className="mt-2 border rounded-md p-4 min-h-[100px] flex items-center justify-center">
+                        <div className="mt-2 border rounded-md p-4 min-h-[60px] flex items-center justify-center">
                             {signature ? (
                                 <div className="text-center">
                                     <Image src={signature} alt="Signature" width={150} height={75} />
@@ -453,21 +453,21 @@ export function InvoiceForm({ clients, items, documentType }: { clients: Client[
                 </div>
                 <div className="flex justify-end">
                     <div className="w-full max-w-sm space-y-4 totals-section">
-                        <div className={cn("flex justify-between items-center", template === 'elegant' && 'elegant-total-row', template === 'formal' && 'elegant-total-row')}>
+                        <div className={cn("flex justify-between items-center elegant-total-row", template === 'formal' && 'elegant-total-row')}>
                             <span>Subtotal</span>
                             <span className="font-medium">{formatCurrency(subtotal)}</span>
                         </div>
-                        <div className={cn("flex justify-between items-center", template === 'elegant' && 'elegant-total-row', template === 'formal' && 'elegant-total-row')}>
+                        <div className={cn("flex justify-between items-center elegant-total-row", template === 'formal' && 'elegant-total-row')}>
                             <Label htmlFor="discount" className="no-print">Discount (%)</Label>
                             <span className="print-only">Discount ({discount}%)</span>
                             <Input id="discount" type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                         </div>
-                        <div className={cn("flex justify-between items-center", template === 'elegant' && 'elegant-total-row', template === 'formal' && 'elegant-total-row')}>
+                        <div className={cn("flex justify-between items-center elegant-total-row", template === 'formal' && 'elegant-total-row')}>
                             <Label htmlFor="tax" className="no-print">Tax (%)</Label>
                             <span className="print-only">Tax ({tax}%)</span>
                             <Input id="tax" type="number" value={tax} onChange={(e) => setTax(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                         </div>
-                         <div className={cn("flex justify-between items-center border-t pt-4 text-lg", template === 'elegant' ? 'elegant-total' : 'font-bold' )}>
+                         <div className={cn("flex justify-between items-center border-t pt-4 text-lg elegant-total", template !== 'elegant' && 'font-bold' )}>
                             <span>Total</span>
                             <span>{formatCurrency(total)}</span>
                         </div>
