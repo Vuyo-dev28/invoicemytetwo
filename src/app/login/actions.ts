@@ -19,7 +19,6 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    // You can handle login errors more gracefully, e.g., showing a message.
     return redirect('/login?message=Could not authenticate user')
   }
 
@@ -34,22 +33,22 @@ export async function signup(formData: FormData) {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
 
+  // Use NEXT_PUBLIC_APP_URL which should be defined in your environment
+  const origin = process.env.NEXT_PUBLIC_APP_URL
+
   const { error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${origin}/auth/callback`,
     },
   })
 
   if (error) {
-    // You can handle signup errors.
-    return redirect('/login?message=Could not authenticate user')
+    console.error('Signup Error:', error);
+    return redirect('/login?message=Could not sign up user. Please try again.')
   }
   
-  // Note: The database trigger 'handle_new_user' will automatically create
-  // the corresponding 'profiles' and 'users' entries.
-
-  revalidatePath('/', 'layout')
-  redirect('/')
+  // Redirect to a page that tells the user to check their email
+  return redirect('/login?message=Check your email to continue the sign up process')
 }
