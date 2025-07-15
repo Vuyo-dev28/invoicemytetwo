@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Gift } from 'lucide-react'
 
-export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {
+export default async function LoginPage({ searchParams }: { searchParams: { message: string } }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40">
         <Card className="mx-auto max-w-sm">
