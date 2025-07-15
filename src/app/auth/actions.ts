@@ -55,10 +55,12 @@ export async function signup(formData: FormData) {
   }
 
   if (user) {
+    // The 'id' in the profiles table is of type 'text', but user.id is a UUID.
+    // Supabase client should handle the conversion, but we ensure the object matches the table schema.
     const { error: profileError } = await supabase
       .from('profiles')
       .insert({
-        id: user.id, // Use the user's ID from the signup response
+        id: user.id, // This should be correctly cast by the Supabase client.
         company_name: data.company_name,
         business_type: data.business_type,
         currency: data.currency,
@@ -68,7 +70,9 @@ export async function signup(formData: FormData) {
     
     if (profileError) {
         console.error("Profile creation error:", profileError);
-        return redirect(`/signup?message=Could not create user profile. ${profileError.message}`);
+        // This is a critical error, we should inform the user.
+        // We can't easily roll back the user creation, but we can prevent them from proceeding.
+        return redirect(`/signup?message=Could not create user profile. Please contact support. ${profileError.message}`);
     }
   }
 

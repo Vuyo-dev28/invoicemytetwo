@@ -44,16 +44,22 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
     getUser();
   }, [supabase.auth]);
 
-  const handleUpdate = (field: keyof Omit<Profile, 'id' | 'created_at'>, value: string | null) => {
+  useEffect(() => {
+      if (initialProfile) {
+          setProfile(initialProfile);
+      }
+  }, [initialProfile]);
+
+  const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
   };
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     setUploading(true);
-    const fileName = `${Date.now()}_${file.name}`;
+    const fileName = `${user.id}/${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
         .from('logos')
         .upload(fileName, file);
@@ -78,6 +84,8 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
       return;
     }
     
+    // We are using 'upsert' which will insert a new row if one with the matching 'id' doesn't exist,
+    // or update it if it does. This is safe for both new and existing profiles.
     const { error } = await supabase
         .from('profiles')
         .upsert({ id: user.id, ...profile }, { onConflict: 'id' });
@@ -91,8 +99,8 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   useEffect(() => {
     if (profile?.accent_color) {
-      document.documentElement.style.setProperty('--primary', profile.accent_color);
-      document.documentElement.style.setProperty('--ring', profile.accent_color);
+      document.documentElement.style.setProperty('--primary', profile.accent_color.split(' ')[0] + ' ' + profile.accent_color.split(' ')[1]);
+      document.documentElement.style.setProperty('--ring', profile.accent_color.split(' ')[0] + ' ' + profile.accent_color.split(' ')[1]);
     }
   }, [profile?.accent_color]);
   

@@ -16,6 +16,8 @@ export default function SettingsPage() {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
+              // The 'id' in profiles is a text field, but user.id is a uuid.
+              // Supabase client should handle this, but we ensure we query correctly.
               const { data, error } = await supabase
                   .from('profiles')
                   .select('*')
