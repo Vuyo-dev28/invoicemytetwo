@@ -127,7 +127,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
 
 
   return (
-    <Card className="max-w-4xl mx-auto">
+    <Card className="max-w-4xl mx-auto print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:max-w-full">
       <CardHeader className="p-6 bg-muted/50 border-b">
         <div className="flex justify-between items-start">
           <div>

@@ -99,7 +99,7 @@ body {
     display: block;
   }
   @page {
-    size: auto;
+    size: A4;
     margin: 0;
   }
 }
