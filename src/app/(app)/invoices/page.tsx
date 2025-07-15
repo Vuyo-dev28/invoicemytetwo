@@ -1,10 +1,13 @@
 import { InvoiceForm } from '@/components/invoice-form';
-import { supabase } from '@/lib/supabase';
-import { Client } from '@/types';
+import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
+import type { Client } from '@/types';
 
 export const revalidate = 0;
 
 async function getClients(): Promise<Client[]> {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('clients').select('*');
 
   if (error) {

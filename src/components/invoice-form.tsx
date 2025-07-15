@@ -40,23 +40,26 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
     logo_url: 'https://placehold.co/100x100.png'
   });
 
-  const [selectedClient, setSelectedClient] = useState<Client | null>(clients.length > 0 ? clients[0] : null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
-  const [lineItems, setLineItems] = useState<LineItem[]>([
-    { id: `item-${Date.now()}`, description: 'Web Design Services', quantity: 10, rate: 100 },
-    { id: `item-${Date.now()+1}`, description: 'SEO Optimization', quantity: 5, rate: 75 },
-  ]);
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
 
   const [currency, setCurrency] = useState('USD');
-  const [tax, setTax] = useState(8);
-  const [discount, setDiscount] = useState(5);
+  const [tax, setTax] = useState(0);
+  const [discount, setDiscount] = useState(0);
 
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
     setInvoiceNumber(`INV-${Math.floor(1000 + Math.random() * 9000)}`);
-  }, []);
+    if(clients.length > 0) {
+      setSelectedClient(clients[0]);
+    }
+    setLineItems([
+      { id: `item-${Date.now()}`, description: '', quantity: 1, rate: 0 },
+    ])
+  }, [clients]);
 
   useEffect(() => {
     const newSubtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.rate), 0);
@@ -106,7 +109,7 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
   };
 
   const handleClientChange = (clientId: string) => {
-    const client = clients.find(c => c.id === clientId) || null;
+    const client = clients.find(c => c.id.toString() === clientId.toString()) || null;
     setSelectedClient(client);
   };
 

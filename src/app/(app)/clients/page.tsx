@@ -1,10 +1,12 @@
 import { ClientList } from "@/components/client-list";
-import { supabase } from "@/lib/supabase";
-import { Client } from "@/types";
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
 
 export const revalidate = 0;
 
 async function getClients() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('clients').select('*');
 
   if (error) {

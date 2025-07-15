@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Client } from '@/types';
@@ -30,6 +30,7 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
     const [isDialogOpen, setDialogOpen] = useState(false);
     const { toast } = useToast();
     const router = useRouter();
+    const supabase = createClient();
 
     const form = useForm<ClientFormValues>({
         resolver: zodResolver(clientSchema),
@@ -60,7 +61,7 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
             setClients(prev => [...prev, ...data]);
             setDialogOpen(false);
             reset();
-            router.refresh(); // Refresh server component data
+            router.refresh(); 
         }
     };
 
@@ -137,7 +138,7 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center">No clients found.</TableCell>
+                                    <TableCell colSpan={4} className="text-center">No clients found. Add one to get started.</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
