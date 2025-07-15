@@ -358,7 +358,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
       </div>
       
       {template === 'creative' && (
-        <div className="template-sidebar no-print print:block">
+        <div className="template-sidebar print:block">
            <CompanyDetails />
         </div>
       )}
