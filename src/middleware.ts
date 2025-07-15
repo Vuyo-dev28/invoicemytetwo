@@ -59,7 +59,9 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  if (!session && request.nextUrl.pathname !== '/login') {
+  const { pathname } = request.nextUrl
+
+  if (!session && pathname !== '/login' && pathname !== '/signup') {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -75,6 +77,6 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!_next/static|_next/image|favicon.ico|login).*)',
+    '/((?!_next/static|_next/image|favicon.ico|login|signup).*)',
   ],
 }
