@@ -3,8 +3,10 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   });
 
   const supabase = createServerClient(
@@ -16,54 +18,64 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
+          // If the cookie is set, update the request and response cookies.
           request.cookies.set({
             name,
             value,
             ...options,
           });
-          supabaseResponse = NextResponse.next({
-            request,
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
           });
-          supabaseResponse.cookies.set({
+          response.cookies.set({
             name,
             value,
             ...options,
           });
         },
         remove(name: string, options: CookieOptions) {
+          // If the cookie is removed, update the request and response cookies.
           request.cookies.set({
             name,
             value: "",
             ...options,
           });
-          supabaseResponse = NextResponse.next({
-            request,
+          response = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
           });
-          supabaseResponse.cookies.set({
+          response.cookies.set({
             name,
             value: "",
             ...options,
           });
         },
       },
-    },
+    }
   );
 
-  // refreshing the session will automatically send the headers if the
-  // session is still valid, or clear if the session is expired
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login')
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+  // Redirect to login if not authenticated and not on the login page.
+  if (!user && !request.nextUrl.pathname.startsWith("/login")) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/login";
+    return NextResponse.redirect(url);
   }
 
-  return supabaseResponse;
+  // If the user is logged in and tries to access the login page, redirect them to the dashboard.
+  if (user && request.nextUrl.pathname.startsWith('/login')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url);
+  }
+
+
+  // Refresh the session cookie and return the response.
+  return response;
 }
