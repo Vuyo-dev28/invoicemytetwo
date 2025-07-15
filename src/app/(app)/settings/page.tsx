@@ -5,23 +5,24 @@ import { createClient } from "@/utils/supabase/client";
 import type { Profile } from "@/types";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { User } from "@supabase/supabase-js";
 
 export default function SettingsPage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
 
             if (user) {
-              // The 'id' in profiles is a text field, but user.id is a uuid.
-              // Supabase client should handle this, but we ensure we query correctly.
               const { data, error } = await supabase
                   .from('profiles')
                   .select('*')
-                  .eq('id', user.id)
+                  .eq('id', user.id) // user.id is uuid, 'id' column is text. Supabase client handles this.
                   .single();
               
               if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
@@ -50,7 +51,7 @@ export default function SettingsPage() {
 
     return (
         <div className="flex flex-col h-full">
-            <SettingsPanel initialProfile={profile} />
+            <SettingsPanel initialProfile={profile} user={user} />
         </div>
     );
 }

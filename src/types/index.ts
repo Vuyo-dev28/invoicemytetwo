@@ -8,6 +8,7 @@ export type Profile = {
   currency?: string | null;
   first_name?: string | null;
   last_name?: string | null;
+  user_id?: string;
 };
 
 export type Client = {

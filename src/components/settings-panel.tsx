@@ -28,21 +28,12 @@ const defaultProfile: Omit<Profile, 'id'> = {
     accent_color: 'hsl(210 40% 60%)'
 }
 
-export function SettingsPanel({ initialProfile }: { initialProfile: Profile | null }) {
+export function SettingsPanel({ initialProfile, user }: { initialProfile: Profile | null, user: User | null }) {
   const [profile, setProfile] = useState<Omit<Profile, 'id'>>(initialProfile || defaultProfile);
-  const [user, setUser] = useState<User | null>(null);
   const [isUploading, setUploading] = useState(false);
   const { toast } = useToast();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-    }
-    getUser();
-  }, [supabase.auth]);
 
   useEffect(() => {
       if (initialProfile) {
