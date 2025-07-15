@@ -1,35 +1,30 @@
 
 "use client"
 import { SettingsPanel } from "@/components/settings-panel";
-import { createClient } from "@/utils/supabase/client";
 import type { Profile } from "@/types";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { User } from "@supabase/supabase-js";
+import { createClient } from "@/utils/supabase/client";
 
 export default function SettingsPage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
-    const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-
-            if (user) {
-              const { data, error } = await supabase
-                  .from('profiles')
-                  .select('*')
-                  .eq('id', user.id) // user.id is uuid, 'id' column is text. Supabase client handles this.
-                  .single();
-              
-              if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                  console.error('Error fetching profile:', error);
-              } else {
-                  setProfile(data);
-              }
+            // Since there is no user, we can try to fetch the first profile as a placeholder
+            // In a real multi-tenant app without auth, you'd need a different way to identify settings.
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .limit(1)
+                .single();
+            
+            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+                console.error('Error fetching profile:', error);
+            } else {
+                setProfile(data);
             }
             setLoading(false);
         }
@@ -51,7 +46,7 @@ export default function SettingsPage() {
 
     return (
         <div className="flex flex-col h-full">
-            <SettingsPanel initialProfile={profile} user={user} />
+            <SettingsPanel initialProfile={profile} />
         </div>
     );
 }

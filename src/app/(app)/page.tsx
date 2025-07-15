@@ -15,12 +15,6 @@ async function getDashboardStats(): Promise<DashboardStats> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    return { totalAmount: 0, totalClients: 0, paidInvoices: 0, pendingInvoices: 0 };
-  }
-
   // Fetch total amount from paid invoices
   const { data: amountData, error: amountError } = await supabase
     .from('invoices')

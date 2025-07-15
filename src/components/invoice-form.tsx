@@ -23,7 +23,6 @@ import type SignatureCanvas from 'react-signature-canvas';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
-import type { User } from '@supabase/supabase-js';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -60,7 +59,6 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const router = useRouter();
   const supabase = createClient();
   
-  const [user, setUser] = useState<User | null>(null);
   const [invoiceId, setInvoiceId] = useState<string | null>(initialInvoice?.id || null);
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
@@ -100,16 +98,14 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   }
 
   useEffect(() => {
-    const getUserAndProfile = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
-        if (user) {
-            const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+    const getProfile = async () => {
+        const { data: profileData } = await supabase.from('profiles').select('*').limit(1).single();
+        if(profileData) {
             setProfile(profileData);
         }
     }
-    getUserAndProfile();
-  }, [supabase, supabase.auth]);
+    getProfile();
+  }, [supabase]);
 
 
   useEffect(() => {
@@ -187,8 +183,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   };
 
   const saveInvoice = async (status: InvoiceStatus) => {
-    if (!user) {
-        toast({ title: "Not authenticated", description: "You must be logged in.", variant: "destructive" });
+    if (!profile) {
+        toast({ title: "Profile not loaded", description: "Cannot save invoice without a profile.", variant: "destructive" });
         return;
     }
     if (!selectedClient) {
@@ -197,7 +193,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     const invoicePayload = {
-        profile_id: user.id,
+        profile_id: profile.id,
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString(),

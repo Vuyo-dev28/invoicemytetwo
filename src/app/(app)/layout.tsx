@@ -18,11 +18,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
-import { UserNav } from '@/components/user-nav';
-import { useEffect, useState } from 'react';
-import { createClient } from '@/utils/supabase/client';
-import type { User } from '@supabase/supabase-js';
-import { Skeleton } from '@/components/ui/skeleton';
 
 function AppLayout({
   children,
@@ -31,18 +26,6 @@ function AppLayout({
 }>) {
   
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const getUser = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-      setLoading(false);
-    };
-    getUser();
-  }, []);
 
   const menuItems = [
     { href: '/', label: 'Dashboard', icon: Activity },
@@ -124,7 +107,6 @@ function AppLayout({
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1" />
-           {loading ? <Skeleton className="h-8 w-8 rounded-full" /> : <UserNav userEmail={user?.email} />}
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {children}

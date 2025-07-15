@@ -11,7 +11,6 @@ import { Upload, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Profile } from '@/types';
 import { createClient } from '@/utils/supabase/client';
-import type { User } from '@supabase/supabase-js';
 
 const colors = [
   'hsl(210 40% 60%)',
@@ -28,7 +27,7 @@ const defaultProfile: Omit<Profile, 'id'> = {
     accent_color: 'hsl(210 40% 60%)'
 }
 
-export function SettingsPanel({ initialProfile, user }: { initialProfile: Profile | null, user: User | null }) {
+export function SettingsPanel({ initialProfile }: { initialProfile: Profile | null }) {
   const [profile, setProfile] = useState<Omit<Profile, 'id'>>(initialProfile || defaultProfile);
   const [isUploading, setUploading] = useState(false);
   const { toast } = useToast();
@@ -47,10 +46,11 @@ export function SettingsPanel({ initialProfile, user }: { initialProfile: Profil
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !user) return;
+    if (!file) return;
 
     setUploading(true);
-    const fileName = `${user.id}/${Date.now()}_${file.name}`;
+    // Without a user, we store logos in a public path. This is not secure for multi-user apps.
+    const fileName = `public/${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
         .from('logos')
         .upload(fileName, file);
@@ -70,16 +70,15 @@ export function SettingsPanel({ initialProfile, user }: { initialProfile: Profil
   };
 
   const handleSaveChanges = async () => {
-    if (!user) {
-      toast({ title: 'Error saving settings', description: 'You must be logged in to save settings.', variant: 'destructive' });
+    if (!initialProfile) {
+       toast({ title: 'Error saving settings', description: 'Cannot save settings without a profile.', variant: 'destructive' });
       return;
     }
     
-    // We are using 'upsert' which will insert a new row if one with the matching 'id' doesn't exist,
-    // or update it if it does. This is safe for both new and existing profiles.
     const { error } = await supabase
         .from('profiles')
-        .upsert({ id: user.id, ...profile }, { onConflict: 'id' });
+        .update(profile)
+        .eq('id', initialProfile.id)
 
     if (error) {
         toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
