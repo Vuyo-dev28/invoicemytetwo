@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -84,8 +83,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   }, [profile?.accent_color]);
   
   return (
-    <div className="flex flex-col h-full">
-      <div className="flex-grow space-y-6">
+    <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle>Company Details</CardTitle>
@@ -160,7 +158,6 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 }
