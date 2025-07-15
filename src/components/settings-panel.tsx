@@ -5,10 +5,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import Image from 'next/image';
 import { Upload, Save } from 'lucide-react';
-import { Separator } from './ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import type { Profile } from '@/types';
 import { createClient } from '@/utils/supabase/client';
@@ -134,6 +133,12 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
               </div>
             </div>
           </CardContent>
+           <CardFooter className="border-t px-6 py-4 flex justify-end">
+            <Button onClick={handleSaveChanges}>
+                <Save className="mr-2 h-4 w-4" />
+                Save Changes
+            </Button>
+           </CardFooter>
         </Card>
         
         <Card>
@@ -155,15 +160,6 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
             </div>
           </CardContent>
         </Card>
-      </div>
-      
-      <Separator className="my-6" />
-
-      <div className="flex justify-end">
-        <Button onClick={handleSaveChanges}>
-            <Save className="mr-2 h-4 w-4" />
-            Save Changes
-        </Button>
       </div>
     </div>
   );
