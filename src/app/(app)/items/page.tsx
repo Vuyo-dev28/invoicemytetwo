@@ -12,7 +12,7 @@ async function getItems() {
     console.error('Error fetching items:', error);
     return [];
   }
-  return data;
+  return data || [];
 }
 
 export default async function ItemsPage() {

@@ -12,7 +12,7 @@ async function getClients() {
     console.error('Error fetching clients:', error);
     return [];
   }
-  return data;
+  return data || [];
 }
 
 export default async function ClientsPage() {

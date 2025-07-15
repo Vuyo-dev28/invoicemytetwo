@@ -20,6 +20,10 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
     console.error('Error fetching invoices:', error);
     return [];
   }
+
+  if (!data) {
+    return [];
+  }
   
   // We need to shape the data to match ExpandedInvoice
   return data.map(invoice => {

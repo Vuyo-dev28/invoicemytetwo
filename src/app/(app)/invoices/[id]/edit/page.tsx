@@ -14,7 +14,7 @@ async function getClients(): Promise<Client[]> {
     console.error('Error fetching clients:', error);
     return [];
   }
-  return data;
+  return data || [];
 }
 
 async function getItems(): Promise<Item[]> {
@@ -26,7 +26,7 @@ async function getItems(): Promise<Item[]> {
     console.error('Error fetching items:', error);
     return [];
   }
-  return data;
+  return data || [];
 }
 
 async function getInvoice(id: string): Promise<ExpandedInvoice | null> {
