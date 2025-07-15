@@ -1,10 +1,14 @@
 
 export type Profile = {
-  id: string; // This will be a fixed value for the single user profile
+  id: string; // This will be the user's UUID from auth.users
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
   accent_color: string | null;
+  business_type: string | null;
+  currency: string | null;
+  first_name: string | null;
+  last_name: string | null;
 };
 
 export type Client = {
