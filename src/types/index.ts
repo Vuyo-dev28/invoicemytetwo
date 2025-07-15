@@ -1,6 +1,5 @@
 export type Profile = {
   id: string; // This will be the user's UUID from auth.users
-  user_id: string; // This is redundant but added for consistency
   company_name: string | null;
   company_address: string | null;
   logo_url: string | null;
