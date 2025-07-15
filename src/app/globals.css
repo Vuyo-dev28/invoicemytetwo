@@ -102,6 +102,9 @@ body {
     size: A4;
     margin: 0;
   }
+  .print-container {
+    @apply w-full max-w-full m-0 p-0 shadow-none border-none;
+  }
 }
 
 @layer utilities {
@@ -110,30 +113,111 @@ body {
   }
 }
 
-/* --- Base Template Styles --- */
-.template-base {
-  @apply max-w-4xl mx-auto print:shadow-none print:border-none print:m-0 print:p-0 print:w-full print:max-w-full;
-}
-.template-base .template-header {
-  @apply p-6 bg-muted/50 border-b;
+/* --- Base --- */
+.invoice-container {
+  @apply max-w-4xl mx-auto print-container p-0 bg-card;
 }
 
-/* --- Creative Template --- */
-.template-creative {
-  @apply relative;
+/* --- Swiss Template --- */
+.template-swiss {
+  font-family: 'Inter', sans-serif;
 }
-.template-creative .template-main-content {
-  @apply pr-[220px] print:pr-[220px];
+.template-swiss .template-header {
+  @apply flex justify-between items-start p-8 border-b-2;
 }
-.template-creative .template-sidebar {
-  @apply absolute top-0 right-0 w-[200px] h-full bg-primary text-primary-foreground p-6;
+.template-swiss .company-details {
+  @apply text-right;
 }
-.template-creative .template-title {
- @apply text-primary;
+.template-swiss .company-details h2 {
+  @apply text-2xl font-bold text-primary;
 }
-.template-creative table thead {
-  @apply border-b-2 border-primary;
+.template-swiss .invoice-title {
+  @apply text-4xl font-bold;
 }
-.template-creative .totals-section {
-  @apply border-t-2 border-primary pt-4;
+.template-swiss .main-content {
+  @apply p-8;
+}
+.template-swiss table thead {
+  @apply border-b-2 border-foreground;
+}
+.template-swiss .totals-section {
+  @apply border-t-2 border-foreground pt-4;
+}
+
+/* --- Formal Template --- */
+.template-formal {
+  font-family: 'Times New Roman', Times, serif;
+}
+.template-formal .template-header {
+  @apply text-center p-8 border-b-4 border-double;
+}
+.template-formal .company-details h2 {
+  @apply text-3xl font-bold tracking-widest uppercase;
+}
+.template-formal .company-details p {
+  @apply text-sm;
+}
+.template-formal .invoice-title-section {
+  @apply text-center my-8;
+}
+.template-formal .invoice-title {
+  @apply text-xl font-bold uppercase tracking-wider text-muted-foreground;
+}
+.template-formal .main-content {
+  @apply p-8;
+}
+.template-formal table thead th {
+  @apply bg-muted/50 text-muted-foreground font-bold uppercase;
+}
+.template-formal table {
+  @apply border;
+}
+.template-formal .totals-section {
+  @apply bg-muted/50 p-4;
+}
+.template-formal .totals-section .flex {
+  @apply border-b border-border/50 py-2;
+}
+
+
+/* --- Playful Template --- */
+.template-playful {
+  @apply relative overflow-hidden;
+}
+.template-playful::before {
+  content: '';
+  @apply absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/20 rounded-full -z-0;
+}
+.template-playful .template-header {
+  @apply flex justify-between items-center p-8 z-10;
+}
+.template-playful .company-details {
+  @apply text-right;
+}
+.template-playful .invoice-title {
+  @apply text-4xl font-extrabold text-primary;
+}
+.template-playful .main-content {
+  @apply p-8 z-10;
+}
+.template-playful table {
+  @apply border-separate border-spacing-y-2;
+}
+.template-playful table thead {
+  @apply hidden;
+}
+.template-playful table tbody tr {
+  @apply bg-muted/50 rounded-lg shadow-sm;
+}
+.template-playful table tbody td {
+  @apply p-4;
+}
+.template-playful table tbody tr td:first-child {
+  @apply rounded-l-lg;
+}
+.template-playful table tbody tr td:last-child {
+  @apply rounded-r-lg text-right;
+}
+.template-playful .totals-section {
+  @apply border-t-2 border-primary border-dashed pt-4;
 }

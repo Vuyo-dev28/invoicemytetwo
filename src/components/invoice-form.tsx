@@ -31,6 +31,8 @@ type Profile = {
   logo_url: string;
 }
 
+type Template = "swiss" | "formal" | "playful";
+
 export function InvoiceForm({ clients, items }: { clients: Client[], items: Item[] }) {
   const { toast } = useToast()
   const [invoiceNumber, setInvoiceNumber] = useState('');
@@ -55,6 +57,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   const [total, setTotal] = useState(0);
   
   const [paymentTerms, setPaymentTerms] = useState("net30");
+  const [template, setTemplate] = useState<Template>("swiss");
 
 
   useEffect(() => {
@@ -124,29 +127,67 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
     const client = clients.find(c => c.id.toString() === clientId.toString()) || null;
     setSelectedClient(client);
   };
-
-  const CompanyDetails = ({ forCreativeTemplate = false }: { forCreativeTemplate?: boolean }) => (
-    <div className={cn('company-details', { 'space-y-2': forCreativeTemplate })}>
-      {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2" data-ai-hint="logo" />}
-      <h2 className={cn('text-xl font-semibold', { 'text-lg font-bold text-primary-foreground': forCreativeTemplate })}>
+  
+  const CompanyDetails = () => (
+    <div className='company-details'>
+      {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mb-2" data-ai-hint="logo" />}
+      <h2 className={cn('text-xl font-semibold')}>
         {profile?.company_name || 'Your Company'}
       </h2>
-      <p className={cn('text-muted-foreground', { 'text-sm text-primary-foreground/90': forCreativeTemplate })}>
+      <p className={cn('text-muted-foreground text-sm')}>
         {profile?.company_address || 'Your Address'}
       </p>
     </div>
   );
 
   return (
-    <Card className="template-base template-creative">
-      <div className="template-main-content">
-        <CardHeader className="template-header">
-           <div>
-              <CardTitle className="text-3xl font-bold template-title">Invoice</CardTitle>
-              <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
-           </div>
-        </CardHeader>
-        <CardContent className="p-6 md:p-8">
+    <div className="space-y-4">
+      <Card className="no-print">
+        <CardContent className="p-4 flex items-center justify-between">
+            <h1 className="text-2xl font-bold">New Invoice</h1>
+             <div className="flex items-center gap-2">
+                <Label htmlFor="template">Template</Label>
+                <Select value={template} onValueChange={(value) => setTemplate(value as Template)}>
+                    <SelectTrigger id="template" className="w-[180px]">
+                    <SelectValue placeholder="Select a template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                    <SelectItem value="swiss">Swiss</SelectItem>
+                    <SelectItem value="formal">Formal</SelectItem>
+                    <SelectItem value="playful">Playful</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+        </CardContent>
+      </Card>
+      
+      <div className={cn('invoice-container', `template-${template}`)}>
+        <header className="template-header">
+            {template === 'formal' ? (
+                 <div className="company-details">
+                    {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={80} height={80} className="mb-4 mx-auto" data-ai-hint="logo" />}
+                    <h2>{profile?.company_name || 'Your Company'}</h2>
+                    <p>{profile?.company_address || 'Your Address'}</p>
+                 </div>
+            ) : (
+                <>
+                    <div>
+                        <h1 className="invoice-title">INVOICE</h1>
+                        <p className="text-muted-foreground"># {invoiceNumber}</p>
+                    </div>
+                    <CompanyDetails />
+                </>
+            )}
+        </header>
+        
+        {template === 'formal' && (
+            <div className="invoice-title-section">
+                <h2 className="invoice-title">Invoice</h2>
+                <p className="text-sm text-muted-foreground"># {invoiceNumber}</p>
+            </div>
+        )}
+
+        <main className="main-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
             <div>
                 <Label className="font-semibold text-base">Bill To:</Label>
@@ -167,14 +208,14 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                 {selectedClient && (
                 <div className="mt-4 space-y-2 text-sm text-muted-foreground">
                     <p className="font-semibold text-foreground print-only">{selectedClient.name}</p>
+                    <p className="font-bold text-foreground">{selectedClient.name}</p>
                     <p>{selectedClient.address}</p>
                     <p>{selectedClient.email}</p>
                     <p>VAT: {selectedClient.vat_number}</p>
                 </div>
                 )}
-                
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
                     <Label htmlFor="issue-date" className="font-semibold">Issue Date</Label>
                     <div className="no-print">
@@ -190,7 +231,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                         </PopoverContent>
                     </Popover>
                     </div>
-                    <p className="print-only mt-2 text-sm">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
+                    <p className="print-only mt-2">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
                 </div>
                 <div>
                     <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
@@ -207,7 +248,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                         </PopoverContent>
                     </Popover>
                     </div>
-                    <p className="print-only mt-2 text-sm">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
+                    <p className="print-only mt-2">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
                 </div>
                 <div>
                     <Label htmlFor="payment-terms" className="font-semibold">Payment Terms</Label>
@@ -223,7 +264,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                         </SelectContent>
                         </Select>
                     </div>
-                    <p className="print-only mt-2 text-sm">{paymentTerms.replace('net', 'Net ')}</p>
+                    <p className="print-only mt-2">{paymentTerms.replace('net', 'Net ')}</p>
                 </div>
                 <div>
                     <Label htmlFor="currency" className="font-semibold">Currency</Label>
@@ -242,7 +283,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                             </SelectContent>
                         </Select>
                     </div>
-                    <p className="print-only mt-2 text-sm">{currency}</p>
+                    <p className="print-only mt-2">{currency}</p>
                 </div>
             </div>
             </div>
@@ -259,9 +300,9 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                 </TableRow>
                 </TableHeader>
                 <TableBody>
-                {lineItems.map((item, index) => (
+                {lineItems.map((item) => (
                     <TableRow key={item.id}>
-                    <TableCell>
+                    <TableCell className="font-medium">
                         <div className="no-print">
                         <ItemCombobox 
                             items={items}
@@ -318,26 +359,22 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                             <span className="print-only">Tax ({tax}%)</span>
                             <Input id="tax" type="number" value={tax} onChange={(e) => setTax(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                         </div>
-                        <div className="flex justify-between items-center border-t pt-4">
-                            <span className="text-lg font-bold">Total</span>
-                            <span className="text-lg font-bold">{formatCurrency(total)}</span>
+                        <div className="flex justify-between items-center border-t pt-4 font-bold text-lg">
+                            <span>Total</span>
+                            <span>{formatCurrency(total)}</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-        </CardContent>
+        </main>
         <CardFooter className="p-6 bg-muted/50 border-t flex justify-end gap-2 no-print">
             <Button variant="outline" onClick={handleSaveDraft}>Save Draft</Button>
             <Button onClick={handlePrint} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PDF</Button>
             <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send Invoice</Button>
         </CardFooter>
       </div>
-      
-      <div className="template-sidebar">
-         <CompanyDetails forCreativeTemplate={true} />
-      </div>
-    </Card>
+    </div>
   );
 }
 
