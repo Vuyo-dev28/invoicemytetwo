@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Gift } from 'lucide-react'
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted/40">
         <Card className="mx-auto max-w-sm">
@@ -18,7 +18,7 @@ export default function LoginPage() {
             </CardDescription>
         </CardHeader>
         <CardContent>
-            <form action={login} className="grid gap-4">
+            <form className="grid gap-4">
               <div className="grid gap-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -35,8 +35,13 @@ export default function LoginPage() {
                   </div>
                   <Input id="password" type="password" name="password" required />
               </div>
+              {searchParams?.message && (
+                <div className="text-sm font-medium text-destructive">
+                    {searchParams.message}
+                </div>
+              )}
               <div className="flex gap-2">
-                  <Button type="submit" className="w-full">
+                  <Button formAction={login} type="submit" className="w-full">
                       Login
                   </Button>
                   <Button formAction={signup} type="submit" className="w-full" variant="outline">
