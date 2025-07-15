@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import type { Client, Item } from '@/types';
 
 async function getClients(): Promise<Client[]> {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('clients').select('*');
 
@@ -17,7 +17,7 @@ async function getClients(): Promise<Client[]> {
 }
 
 async function getItems(): Promise<Item[]> {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('items').select('*');
 

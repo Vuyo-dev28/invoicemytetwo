@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import { ExpandedInvoice } from "@/types";
 
 async function getInvoices(): Promise<ExpandedInvoice[]> {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   
   const { data, error } = await supabase
