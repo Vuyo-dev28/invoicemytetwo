@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -29,7 +30,7 @@ export function SettingsPanel() {
   const [profile, setProfile] = useState<Profile>({
     company_name: 'Your Company',
     company_address: '123 Main St, Anytown, USA',
-    logo_url: 'https://placehold.co/64x64.png',
+    logo_url: 'https://placehold.co/300x300.png',
     accent_color: 'hsl(210 40% 60%)'
   });
   const { toast } = useToast();
