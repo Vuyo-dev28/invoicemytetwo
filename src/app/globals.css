@@ -153,7 +153,7 @@ body {
   @apply pr-[220px] print:pr-[220px];
 }
 .template-creative .template-sidebar {
-  @apply absolute top-0 right-0 w-[200px] h-full bg-primary text-primary-foreground p-6 print:block;
+  @apply absolute top-0 right-0 w-[200px] h-full bg-primary text-primary-foreground p-6;
 }
 .template-creative .template-sidebar .company-details {
   @apply space-y-2;
