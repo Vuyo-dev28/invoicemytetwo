@@ -19,6 +19,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
+import { UserNav } from '@/components/user-nav';
 
 function AppLayout({
   children,
@@ -107,9 +108,8 @@ function AppLayout({
               </nav>
             </SheetContent>
           </Sheet>
-          <div className="w-full flex-1">
-            {/* You can add a search bar here if needed */}
-          </div>
+          <div className="w-full flex-1" />
+           <UserNav />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {children}
