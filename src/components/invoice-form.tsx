@@ -50,6 +50,9 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
 
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
+  
+  const [paymentTerms, setPaymentTerms] = useState("net30");
+
 
   useEffect(() => {
     setInvoiceNumber(`INV-${Math.floor(1000 + Math.random() * 9000)}`);
@@ -133,21 +136,23 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           <div>
             <Label className="font-semibold text-base">Bill To:</Label>
-            <Select onValueChange={handleClientChange} defaultValue={selectedClient?.id}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Select a client" />
-              </SelectTrigger>
-              <SelectContent>
-                {clients.map(client => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
+             <div className="no-print">
+                <Select onValueChange={handleClientChange} defaultValue={selectedClient?.id}>
+                  <SelectTrigger className="mt-2">
+                    <SelectValue placeholder="Select a client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map(client => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+            </div>
             {selectedClient && (
               <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                <p className="font-semibold text-foreground print-only">{selectedClient.name}</p>
                 <p>{selectedClient.address}</p>
                 <p>{selectedClient.email}</p>
                 <p>VAT: {selectedClient.vat_number}</p>
@@ -158,44 +163,53 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
           <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="issue-date" className="font-semibold">Issue Date</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button id="issue-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {issueDate ? format(issueDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={issueDate} onSelect={setIssueDate} initialFocus />
-                  </PopoverContent>
-                </Popover>
+                <div className="no-print">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button id="issue-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {issueDate ? format(issueDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={issueDate} onSelect={setIssueDate} initialFocus />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                 <p className="print-only mt-2 text-sm">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
               </div>
               <div>
                 <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
-                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Button id="due-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
-                  </PopoverContent>
-                </Popover>
+                 <div className="no-print">
+                   <Popover>
+                    <PopoverTrigger asChild>
+                      <Button id="due-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
+                    </PopoverContent>
+                  </Popover>
+                 </div>
+                 <p className="print-only mt-2 text-sm">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
               </div>
               <div>
                 <Label htmlFor="payment-terms" className="font-semibold">Payment Terms</Label>
-                <Select defaultValue="net30">
-                  <SelectTrigger id="payment-terms" className="mt-2">
-                    <SelectValue placeholder="Select terms" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="net15">Net 15</SelectItem>
-                    <SelectItem value="net30">Net 30</SelectItem>
-                    <SelectItem value="net60">Net 60</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="no-print">
+                    <Select value={paymentTerms} onValueChange={setPaymentTerms}>
+                      <SelectTrigger id="payment-terms" className="mt-2">
+                        <SelectValue placeholder="Select terms" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="net15">Net 15</SelectItem>
+                        <SelectItem value="net30">Net 30</SelectItem>
+                        <SelectItem value="net60">Net 60</SelectItem>
+                      </SelectContent>
+                    </Select>
+                </div>
+                <p className="print-only mt-2 text-sm">{paymentTerms.replace('net', 'Net ')}</p>
               </div>
           </div>
         </div>
@@ -215,13 +229,16 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
               {lineItems.map((item, index) => (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <Input value={item.description} onChange={(e) => handleItemChange(item.id, 'description', e.target.value)} placeholder="Item description" />
+                    <Input className="no-print" value={item.description} onChange={(e) => handleItemChange(item.id, 'description', e.target.value)} placeholder="Item description" />
+                    <p className="print-only">{item.description}</p>
                   </TableCell>
                   <TableCell>
-                    <Input type="number" value={item.quantity} onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} className="w-20" />
+                    <Input className="no-print w-20" type="number" value={item.quantity} onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
+                     <p className="print-only">{item.quantity}</p>
                   </TableCell>
                   <TableCell>
-                    <Input type="number" value={item.rate} onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)} className="w-24" />
+                    <Input className="no-print w-24" type="number" value={item.rate} onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)} />
+                    <p className="print-only">{formatCurrency(item.rate)}</p>
                   </TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(item.quantity * item.rate)}</TableCell>
                   <TableCell className="no-print">
@@ -242,7 +259,7 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
             <div>
                 <Label className="font-semibold">Notes</Label>
-                <Textarea placeholder="Any additional notes..." className="mt-2" />
+                <Textarea placeholder="Any additional notes..." className="mt-2 no-print" />
             </div>
             <div className="flex justify-end">
                 <div className="w-full max-w-sm space-y-4">
@@ -251,12 +268,14 @@ export function InvoiceForm({ clients }: { clients: Client[] }) {
                         <span className="font-medium">{formatCurrency(subtotal)}</span>
                     </div>
                      <div className="flex justify-between items-center">
-                        <Label htmlFor="discount">Discount (%)</Label>
-                        <Input id="discount" type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="w-24" />
+                        <Label htmlFor="discount" className="no-print">Discount (%)</Label>
+                        <span className="print-only">Discount ({discount}%)</span>
+                        <Input id="discount" type="number" value={discount} onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                     </div>
                     <div className="flex justify-between items-center">
-                        <Label htmlFor="tax">Tax (%)</Label>
-                        <Input id="tax" type="number" value={tax} onChange={(e) => setTax(parseFloat(e.target.value) || 0)} className="w-24" />
+                        <Label htmlFor="tax" className="no-print">Tax (%)</Label>
+                         <span className="print-only">Tax ({tax}%)</span>
+                        <Input id="tax" type="number" value={tax} onChange={(e) => setTax(parseFloat(e.target.value) || 0)} className="w-24 no-print" />
                     </div>
                     <div className="flex justify-between items-center border-t pt-4">
                         <span className="text-lg font-bold">Total</span>

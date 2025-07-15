@@ -95,8 +95,17 @@ body {
   .no-print {
     display: none;
   }
+  .print-only {
+    display: block;
+  }
   @page {
     size: auto;
     margin: 0;
+  }
+}
+
+@layer utilities {
+  .print-only {
+    display: none;
   }
 }
