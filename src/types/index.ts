@@ -1,12 +1,8 @@
 
 export type Profile = {
-  id: string; // Corresponds to auth.users.id
-  first_name: string | null;
-  last_name: string | null;
+  id: string; // This will be a fixed value for the single user profile
   company_name: string | null;
   company_address: string | null;
-  business_type: string | null;
-  currency: string | null;
   logo_url: string | null;
   accent_color: string | null;
 };
@@ -63,3 +59,13 @@ export type CashflowData = {
   month: string;
   income: number;
 };
+
+
+export type Expense = {
+  id: string;
+  description: string;
+  amount: number;
+  date: string;
+  category: string | null;
+  created_at: string;
+}

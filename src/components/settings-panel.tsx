@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,8 @@ import Image from 'next/image';
 import { Upload } from 'lucide-react';
 import { Separator } from './ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import type { Profile } from '@/types';
+import { createClient } from '@/utils/supabase/client';
 
 const colors = [
   'hsl(210 40% 60%)',
@@ -19,44 +21,60 @@ const colors = [
   'hsl(262.1 83.3% 57.8%)',
 ];
 
-type Profile = {
-  company_name: string;
-  company_address: string;
-  logo_url: string;
-  accent_color: string;
-}
-
-export function SettingsPanel() {
-  const [profile, setProfile] = useState<Profile>({
+const defaultProfile: Profile = {
+    id: '1',
     company_name: 'Your Company',
     company_address: '123 Main St, Anytown, USA',
-    logo_url: 'https://placehold.co/100x100.png',
+    logo_url: null,
     accent_color: 'hsl(210 40% 60%)'
-  });
+}
+
+export function SettingsPanel({ initialProfile }: { initialProfile: Profile | null }) {
+  const [profile, setProfile] = useState<Profile>(initialProfile || defaultProfile);
+  const [isUploading, setUploading] = useState(false);
   const { toast } = useToast();
-  
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const supabase = createClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-
-  const handleUpdate = (field: keyof Profile, value: string) => {
+  const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
   };
 
-  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        handleUpdate('logo_url', reader.result as string)
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setUploading(true);
+    const fileName = `${Date.now()}_${file.name}`;
+    const { data, error } = await supabase.storage
+        .from('logos')
+        .upload(fileName, file);
+
+    if (error) {
+        toast({ title: 'Logo Upload Failed', description: error.message, variant: 'destructive' });
+        setUploading(false);
+        return;
     }
+
+    const { data: { publicUrl } } = supabase.storage
+        .from('logos')
+        .getPublicUrl(data.path);
+
+    handleUpdate('logo_url', publicUrl);
+    setUploading(false);
   };
 
   const handleSaveChanges = async () => {
-    // In a real app, you'd save this to a backend or localStorage.
-    // For now, we'll just show a toast notification.
-    toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+    const { id, ...updateData } = profile;
+    const { error } = await supabase
+        .from('profiles')
+        .upsert({ id: '1', ...updateData });
+
+    if (error) {
+        toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
+    } else {
+        toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
+    }
   };
 
   useEffect(() => {
@@ -101,8 +119,8 @@ export function SettingsPanel() {
                 </div>
               )}
              
-              <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
-                Upload
+              <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                {isUploading ? 'Uploading...' : 'Upload'}
               </Button>
                <input
                 type="file"
@@ -110,6 +128,7 @@ export function SettingsPanel() {
                 className="hidden"
                 accept="image/*"
                 onChange={handleLogoUpload}
+                disabled={isUploading}
               />
             </div>
           </div>
