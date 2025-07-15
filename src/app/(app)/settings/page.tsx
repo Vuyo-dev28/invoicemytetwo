@@ -50,6 +50,8 @@ export default function SettingsPage() {
     }
 
     return (
-        <SettingsPanel initialProfile={profile} />
+        <div className="flex flex-col h-full">
+            <SettingsPanel initialProfile={profile} />
+        </div>
     );
 }
