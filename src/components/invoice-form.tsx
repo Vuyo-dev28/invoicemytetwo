@@ -13,8 +13,6 @@ import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from "@/hooks/use-toast"
 import Image from 'next/image';
-import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
 
 type LineItem = {
   id: string;
@@ -31,12 +29,15 @@ type Profile = {
 
 export function InvoiceForm() {
   const { toast } = useToast()
-  const router = useRouter();
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
   
-  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profile, setProfile] = useState<Profile | null>({
+    company_name: 'Your Company',
+    company_address: '123 Main St, Anytown, USA',
+    logo_url: 'https://placehold.co/100x100.png'
+  });
 
   const [lineItems, setLineItems] = useState<LineItem[]>([
     { id: `item-${Date.now()}`, description: 'Web Design Services', quantity: 10, rate: 100 },
@@ -52,26 +53,7 @@ export function InvoiceForm() {
 
   useEffect(() => {
     setInvoiceNumber(`INV-${Math.floor(1000 + Math.random() * 9000)}`);
-
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('company_name, company_address, logo_url')
-        .eq('id', user.id)
-        .single();
-      
-      if (data) {
-        setProfile(data);
-      }
-    };
-    fetchProfile();
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     const newSubtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.rate), 0);
@@ -129,7 +111,7 @@ export function InvoiceForm() {
             <CardDescription>Invoice Number: {invoiceNumber}</CardDescription>
           </div>
           <div className="text-right">
-            {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2 ml-auto" />}
+            {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2 ml-auto" data-ai-hint="logo" />}
             <h2 className="text-xl font-semibold">{profile?.company_name || 'Your Company'}</h2>
             <p className="text-muted-foreground">{profile?.company_address || 'Your Address'}</p>
           </div>

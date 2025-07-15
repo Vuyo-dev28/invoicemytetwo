@@ -8,9 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import Image from 'next/image';
 import { Upload } from 'lucide-react';
 import { Separator } from './ui/separator';
-import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 
 const colors = [
   'hsl(210 40% 60%)',
@@ -28,43 +26,19 @@ type Profile = {
 }
 
 export function SettingsPanel() {
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile>({
+    company_name: 'Your Company',
+    company_address: '123 Main St, Anytown, USA',
+    logo_url: 'https://placehold.co/64x64.png',
+    accent_color: 'hsl(210 40% 60%)'
+  });
   const { toast } = useToast();
-  const router = useRouter();
   
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        router.push('/login');
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') { // PGRST116: single row not found
-        console.error('Error fetching profile:', error);
-        toast({ title: "Error fetching settings", description: error.message, variant: 'destructive' });
-      } else {
-        setProfile(data);
-      }
-      setLoading(false);
-    };
-
-    fetchProfile();
-  }, [router, toast]);
 
   const handleUpdate = (field: keyof Profile, value: string) => {
-    if (profile) {
-      setProfile({ ...profile, [field]: value });
-    }
+    setProfile({ ...profile, [field]: value });
   };
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,25 +53,9 @@ export function SettingsPanel() {
   };
 
   const handleSaveChanges = async () => {
-    if (!profile) return;
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-
-    const { error } = await supabase
-        .from('profiles')
-        .update({
-            company_name: profile.company_name,
-            company_address: profile.company_address,
-            logo_url: profile.logo_url,
-            accent_color: profile.accent_color
-        })
-        .eq('id', user.id);
-    
-    if (error) {
-        toast({ title: 'Error updating profile', description: error.message, variant: 'destructive' });
-    } else {
-        toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
-    }
+    // In a real app, you'd save this to a backend or localStorage.
+    // For now, we'll just show a toast notification.
+    toast({ title: 'Settings saved', description: 'Your company details have been updated.' });
   };
 
   useEffect(() => {
@@ -107,10 +65,6 @@ export function SettingsPanel() {
     }
   }, [profile?.accent_color]);
   
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
   return (
     <div className="space-y-6">
       <Card>
@@ -139,7 +93,7 @@ export function SettingsPanel() {
             <Label>Company Logo</Label>
             <div className="flex items-center gap-4">
               {profile?.logo_url ? (
-                 <Image src={profile.logo_url} alt="Company Logo" width={64} height={64} className="rounded-md object-cover" />
+                 <Image src={profile.logo_url} alt="Company Logo" width={64} height={64} className="rounded-md object-cover" data-ai-hint="logo" />
               ) : (
                 <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
                   <Upload />

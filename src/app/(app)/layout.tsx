@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { LayoutDashboard, FileText, Users, Box, Settings, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { UserNav } from '@/components/user-nav';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { usePathname } from 'next/navigation';
 
@@ -87,7 +86,6 @@ function AppLayout({
           <div className="w-full flex-1">
             {/* You can add a search bar here if needed */}
           </div>
-          <UserNav />
         </header>
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
           {children}
