@@ -13,10 +13,10 @@ async function getClients() {
     return redirect('/login');
   }
   
+  // Clients are public in this schema, no profile_id filter
   const { data, error } = await supabase
     .from('clients')
-    .select('*')
-    .eq('profile_id', user.id);
+    .select('*');
 
   if (error) {
     console.error('Error fetching clients:', error);

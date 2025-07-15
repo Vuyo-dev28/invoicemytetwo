@@ -52,10 +52,8 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
             return;
         }
 
-        const clientPayload = {
-            ...values,
-            profile_id: user.id
-        };
+        // The client payload does not include profile_id as per schema
+        const clientPayload = { ...values };
 
         const { data, error } = await supabase.from('clients').insert([clientPayload]).select();
         

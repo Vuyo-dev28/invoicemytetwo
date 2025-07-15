@@ -49,10 +49,8 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
             return;
         }
 
-        const itemPayload = {
-            ...values,
-            profile_id: user.id,
-        };
+        // The item payload does not include profile_id as per schema
+        const itemPayload = { ...values };
 
         const { data, error } = await supabase.from('items').insert([itemPayload]).select();
         

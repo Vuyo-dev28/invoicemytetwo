@@ -13,10 +13,10 @@ async function getItems() {
     return redirect('/login');
   }
 
+  // Items are public in this schema, no profile_id filter
   const { data, error } = await supabase
     .from('items')
-    .select('*')
-    .eq('profile_id', user.id);
+    .select('*');
 
 
   if (error) {

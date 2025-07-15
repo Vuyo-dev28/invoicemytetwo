@@ -13,7 +13,7 @@ export type Profile = {
 
 export type Client = {
   id: string; // UUID
-  profile_id: string;
+  // profile_id is not in the schema for this table
   name: string;
   email: string | null;
   address: string | null;
@@ -23,7 +23,7 @@ export type Client = {
 
 export type Item = {
   id: string; // UUID
-  profile_id: string;
+  // profile_id is not in the schema for this table
   description: string;
   rate: number;
   created_at: string;
