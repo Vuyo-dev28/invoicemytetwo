@@ -87,12 +87,15 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            const { data: profileData } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-            if(profileData) {
-                setProfile(profileData);
-            }
+        // Since auth is removed, we'll just fetch the first profile as a placeholder
+        // In a real multi-user app, you'd link this to the logged-in user.
+        const { data: profileData, error } = await supabase.from('profiles').select('*').limit(1).single();
+        if(profileData) {
+            setProfile(profileData);
+        } else if (error && error.code === 'PGRST116') { // No rows found
+            // If no profile exists, create a default one to allow the app to function.
+            const { data: newProfile } = await supabase.from('profiles').insert({}).select().single();
+            setProfile(newProfile);
         }
     }
     getProfile();
@@ -184,7 +187,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     const invoicePayload = {
-        profile_id: profile.id, // This is the UUID of the logged-in user
+        profile_id: profile.id, 
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString(),

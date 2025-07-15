@@ -35,10 +35,12 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const [profileId, setProfileId] = useState<string | null>(initialProfile?.id || null);
 
   useEffect(() => {
       if (initialProfile) {
           setProfile(initialProfile);
+          setProfileId(initialProfile.id);
           if (initialProfile.accent_color) {
             document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
             document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
@@ -55,15 +57,8 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
     if (!file) return;
 
     setUploading(true);
-    // Use user-specific path for logos
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        toast({ title: 'Not authenticated', description: 'You must be logged in to upload a logo.', variant: 'destructive' });
-        setUploading(false);
-        return;
-    }
-
-    const fileName = `${user.id}/${Date.now()}_${file.name}`;
+    // Use a generic path for logos since we don't have user-specific folders
+    const fileName = `${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
         .from('logos')
         .upload(fileName, file);
@@ -83,7 +78,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   };
 
   const handleSaveChanges = async () => {
-    if (!initialProfile) {
+    if (!profileId) {
        toast({ title: 'Error saving settings', description: 'No profile found to update.', variant: 'destructive' });
       return;
     }
@@ -91,7 +86,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
     const { error } = await supabase
         .from('profiles')
         .update(profile)
-        .eq('id', initialProfile.id)
+        .eq('id', profileId)
 
     if (error) {
         toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
