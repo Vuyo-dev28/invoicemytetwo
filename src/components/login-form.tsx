@@ -60,8 +60,10 @@ export function LoginForm() {
       })
       setLoading(false)
     } else {
-        router.push('/');
-        router.refresh();
+      // Use router.refresh() to ensure the server component re-renders
+      // with the new session information.
+      router.refresh();
+      setLoading(false);
     }
   }
 
