@@ -34,7 +34,7 @@ type Profile = {
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
 type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
 
-export function InvoiceForm({ clients, items }: { clients: Client[], items: Item[] }) {
+export function InvoiceForm({ clients, items, documentType }: { clients: Client[], items: Item[], documentType: DocumentType }) {
   const { toast } = useToast()
   const [invoiceNumber, setInvoiceNumber] = useState('');
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
@@ -59,7 +59,6 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
   
   const [paymentTerms, setPaymentTerms] = useState("net30");
   const [template, setTemplate] = useState<Template>("swiss");
-  const [documentType, setDocumentType] = useState<DocumentType>("Invoice");
 
   const documentTypePrefixes = {
     "Invoice": "INV",
@@ -77,11 +76,9 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
     setLineItems([
       { id: `item-${Date.now()}`, description: '', quantity: 1, rate: 0 },
     ])
-  }, [clients]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documentType, clients]);
 
-  useEffect(() => {
-    setInvoiceNumber(`${documentTypePrefixes[documentType]}-${Math.floor(1000 + Math.random() * 9000)}`);
-  }, [documentType]);
 
   useEffect(() => {
     const newSubtotal = lineItems.reduce((acc, item) => acc + (item.quantity * item.rate), 0);
@@ -148,18 +145,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
       <Card className="no-print">
         <CardContent className="p-4 flex items-center justify-between">
             <div className="flex items-center gap-2">
-                <Select value={documentType} onValueChange={(value) => setDocumentType(value as DocumentType)}>
-                    <SelectTrigger id="documentType" className="w-[180px] text-2xl font-bold h-auto border-0 shadow-none focus:ring-0">
-                        <SelectValue placeholder="Select a document type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Invoice">Invoice</SelectItem>
-                        <SelectItem value="Estimate">Estimate</SelectItem>
-                        <SelectItem value="Credit note">Credit note</SelectItem>
-                        <SelectItem value="Delivery note">Delivery note</SelectItem>
-                        <SelectItem value="Purchase order">Purchase order</SelectItem>
-                    </SelectContent>
-                </Select>
+                 <h1 className="text-2xl font-bold">{documentType}</h1>
             </div>
              <div className="flex items-center gap-2">
                 <Label htmlFor="template">Template</Label>
@@ -189,8 +175,8 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
               </div>
           ) : template === 'elegant' ? (
             <div className="w-full flex flex-col items-center">
-              <div className="company-details">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
+              <div className="company-details flex flex-col items-center">
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4" data-ai-hint="logo" />}
               </div>
               <div>
                 <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
@@ -207,7 +193,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
                   <p className="text-muted-foreground"># {invoiceNumber}</p>
               </div>
               <div className="company-details">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
+                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4" data-ai-hint="logo" />}
                 <h2 className={cn('text-xl font-semibold')}>
                   {profile?.company_name || 'Your Company'}
                 </h2>

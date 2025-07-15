@@ -29,11 +29,11 @@ async function getItems(): Promise<Item[]> {
 }
 
 
-export default async function InvoicesPage() {
+export default async function EstimatesPage() {
   const clients = await getClients();
   const items = await getItems();
   
   return (
-    <InvoiceForm clients={clients} items={items} documentType="Invoice" />
+    <InvoiceForm clients={clients} items={items} documentType="Estimate" />
   );
 }
