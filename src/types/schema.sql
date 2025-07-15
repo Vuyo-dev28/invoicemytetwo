@@ -1,97 +1,77 @@
--- Create Profiles table
-CREATE TABLE profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id),
-    first_name TEXT,
-    last_name TEXT,
-    company_name TEXT,
-    company_address TEXT,
-    business_type TEXT,
-    currency TEXT,
-    logo_url TEXT,
-    accent_color TEXT
+-- Drop tables if they exist
+drop table if exists public.invoice_items;
+drop table if exists public.invoices;
+drop table if exists public.items;
+drop table if exists public.clients;
+drop table if exists public.expenses;
+
+-- Create clients table
+create table public.clients (
+  id uuid not null default gen_random_uuid (),
+  name text not null,
+  email text null,
+  address text null,
+  vat_number text null,
+  created_at timestamp with time zone null default now(),
+  constraint clients_pkey primary key (id)
 );
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public profiles are viewable by everyone." ON profiles FOR SELECT USING (true);
-CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update own profile." ON profiles FOR UPDATE USING (auth.uid() = id);
-
-
--- Create Clients table
-CREATE TABLE clients (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name TEXT NOT NULL,
-    email TEXT,
-    address TEXT,
-    vat_number TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- Create items table
+create table public.items (
+  id uuid not null default gen_random_uuid (),
+  description text not null,
+  rate numeric(10, 2) not null,
+  created_at timestamp with time zone null default now(),
+  constraint items_pkey primary key (id)
 );
-ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to clients" ON clients FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated users to insert clients" ON clients FOR INSERT TO authenticated WITH CHECK (true);
-CREATE POLICY "Allow authenticated users to update clients" ON clients FOR UPDATE TO authenticated USING (true);
-CREATE POLICY "Allow authenticated users to delete clients" ON clients FOR DELETE TO authenticated USING (true);
-CREATE POLICY "Allow anon users to insert clients" ON clients FOR INSERT TO anon WITH CHECK (true);
-CREATE POLICY "Allow anon users to update clients" ON clients FOR UPDATE TO anon USING (true);
-CREATE POLICY "Allow anon users to delete clients" ON clients FOR DELETE TO anon USING (true);
 
-
--- Create Items table
-CREATE TABLE items (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    description TEXT NOT NULL,
-    rate NUMERIC(10, 2) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- Create invoices table
+create table public.invoices (
+  id uuid not null default gen_random_uuid (),
+  client_id uuid null,
+  invoice_number text not null,
+  issue_date date not null,
+  due_date date null,
+  status text not null default 'draft'::text,
+  notes text null,
+  tax_percent numeric(5, 2) null default 0,
+  discount_percent numeric(5, 2) null default 0,
+  total numeric(10, 2) null default 0,
+  created_at timestamp with time zone null default now(),
+  constraint invoices_pkey primary key (id),
+  constraint invoices_client_id_fkey foreign KEY (client_id) references clients (id)
 );
-ALTER TABLE items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to items" ON items FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated users to manage items" ON items FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow anon users to manage items" ON items FOR ALL TO anon USING (true);
-
--- Create Invoices table
-CREATE TABLE invoices (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
-    invoice_number TEXT NOT NULL,
-    issue_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    due_date TIMESTAMP WITH TIME ZONE,
-    status TEXT NOT NULL DEFAULT 'draft',
-    notes TEXT,
-    tax_percent NUMERIC(5, 2) DEFAULT 0,
-    discount_percent NUMERIC(5, 2) DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+-- Create invoice_items table
+create table public.invoice_items (
+  id uuid not null default gen_random_uuid (),
+  invoice_id uuid not null,
+  item_id uuid null,
+  description text not null,
+  quantity integer not null,
+  rate numeric(10, 2) not null,
+  created_at timestamp with time zone null default now(),
+  constraint invoice_items_pkey primary key (id),
+  constraint invoice_items_invoice_id_fkey foreign key (invoice_id) references invoices (id) on delete cascade,
+  constraint invoice_items_item_id_fkey foreign key (item_id) references items (id) on delete set null
 );
-ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to invoices" ON invoices FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated users to manage invoices" ON invoices FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow anon users to manage invoices" ON invoices FOR ALL TO anon USING (true);
 
 
--- Create InvoiceItems table
-CREATE TABLE invoice_items (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    invoice_id UUID REFERENCES invoices(id) ON DELETE CASCADE,
-    item_id UUID REFERENCES items(id) ON DELETE SET NULL,
-    description TEXT NOT NULL,
-    quantity INTEGER NOT NULL,
-    rate NUMERIC(10, 2) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to invoice items" ON invoice_items FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated users to manage invoice items" ON invoice_items FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow anon users to manage invoice items" ON invoice_items FOR ALL TO anon USING (true);
+-- RLS Policies
+-- These policies are examples and should be configured based on your application's needs.
+-- For a quick start without authentication, you might grant public access.
+-- WARNING: The following policies allow public access. Secure this for production.
+alter table public.clients enable row level security;
+alter table public.items enable row level security;
+alter table public.invoices enable row level security;
+alter table public.invoice_items enable row level security;
 
+-- Allow public read access to all tables
+create policy "Allow public read access on clients" on public.clients for select using (true);
+create policy "Allow public read access on items" on public.items for select using (true);
+create policy "Allow public read access on invoices" on public.invoices for select using (true);
+create policy "Allow public read access on invoice_items" on public.invoice_items for select using (true);
 
--- Create Expenses table
-CREATE TABLE expenses (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    description TEXT NOT NULL,
-    amount NUMERIC(10, 2) NOT NULL,
-    date TIMESTAMP WITH TIME ZONE NOT NULL,
-    category TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Allow public read access to expenses" ON expenses FOR SELECT USING (true);
-CREATE POLICY "Allow authenticated users to manage expenses" ON expenses FOR ALL TO authenticated USING (true);
-CREATE POLICY "Allow anon users to manage expenses" ON expenses FOR ALL TO anon USING (true);
+-- Allow all operations for authenticated users
+-- create policy "Allow all operations for authenticated users on clients" on public.clients for all using (auth.role() = 'authenticated');
+-- create policy "Allow all operations for authenticated users on items" on public.items for all using (auth.role() = 'authenticated');
+-- create policy "Allow all operations for authenticated users on invoices" on public.invoices for all using (auth.role() = 'authenticated');
+-- create policy "Allow all operations for authenticated users on invoice_items" on public.invoice_items for all using (auth.role() = 'authenticated');
