@@ -59,13 +59,3 @@ export type CashflowData = {
   month: string;
   income: number;
 };
-
-
-export type Expense = {
-  id: string;
-  description: string;
-  amount: number;
-  date: string;
-  category: string | null;
-  created_at: string;
-}

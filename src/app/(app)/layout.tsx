@@ -38,7 +38,6 @@ function AppLayout({
     { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Package },
-    { href: '/expenses', label: 'Expenses', icon: Landmark },
     { href: '/settings', label: 'Settings', icon: Settings, className: 'mt-auto' },
   ];
 
@@ -73,7 +72,7 @@ function AppLayout({
           </div>
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col flex-1">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
