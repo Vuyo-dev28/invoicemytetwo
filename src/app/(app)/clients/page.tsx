@@ -1,8 +1,7 @@
+
 import { ClientList } from "@/components/client-list";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
-
-export const revalidate = 0;
 
 async function getClients() {
   const cookieStore = cookies();
