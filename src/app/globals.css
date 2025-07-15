@@ -131,11 +131,11 @@ body {
   @apply flex justify-between items-start;
   font-family: 'Times New Roman', Times, serif;
 }
+.template-classic .company-details {
+  @apply text-right flex flex-col items-end;
+}
 .template-classic .template-title {
   @apply text-4xl font-bold tracking-wider;
-}
-.template-classic .company-details {
-  @apply flex flex-col items-end;
 }
 .template-classic table thead {
   @apply border-y-2 border-foreground;
