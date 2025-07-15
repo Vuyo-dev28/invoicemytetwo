@@ -126,12 +126,15 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
     setSelectedClient(client);
   };
 
-
-  const CompanyDetails = () => (
-    <div className="company-details">
+  const CompanyDetails = ({ forCreativeTemplate = false }: { forCreativeTemplate?: boolean }) => (
+    <div className={cn('company-details', { 'space-y-2': forCreativeTemplate })}>
       {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-2" data-ai-hint="logo" />}
-      <h2 className="text-xl font-semibold">{profile?.company_name || 'Your Company'}</h2>
-      <p className="text-muted-foreground">{profile?.company_address || 'Your Address'}</p>
+      <h2 className={cn('text-xl font-semibold', { 'text-lg font-bold text-primary-foreground': forCreativeTemplate })}>
+        {profile?.company_name || 'Your Company'}
+      </h2>
+      <p className={cn('text-muted-foreground', { 'text-sm text-primary-foreground/90': forCreativeTemplate })}>
+        {profile?.company_address || 'Your Address'}
+      </p>
     </div>
   );
 
@@ -359,7 +362,7 @@ export function InvoiceForm({ clients, items }: { clients: Client[], items: Item
       
       {template === 'creative' && (
         <div className="template-sidebar">
-           <CompanyDetails />
+           <CompanyDetails forCreativeTemplate={true} />
         </div>
       )}
     </Card>

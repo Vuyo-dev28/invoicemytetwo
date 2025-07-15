@@ -155,15 +155,6 @@ body {
 .template-creative .template-sidebar {
   @apply absolute top-0 right-0 w-[200px] h-full bg-primary text-primary-foreground p-6;
 }
-.template-creative .template-sidebar .company-details {
-  @apply space-y-2;
-}
-.template-creative .template-sidebar h2 {
-  @apply text-lg font-bold text-primary-foreground;
-}
-.template-creative .template-sidebar p {
-  @apply text-sm text-primary-foreground/90;
-}
 .template-creative .template-title {
  @apply text-primary;
 }
