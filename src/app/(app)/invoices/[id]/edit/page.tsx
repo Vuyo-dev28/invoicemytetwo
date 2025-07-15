@@ -6,7 +6,7 @@ import type { Client, Item, ExpandedInvoice } from '@/types';
 import { notFound } from 'next/navigation';
 
 async function getClients(): Promise<Client[]> {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('clients').select('*');
 
@@ -18,7 +18,7 @@ async function getClients(): Promise<Client[]> {
 }
 
 async function getItems(): Promise<Item[]> {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const supabase = createClient(cookieStore);
   const { data, error } = await supabase.from('items').select('*');
 
@@ -30,7 +30,7 @@ async function getItems(): Promise<Item[]> {
 }
 
 async function getInvoice(id: string): Promise<ExpandedInvoice | null> {
-    const cookieStore = await cookies();
+    const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
     const { data, error } = await supabase
