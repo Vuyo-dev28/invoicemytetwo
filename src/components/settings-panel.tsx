@@ -85,77 +85,79 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   }, [profile?.accent_color]);
   
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Company Details</CardTitle>
-          <CardDescription>Update your company information.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="company-name">Company Name</Label>
-            <Input
-              id="company-name"
-              value={profile?.company_name || ''}
-              onChange={(e) => handleUpdate('company_name', e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="company-address">Company Address</Label>
-            <Input
-              id="company-address"
-              value={profile?.company_address || ''}
-              onChange={(e) => handleUpdate('company_address', e.target.value)}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Company Logo</Label>
-            <div className="flex items-center gap-4">
-              {profile?.logo_url ? (
-                 <Image src={profile.logo_url} alt="Company Logo" width={64} height={64} className="rounded-md object-cover" data-ai-hint="logo" />
-              ) : (
-                <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
-                  <Upload />
-                </div>
-              )}
-             
-              <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                {isUploading ? 'Uploading...' : 'Upload'}
-              </Button>
-               <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleLogoUpload}
-                disabled={isUploading}
+    <div className="flex flex-col h-full">
+      <div className="flex-grow space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Company Details</CardTitle>
+            <CardDescription>Update your company information.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="company-name">Company Name</Label>
+              <Input
+                id="company-name"
+                value={profile?.company_name || ''}
+                onChange={(e) => handleUpdate('company_name', e.target.value)}
               />
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      <Separator />
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Customize the look and feel.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Label>Accent Color</Label>
-          <div className="flex gap-2 mt-2">
-            {colors.map((color) => (
-              <button
-                key={color}
-                className={`w-8 h-8 rounded-full border-2 ${profile?.accent_color === color ? 'border-foreground' : 'border-transparent'}`}
-                style={{ backgroundColor: color }}
-                onClick={() => handleUpdate('accent_color', color)}
+            <div className="space-y-2">
+              <Label htmlFor="company-address">Company Address</Label>
+              <Input
+                id="company-address"
+                value={profile?.company_address || ''}
+                onChange={(e) => handleUpdate('company_address', e.target.value)}
               />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+            <div className="space-y-2">
+              <Label>Company Logo</Label>
+              <div className="flex items-center gap-4">
+                {profile?.logo_url ? (
+                   <Image src={profile.logo_url} alt="Company Logo" width={64} height={64} className="rounded-md object-cover" data-ai-hint="logo" />
+                ) : (
+                  <div className="w-16 h-16 rounded-md bg-muted flex items-center justify-center text-muted-foreground">
+                    <Upload />
+                  </div>
+                )}
+               
+                <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : 'Upload'}
+                </Button>
+                 <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  disabled={isUploading}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Appearance</CardTitle>
+            <CardDescription>Customize the look and feel.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Label>Accent Color</Label>
+            <div className="flex gap-2 mt-2">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  className={`w-8 h-8 rounded-full border-2 ${profile?.accent_color === color ? 'border-foreground' : 'border-transparent'}`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => handleUpdate('accent_color', color)}
+                />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <Separator className="my-6" />
 
       <div className="flex justify-end">
         <Button onClick={handleSaveChanges}>Save Changes</Button>
