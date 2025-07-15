@@ -4,7 +4,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { cookies, headers } from 'next/headers'
 
 export async function login(formData: FormData) {
   const cookieStore = cookies()
@@ -19,6 +19,7 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
+    console.error('Login Error:', error);
     return redirect('/login?message=Could not authenticate user')
   }
 
@@ -29,12 +30,11 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const cookieStore = cookies()
   const supabase = createClient(cookieStore)
+  const headersList = headers()
+  const origin = headersList.get('origin')
   
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-
-  // Use NEXT_PUBLIC_APP_URL which should be defined in your environment
-  const origin = process.env.NEXT_PUBLIC_APP_URL
 
   const { error } = await supabase.auth.signUp({
     email,
