@@ -14,7 +14,8 @@ import {
     ShoppingCart, 
     LineChart,
     Gift,
-    LogOut
+    LogOut,
+    CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -47,6 +48,7 @@ function AppLayout({
     { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Package },
+    { href: '/subscription', label: 'Subscription', icon: CreditCard },
   ];
 
   const getHref = (href: string) => {
