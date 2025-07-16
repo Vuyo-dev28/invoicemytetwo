@@ -1,6 +1,7 @@
 
 "use client";
 import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,12 +20,9 @@ import { signIn, signUp } from './actions';
     return strength;
   };
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: { message: string };
-}) {
-
+export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const message = searchParams.get('message');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const passwordStrength = getPasswordStrength(password);
@@ -83,9 +81,9 @@ export default function LoginPage({
                 )}
             </div>
 
-            {searchParams?.message && (
+            {message && (
                 <p className="p-4 bg-foreground/10 text-foreground text-center text-sm">
-                    {searchParams.message}
+                    {message}
                 </p>
             )}
             <div className="flex flex-col space-y-2">
