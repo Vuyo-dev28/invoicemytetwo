@@ -1,62 +1,13 @@
 
 "use client";
 import { useState } from 'react';
-import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
-import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Gift, Eye, EyeOff } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-
-const signIn = async (formData: FormData) => {
-    'use server';
-
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-            return redirect('/login?message=Invalid email or password. Please try again.');
-        }
-      return redirect('/login?message=Could not authenticate user. Please try again.');
-    }
-
-    return redirect('/');
-  };
-
-  const signUp = async (formData: FormData) => {
-    'use server';
-
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-
-    if (error) {
-      console.error(error);
-       if (error.message.includes('User already registered')) {
-        return redirect('/login?message=An account with this email already exists.');
-      }
-      return redirect('/login?message=Could not sign up user. Please try again.');
-    }
-    
-    return redirect('/signup/company-name');
-  };
+import { signIn, signUp } from './actions';
 
   const getPasswordStrength = (password: string) => {
     let strength = 0;
@@ -153,4 +104,3 @@ export default function LoginPage({
     </div>
   );
 }
-
