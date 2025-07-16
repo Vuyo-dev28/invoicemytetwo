@@ -1,10 +1,11 @@
+
 import { cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Gift } from 'lucide-react';
 
@@ -48,7 +49,7 @@ export default async function LoginPage({
 
     if (error) {
       console.error(error);
-      return redirect('/login?message=Could not sign up user');
+      return redirect('/login?message=Could not sign up user. Please try again.');
     }
 
     // Redirect to the company name step after successful sign up
@@ -72,7 +73,11 @@ export default async function LoginPage({
       return redirect('/login?message=Could not sign in with Google');
     }
 
-    return redirect(data.url);
+    if (data.url) {
+        return redirect(data.url);
+    }
+    
+    return redirect('/login?message=Could not sign in with Google');
   };
 
   return (
@@ -100,7 +105,10 @@ export default async function LoginPage({
                     {searchParams.message}
                 </p>
             )}
-            <Button formAction={signIn} className="w-full">Sign in</Button>
+            <div className="flex flex-col space-y-2">
+                <Button formAction={signIn} className="w-full">Sign in</Button>
+                <Button formAction={signUp} variant="secondary" className="w-full">Sign up</Button>
+            </div>
           </form>
 
           <div className="relative my-6">
@@ -117,7 +125,7 @@ export default async function LoginPage({
           <div className="space-y-3">
              <form action={signInWithGoogle}>
                 <Button variant="outline" className="w-full">
-                    <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" fill="#4285F4"/><path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" fill="url(#paint0_linear)"/> <defs><linearGradient id="paint0_linear" x1="45" y1="2" x2="2" y2="45"><stop stop-color="#4285F4"/><stop offset="1" stop-color="#34A853"/></linearGradient></defs></svg>
+                    <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" fill="#4285F4"/><path d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z" fill="url(#paint0_linear)"/> <defs><linearGradient id="paint0_linear" x1="45" y1="2" x2="2" y2="45"><stop stopColor="#4285F4"/><stop offset="1" stopColor="#34A853"/></linearGradient></defs></svg>
                     Sign in with Google
                 </Button>
             </form>
@@ -128,26 +136,7 @@ export default async function LoginPage({
           </div>
         </CardContent>
       </Card>
-      <div className="mt-4 text-center text-sm">
-        Don&apos;t have an account?{' '}
-        <Link href="#" className="underline" onClick={(e) => { 
-            e.preventDefault(); 
-            // This is a simplified way to trigger the sign-up form.
-            // A more robust solution might use state.
-            const email = (document.querySelector('input[name="email"]') as HTMLInputElement)?.value;
-            const password = (document.querySelector('input[name="password"]') as HTMLInputElement)?.value;
-            if (email && password) {
-                const formData = new FormData();
-                formData.append('email', email);
-                formData.append('password', password);
-                signUp(formData);
-            } else {
-                alert('Please enter email and password to sign up.');
-            }
-        }}>
-          Sign up
-        </Link>
-      </div>
+      
       <div className="mt-8 text-center text-xs text-muted-foreground">
         <Link href="#" className="underline">Privacy</Link>
         {' - '}
