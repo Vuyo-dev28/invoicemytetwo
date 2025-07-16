@@ -75,3 +75,17 @@ export type DashboardStats = {
   paidInvoices: number;
   pendingInvoices: number;
 };
+
+export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'incomplete';
+
+export type Subscription = {
+  id: string; // UUID
+  user_id: string; // UUID from auth.users
+  plan_id: string; // e.g., 'starter_monthly'
+  status: SubscriptionStatus;
+  paystack_customer_code: string | null;
+  paystack_subscription_code: string | null;
+  current_period_ends_at: string | null; // TIMESTAMPTZ
+  created_at: string; // TIMESTAMPTZ
+  updated_at: string; // TIMESTAMPTZ
+};
