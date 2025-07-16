@@ -1,11 +1,10 @@
-
 import Link from 'next/link';
 import { headers, cookies } from 'next/headers';
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { SubmitButton } from './submit-button';
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
   searchParams: { message: string };
@@ -41,8 +40,6 @@ export default function LoginPage({
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      // By not providing an emailRedirectTo option,
-      // we are telling Supabase to not require email confirmation.
     });
 
     if (error) {
@@ -50,8 +47,8 @@ export default function LoginPage({
       return redirect('/login?message=Could not sign up user');
     }
 
-    // Redirect the user to the main page after successful sign up
-    return redirect('/');
+    // Redirect to the company name step after successful sign up
+    return redirect('/signup/company-name');
   };
 
   return (

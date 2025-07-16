@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -35,25 +34,9 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const [profileId, setProfileId] = useState<string | null>(initialProfile?.id || null);
 
   useEffect(() => {
-    const getUserId = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-            setProfileId(user.id);
-            if(initialProfile) {
-                setProfile(initialProfile);
-            } else {
-                setProfile({ ...defaultProfile, id: user.id });
-            }
-        }
-    }
-    
-    if(!initialProfile) {
-        getUserId();
-    } else {
-        setProfileId(initialProfile.id);
+    if (initialProfile) {
         setProfile(initialProfile);
     }
     
@@ -61,7 +44,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
         document.documentElement.style.setProperty('--primary', profile.accent_color.split(' ')[0] + ' ' + profile.accent_color.split(' ')[1]);
         document.documentElement.style.setProperty('--ring', profile.accent_color.split(' ')[0] + ' ' + profile.accent_color.split(' ')[1]);
     }
-  }, [initialProfile, profile?.accent_color, supabase]);
+  }, [initialProfile, profile?.accent_color]);
 
   const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
@@ -69,10 +52,11 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !profileId) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!file || !user) return;
 
     setUploading(true);
-    const fileName = `${profileId}/${Date.now()}_${file.name}`;
+    const fileName = `${user.id}/${Date.now()}_${file.name}`;
     const { data, error } = await supabase.storage
         .from('logos')
         .upload(fileName, file);
@@ -92,15 +76,16 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   };
 
   const handleSaveChanges = async () => {
-    if (!profileId) {
-      toast({ title: 'Error', description: 'No profile to save.', variant: 'destructive' });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: 'Error', description: 'You must be logged in to save settings.', variant: 'destructive' });
       return;
     }
     
     const { error } = await supabase
         .from('profiles')
-        .upsert({ ...profile, id: profileId })
-        .eq('id', profileId);
+        .update({ ...profile, id: user.id })
+        .eq('id', user.id);
 
     if (error) {
       toast({ title: 'Error saving settings', description: error.message, variant: 'destructive' });
