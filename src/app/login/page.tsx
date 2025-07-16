@@ -33,7 +33,6 @@ export default function LoginPage({
   const signUp = async (formData: FormData) => {
     'use server';
 
-    const origin = headers().get('origin');
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
     const cookieStore = cookies();
@@ -42,17 +41,17 @@ export default function LoginPage({
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: `${origin}/auth/callback`,
-      },
+      // By not providing an emailRedirectTo option,
+      // we are telling Supabase to not require email confirmation.
     });
 
     if (error) {
       console.error(error);
-      return redirect('/login?message=Could not authenticate user');
+      return redirect('/login?message=Could not sign up user');
     }
 
-    return redirect('/login?message=Check email to continue sign up process');
+    // Redirect the user to the main page after successful sign up
+    return redirect('/');
   };
 
   return (
