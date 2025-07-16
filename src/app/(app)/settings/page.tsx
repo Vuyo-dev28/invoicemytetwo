@@ -23,7 +23,7 @@ export default function SettingsPage() {
                     .single();
                 
                 if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                    console.error('Error fetching profile:', error);
+                    console.error('Error fetching profile:', error.message || error);
                 } else {
                     setProfile(data);
                 }

@@ -98,8 +98,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         
         if (profileData) {
             setProfile(profileData);
-        } else if (error && error.code !== 'PGRST116') {
-             console.error("Error fetching profile:", error);
+        } else if (error && error.code !== 'PGRST116') { // PGRST116: No rows found
+             console.error("Error fetching profile:", error.message || error);
         }
     }
     getProfile();
