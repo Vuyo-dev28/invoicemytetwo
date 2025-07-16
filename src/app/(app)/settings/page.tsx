@@ -13,19 +13,20 @@ export default function SettingsPage() {
     useEffect(() => {
         const getProfile = async () => {
             const supabase = createClient();
-            
-            // Assuming there's only one profile for the public app for now.
-            // A more robust solution might involve a specific ID.
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .limit(1)
-                .single();
-            
-            if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                console.error('Error fetching profile:', error);
-            } else {
-                setProfile(data);
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                const { data, error } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+                    console.error('Error fetching profile:', error);
+                } else {
+                    setProfile(data);
+                }
             }
             setLoading(false);
         }

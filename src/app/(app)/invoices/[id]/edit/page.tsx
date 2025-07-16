@@ -3,12 +3,16 @@ import { InvoiceForm } from '@/components/invoice-form';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import type { Client, Item, ExpandedInvoice } from '@/types';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 async function getClients(): Promise<Client[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
-  const { data, error } = await supabase.from('clients').select('*');
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const { data, error } = await supabase.from('clients').select('*').eq('user_id', user.id);
 
   if (error) {
     console.error('Error fetching clients:', error);
@@ -33,6 +37,9 @@ async function getInvoice(id: string): Promise<ExpandedInvoice | null> {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
 
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect('/login');
+
     const { data, error } = await supabase
         .from('invoices')
         .select(`
@@ -41,6 +48,7 @@ async function getInvoice(id: string): Promise<ExpandedInvoice | null> {
             invoice_items ( * )
         `)
         .eq('id', id)
+        .eq('user_id', user.id)
         .single();
 
     if (error || !data) {

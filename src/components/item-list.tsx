@@ -43,6 +43,7 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
     const { register, handleSubmit, formState: { errors }, reset } = form;
 
     const onSubmit = async (values: ItemFormValues) => {
+        // Items are public, no user_id needed
         const { data, error } = await supabase.from('items').insert([values]).select();
         
         if (error) {

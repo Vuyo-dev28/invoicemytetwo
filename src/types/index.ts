@@ -13,7 +13,7 @@ export type Profile = {
 
 export type Client = {
   id: string; // UUID
-  // profile_id is not in the schema for this table
+  user_id: string; // from auth.users.id
   name: string;
   email: string | null;
   address: string | null;
@@ -23,7 +23,7 @@ export type Client = {
 
 export type Item = {
   id: string; // UUID
-  // profile_id is not in the schema for this table
+  // No user_id, items are public
   description: string;
   rate: number;
   created_at: string;
@@ -33,7 +33,7 @@ export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
 export type Invoice = {
   id: string; // UUID
-  profile_id: string;
+  user_id: string;
   client_id: string;
   invoice_number: string;
   issue_date: string; // Should be YYYY-MM-DD
@@ -48,6 +48,7 @@ export type Invoice = {
 
 export type InvoiceItem = {
   id: string; // UUID
+  user_id: string;
   invoice_id: string; // UUID
   item_id: string | null; // UUID
   description: string;

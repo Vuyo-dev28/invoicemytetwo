@@ -7,10 +7,14 @@ import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import type { CashflowData, Invoice } from '@/types';
 import { subMonths, format, parse, startOfMonth } from 'date-fns';
+import { redirect } from 'next/navigation';
 
 async function getCashflowData(): Promise<CashflowData[]> {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) redirect('/login');
 
     const twelveMonthsAgo = subMonths(new Date(), 12);
 
@@ -18,6 +22,7 @@ async function getCashflowData(): Promise<CashflowData[]> {
         .from('invoices')
         .select(`*`)
         .eq('status', 'paid')
+        .eq('user_id', user.id)
         .gte('issue_date', twelveMonthsAgo.toISOString());
     
     if (invoicesError) {

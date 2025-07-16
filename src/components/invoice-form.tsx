@@ -87,11 +87,13 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
 
   useEffect(() => {
     const getProfile = async () => {
-        // Fetch the first profile available, as it's a public app
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        
         const { data: profileData, error } = await supabase
             .from('profiles')
             .select('*')
-            .limit(1)
+            .eq('id', user.id)
             .single();
         
         if (profileData) {
@@ -179,8 +181,9 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   };
 
   const saveInvoice = async (status: InvoiceStatus) => {
-    if (!profile) {
-        toast({ title: "Profile not loaded", description: "Cannot save invoice without a profile. Please configure it in settings.", variant: "destructive" });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+        toast({ title: "Not authenticated", description: "You need to be logged in to save an invoice.", variant: "destructive" });
         return;
     }
     if (!selectedClient) {
@@ -189,7 +192,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     const invoicePayload = {
-        profile_id: profile.id, 
+        user_id: user.id,
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
@@ -246,7 +249,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         invoice_id: savedInvoiceId,
         description: item.description,
         quantity: item.quantity,
-        rate: item.rate
+        rate: item.rate,
+        user_id: user.id
     }));
 
     const { error: itemsError } = await supabase.from('invoice_items').insert(itemsToInsert);

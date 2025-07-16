@@ -7,6 +7,7 @@ async function getItems() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
+  // Items are public, no user filter needed
   const { data, error } = await supabase
     .from('items')
     .select('*');

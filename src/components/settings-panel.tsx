@@ -38,15 +38,30 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const [profileId, setProfileId] = useState<string | null>(initialProfile?.id || null);
 
   useEffect(() => {
-      if (initialProfile) {
-          setProfile(initialProfile);
-          setProfileId(initialProfile.id);
-          if (initialProfile.accent_color) {
-            document.documentElement.style.setProperty('--primary', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
-            document.documentElement.style.setProperty('--ring', initialProfile.accent_color.split(' ')[0] + ' ' + initialProfile.accent_color.split(' ')[1]);
-          }
-      }
-  }, [initialProfile]);
+    const getUserId = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            setProfileId(user.id);
+            if(initialProfile) {
+                setProfile(initialProfile);
+            } else {
+                setProfile({ ...defaultProfile, id: user.id });
+            }
+        }
+    }
+    
+    if(!initialProfile) {
+        getUserId();
+    } else {
+        setProfileId(initialProfile.id);
+        setProfile(initialProfile);
+    }
+    
+    if (profile?.accent_color) {
+        document.documentElement.style.setProperty('--primary', profile.accent_color.split(' ')[0] + ' ' + profile.accent_color.split(' ')[1]);
+        document.documentElement.style.setProperty('--ring', profile.accent_color.split(' ')[0] + ' ' + profile.accent_color.split(' ')[1]);
+    }
+  }, [initialProfile, profile?.accent_color, supabase]);
 
   const handleUpdate = (field: keyof Omit<Profile, 'id'>, value: string | null) => {
     setProfile({ ...profile, [field]: value });
@@ -82,7 +97,6 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
       return;
     }
     
-    // The profile might not exist, so we upsert it.
     const { error } = await supabase
         .from('profiles')
         .upsert({ ...profile, id: profileId })

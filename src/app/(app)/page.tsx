@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { DollarSign, Users, CreditCard, Send } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
+import { redirect } from 'next/navigation';
 
 type DashboardStats = {
   totalAmount: number;
@@ -15,11 +16,17 @@ async function getDashboardStats(): Promise<DashboardStats> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    redirect('/login');
+  }
+
   // Fetch total amount from paid invoices
   const { data: amountData, error: amountError } = await supabase
     .from('invoices')
     .select('total')
-    .eq('status', 'paid');
+    .eq('status', 'paid')
+    .eq('user_id', user.id);
 
   if (amountError) {
     console.error('Error fetching total amount:', amountError.message);
@@ -29,7 +36,8 @@ async function getDashboardStats(): Promise<DashboardStats> {
   // Fetch total clients
    const { count: clientCount, error: clientError } = await supabase
     .from('clients')
-    .select('*', { count: 'exact', head: true });
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id);
   
   if (clientError) {
     console.error('Error fetching client count:', clientError.message);
@@ -39,7 +47,8 @@ async function getDashboardStats(): Promise<DashboardStats> {
   const { count: paidInvoicesCount, error: paidInvoicesError } = await supabase
     .from('invoices')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'paid');
+    .eq('status', 'paid')
+    .eq('user_id', user.id);
 
   if (paidInvoicesError) {
     console.error('Error fetching paid invoices count:', paidInvoicesError.message);
@@ -49,7 +58,8 @@ async function getDashboardStats(): Promise<DashboardStats> {
   const { count: pendingInvoicesCount, error: pendingInvoicesError } = await supabase
     .from('invoices')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'sent');
+    .eq('status', 'sent')
+    .eq('user_id', user.id);
 
   if (pendingInvoicesError) {
     console.error('Error fetching pending invoices count:', pendingInvoicesError.message);

@@ -1,6 +1,6 @@
 
-import { createServerClient, type CookieOptions } from "@supabase/ssr";
-import { type NextRequest, NextResponse } from "next/server";
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -37,7 +37,7 @@ export async function updateSession(request: NextRequest) {
         remove(name: string, options: CookieOptions) {
           request.cookies.set({
             name,
-            value: "",
+            value: '',
             ...options,
           });
           response = NextResponse.next({
@@ -47,7 +47,7 @@ export async function updateSession(request: NextRequest) {
           });
           response.cookies.set({
             name,
-            value: "",
+            value: '',
             ...options,
           });
         },
@@ -55,8 +55,17 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  // refreshing the session cookie
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (
+    !user &&
+    !request.nextUrl.pathname.startsWith('/login')
+  ) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
 
   return response;
 }
