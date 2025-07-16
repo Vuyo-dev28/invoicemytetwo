@@ -1,4 +1,5 @@
 
+
 export type Profile = {
   id: string; // This is a UUID from auth.users.id
   company_name: string | null;
@@ -66,4 +67,11 @@ export type ExpandedInvoice = Invoice & {
 export type CashflowData = {
   month: string;
   income: number;
+};
+
+export type DashboardStats = {
+  totalAmount: number;
+  totalClients: number;
+  paidInvoices: number;
+  pendingInvoices: number;
 };
