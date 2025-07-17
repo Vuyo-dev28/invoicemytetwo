@@ -1,6 +1,6 @@
+'use client';
 export const dynamic = "force-dynamic";
 
-'use client';
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { DollarSign, Users, CreditCard, Send, Check } from "lucide-react";
