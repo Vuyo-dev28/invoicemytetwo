@@ -635,13 +635,13 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             </Button>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                <div className="flex gap-4">
-                    <div className="w-1/2">
+                <div className="space-y-4">
+                    <div>
                         <Label className="font-semibold">Terms & Conditions</Label>
                         <Textarea placeholder="Optional" className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
                         <p className="print-only text-sm text-muted-foreground mt-2">{notes}</p>
                     </div>
-                    <div className="w-1/2">
+                    <div>
                         <Label className="font-semibold">Signature</Label>
                         <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center print:border-none">
                             {signature ? (
