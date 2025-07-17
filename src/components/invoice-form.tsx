@@ -62,6 +62,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [notes, setNotes] = useState('');
   const [originalInvoiceNumber, setOriginalInvoiceNumber] = useState('');
   const [poNumber, setPoNumber] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -120,22 +121,40 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
       setIssueDate(initialInvoice.issue_date ? parseISO(initialInvoice.issue_date) : undefined);
       setDueDate(initialInvoice.due_date ? parseISO(initialInvoice.due_date) : undefined);
 
-      // Extract original invoice number from notes
       if (initialInvoice.notes) {
-        const notesMatch = initialInvoice.notes.match(/Original Invoice: (.*?)\n/);
-        const poMatch = initialInvoice.notes.match(/P.O. Number: (.*?)\n/);
+        const notesLines = initialInvoice.notes.split('\n');
+        let remainingNotes: string[] = [];
         
-        let remainingNotes = initialInvoice.notes;
+        notesLines.forEach(line => {
+          if (documentType === 'Credit note' && line.startsWith('Original Invoice: ')) {
+            setOriginalInvoiceNumber(line.replace('Original Invoice: ', ''));
+          } else if (line.startsWith('P.O. Number: ')) {
+            setPoNumber(line.replace('P.O. Number: ', ''));
+          } else if (line.startsWith('Ship To:')) {
+             // This is a special case since shipping address can be multi-line
+             // We'll extract everything after 'Ship To:' until the next structured note or end of notes
+          }
+          else {
+            remainingNotes.push(line);
+          }
+        });
 
-        if(documentType === 'Credit note' && notesMatch && notesMatch[1]) {
-            setOriginalInvoiceNumber(notesMatch[1]);
-            remainingNotes = remainingNotes.replace(notesMatch[0], '');
+        // Reconstruct shipping address and other notes
+        const shipToIndex = initialInvoice.notes.indexOf('Ship To:');
+        if (shipToIndex !== -1) {
+            const notesAfterShipTo = initialInvoice.notes.substring(shipToIndex + 'Ship To:'.length).trim();
+            // Find where the user's notes begin (if they exist)
+            const mainNotesIndex = notesAfterShipTo.indexOf('\n\n---');
+            if (mainNotesIndex !== -1) {
+                setShippingAddress(notesAfterShipTo.substring(0, mainNotesIndex));
+                setNotes(notesAfterShipTo.substring(mainNotesIndex + '\n\n---'.length).trim());
+            } else {
+                setShippingAddress(notesAfterShipTo);
+                setNotes(''); // No separate user notes found
+            }
+        } else {
+            setNotes(remainingNotes.join('\n').trim());
         }
-        if(poMatch && poMatch[1]) {
-            setPoNumber(poMatch[1]);
-            remainingNotes = remainingNotes.replace(poMatch[0], '');
-        }
-        setNotes(remainingNotes.trim());
       }
 
       setTax(initialInvoice.tax_percent || 0);
@@ -221,14 +240,22 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         return;
     }
 
-    let structuredNotes = '';
+    let structuredNotes: string[] = [];
     if (documentType === 'Credit note' && originalInvoiceNumber) {
-        structuredNotes += `Original Invoice: ${originalInvoiceNumber}\n`;
+        structuredNotes.push(`Original Invoice: ${originalInvoiceNumber}`);
     }
     if (formType === 'advanced' && poNumber) {
-        structuredNotes += `P.O. Number: ${poNumber}\n`;
+        structuredNotes.push(`P.O. Number: ${poNumber}`);
     }
-    const finalNotes = structuredNotes ? `${structuredNotes}\n${notes}` : notes;
+    if (formType === 'advanced' && shippingAddress) {
+        structuredNotes.push(`Ship To:\n${shippingAddress}`);
+    }
+    
+    // Join structured notes and add a separator before user's free-text notes
+    let finalNotes = structuredNotes.join('\n\n');
+    if (notes) {
+        finalNotes += `${finalNotes ? '\n\n---\n\n' : ''}${notes}`;
+    }
 
     const invoicePayload = {
         user_id: user.id,
@@ -325,6 +352,9 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const handleClientChange = (clientId: string) => {
     const client = clients.find(c => c.id.toString() === clientId.toString()) || null;
     setSelectedClient(client);
+    if (client) {
+      setShippingAddress(client.address || ''); // Default shipping to billing on change
+    }
   };
   
   const handleSaveSignature = () => {
@@ -459,14 +489,15 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
               </div>
               {formType === 'advanced' && (
                 <div>
-                    <Label className="font-semibold text-base">Ship To:</Label>
-                     {selectedClient && (
-                      <div className="mt-2 pt-2 space-y-1 text-sm text-muted-foreground">
-                          <p className="font-bold text-foreground">{selectedClient.name}</p>
-                          <p>{selectedClient.address}</p>
-                          <p className="text-xs">(Assuming same as billing address)</p>
-                      </div>
-                      )}
+                    <Label htmlFor="shipping-address" className="font-semibold text-base">Ship To:</Label>
+                    <Textarea 
+                        id="shipping-address"
+                        placeholder="Enter shipping address..."
+                        className="mt-2 no-print h-28"
+                        value={shippingAddress}
+                        onChange={(e) => setShippingAddress(e.target.value)}
+                    />
+                    <p className="print-only text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{shippingAddress}</p>
                 </div>
               )}
             </div>
