@@ -2,6 +2,8 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Mail } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+//commmet 
 export default function AIEmailPage() {
   return (
     <div className="space-y-6">
