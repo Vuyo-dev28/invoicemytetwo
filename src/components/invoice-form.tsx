@@ -122,39 +122,33 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
       setDueDate(initialInvoice.due_date ? parseISO(initialInvoice.due_date) : undefined);
 
       if (initialInvoice.notes) {
-        const notesLines = initialInvoice.notes.split('\n');
-        let remainingNotes: string[] = [];
-        
-        notesLines.forEach(line => {
+        const notesLines = initialInvoice.notes.split('\n\n---\n\n');
+        const mainNotes = notesLines.length > 1 ? notesLines[1] : '';
+        const structuredPart = notesLines[0];
+        let tempShippingAddress = '';
+
+        const structuredLines = structuredPart.split('\n');
+
+        structuredLines.forEach(line => {
           if (documentType === 'Credit note' && line.startsWith('Original Invoice: ')) {
             setOriginalInvoiceNumber(line.replace('Original Invoice: ', ''));
           } else if (line.startsWith('P.O. Number: ')) {
             setPoNumber(line.replace('P.O. Number: ', ''));
-          } else if (line.startsWith('Ship To:')) {
-             // This is a special case since shipping address can be multi-line
-             // We'll extract everything after 'Ship To:' until the next structured note or end of notes
-          }
-          else {
-            remainingNotes.push(line);
           }
         });
-
-        // Reconstruct shipping address and other notes
-        const shipToIndex = initialInvoice.notes.indexOf('Ship To:');
+        
+        const shipToIndex = structuredPart.indexOf('Ship To:\n');
         if (shipToIndex !== -1) {
-            const notesAfterShipTo = initialInvoice.notes.substring(shipToIndex + 'Ship To:'.length).trim();
-            // Find where the user's notes begin (if they exist)
-            const mainNotesIndex = notesAfterShipTo.indexOf('\n\n---');
-            if (mainNotesIndex !== -1) {
-                setShippingAddress(notesAfterShipTo.substring(0, mainNotesIndex));
-                setNotes(notesAfterShipTo.substring(mainNotesIndex + '\n\n---'.length).trim());
+            const afterShipTo = structuredPart.substring(shipToIndex + 'Ship To:\n'.length);
+            const poIndex = afterShipTo.indexOf('P.O. Number:');
+            if(poIndex !== -1) {
+                tempShippingAddress = afterShipTo.substring(0, poIndex).trim();
             } else {
-                setShippingAddress(notesAfterShipTo);
-                setNotes(''); // No separate user notes found
+                tempShippingAddress = afterShipTo.trim();
             }
-        } else {
-            setNotes(remainingNotes.join('\n').trim());
         }
+        setShippingAddress(tempShippingAddress);
+        setNotes(mainNotes);
       }
 
       setTax(initialInvoice.tax_percent || 0);
@@ -252,7 +246,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
     
     // Join structured notes and add a separator before user's free-text notes
-    let finalNotes = structuredNotes.join('\n\n');
+    let finalNotes = structuredNotes.join('\n');
     if (notes) {
         finalNotes += `${finalNotes ? '\n\n---\n\n' : ''}${notes}`;
     }
@@ -339,7 +333,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     "Invoice": "invoices",
     "Estimate": "estimates",
     "Credit note": "credit-notes",
-    "Purchase order": "purchase-orders"
+    "Purchase order": "purchase-orders",
+    "Delivery note": "delivery-notes",
   };
 
   const handleSaveDraft = () => saveInvoice('draft');
@@ -461,47 +456,47 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         
         <main className="main-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                  <Label className="font-semibold text-base">Bill To:</Label>
-                  <div className="no-print">
-                      <Select onValueChange={handleClientChange} value={selectedClient?.id}>
-                      <SelectTrigger className="mt-2">
-                          <SelectValue placeholder="Select a client" />
-                      </SelectTrigger>
-                      <SelectContent>
-                          {clients.map(client => (
-                          <SelectItem key={client.id} value={client.id}>
-                              {client.name}
-                          </SelectItem>
-                          ))}
-                      </SelectContent>
-                      </Select>
-                  </div>
-                  {selectedClient && (
-                  <div className="mt-4 space-y-1 text-sm text-muted-foreground">
-                      <p className="font-bold text-foreground">{selectedClient.name}</p>
-                      <p>{selectedClient.address}</p>
-                      <p>{selectedClient.email}</p>
-                      {selectedClient.vat_number && <p>VAT: {selectedClient.vat_number}</p>}
-                  </div>
-                  )}
-              </div>
-              {formType === 'advanced' && (
                 <div>
-                    <Label htmlFor="shipping-address" className="font-semibold text-base">Ship To:</Label>
-                    <Textarea 
-                        id="shipping-address"
-                        placeholder="Enter shipping address..."
-                        className="mt-2 no-print h-28"
-                        value={shippingAddress}
-                        onChange={(e) => setShippingAddress(e.target.value)}
-                    />
-                    <p className="print-only text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{shippingAddress}</p>
+                    <Label className="font-semibold text-base">Bill To:</Label>
+                    <div className="no-print">
+                        <Select onValueChange={handleClientChange} value={selectedClient?.id}>
+                        <SelectTrigger className="mt-2">
+                            <SelectValue placeholder="Select a client" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {clients.map(client => (
+                            <SelectItem key={client.id} value={client.id}>
+                                {client.name}
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                        </Select>
+                    </div>
+                    {selectedClient && (
+                    <div className="mt-4 space-y-1 text-sm text-muted-foreground">
+                        <p className="font-bold text-foreground">{selectedClient.name}</p>
+                        <p>{selectedClient.address}</p>
+                        <p>{selectedClient.email}</p>
+                        {selectedClient.vat_number && <p>VAT: {selectedClient.vat_number}</p>}
+                    </div>
+                    )}
                 </div>
-              )}
+                {formType === 'advanced' && (
+                    <div>
+                        <Label htmlFor="shipping-address" className="font-semibold text-base">Ship To:</Label>
+                        <Textarea 
+                            id="shipping-address"
+                            placeholder="Enter shipping address..."
+                            className="mt-2 no-print h-28"
+                            value={shippingAddress}
+                            onChange={(e) => setShippingAddress(e.target.value)}
+                        />
+                        <p className="print-only text-sm text-muted-foreground mt-2 whitespace-pre-wrap">{shippingAddress || 'N/A'}</p>
+                    </div>
+                )}
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-8">
                 <div>
                     <Label htmlFor="issue-date" className="font-semibold">Issue Date</Label>
                     <div className="no-print">
@@ -573,7 +568,6 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     </div>
                     <p className="print-only mt-2">{currency}</p>
                 </div>
-            </div>
             </div>
             
             <div className="overflow-x-auto">
@@ -652,7 +646,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                         <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center print:border-none">
                             {signature ? (
                                 <div className="text-center">
-                                    <Image src={signature} alt="Signature" width={100} height={100} className="object-contain" />
+                                    <Image src={signature} alt="Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
                                     <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive no-print -mt-2">Remove</Button>
                                 </div>
                             ) : (
