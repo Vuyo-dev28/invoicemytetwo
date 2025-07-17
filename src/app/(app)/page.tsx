@@ -106,7 +106,11 @@ export default function DashboardPage() {
 
     useEffect(() => {
         const fetchUserAndStats = async () => {
-            const supabase = createClient();
+          const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON!
+          );
+          
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
