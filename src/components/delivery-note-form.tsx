@@ -57,6 +57,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
   const [profile, setProfile] = useState<Profile | null>(null);
 
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
 
   const [lineItems, setLineItems] = useState<LineItem[]>([]);
   
@@ -96,6 +97,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
       setDocNumber(initialDocument.invoice_number);
       setIssueDate(initialDocument.issue_date ? parseISO(initialDocument.issue_date) : undefined);
       setNotes(initialDocument.notes || '');
+      setDeliveryAddress(initialDocument.delivery_address || '');
       
       const client = clients.find(c => c.id === initialDocument.client_id) || null;
       setSelectedClient(client);
@@ -113,7 +115,9 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
     } else {
       setDocNumber(`DN-${Math.floor(1000 + Math.random() * 9000)}`);
       if(clients.length > 0) {
-        setSelectedClient(clients[0]);
+        const defaultClient = clients[0];
+        setSelectedClient(defaultClient);
+        setDeliveryAddress(defaultClient.address || '');
       }
       setLineItems([
         { id: `item-${Date.now()}`, description: '', quantity: 1 },
@@ -163,6 +167,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
         issue_date: issueDate?.toISOString().split('T')[0],
         status,
         notes,
+        delivery_address: deliveryAddress,
         document_type: 'Delivery note',
         total: 0, // Not a financial document
         tax_percent: 0,
@@ -234,6 +239,9 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
   const handleClientChange = (clientId: string) => {
     const client = clients.find(c => c.id.toString() === clientId.toString()) || null;
     setSelectedClient(client);
+    if (client) {
+      setDeliveryAddress(client.address || ''); // Default delivery address to client's address, but it's editable
+    }
   };
   
   const handleSaveSignature = (type: 'sender' | 'receiver') => {
@@ -318,28 +326,31 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
                     </div>
                 </div>
                 <div>
-                    <Label className="font-semibold text-base">Deliver To:</Label>
-                    <div className="no-print">
-                        <Select onValueChange={handleClientChange} value={selectedClient?.id}>
-                        <SelectTrigger className="mt-2">
-                            <SelectValue placeholder="Select a client" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {clients.map(client => (
-                            <SelectItem key={client.id} value={client.id}>
-                                {client.name}
-                            </SelectItem>
-                            ))}
-                        </SelectContent>
+                     <Label className="font-semibold text-base">Deliver To:</Label>
+                    <div className="no-print mt-2">
+                         <Select onValueChange={handleClientChange} value={selectedClient?.id}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a client" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {clients.map(client => (
+                                <SelectItem key={client.id} value={client.id}>
+                                    {client.name}
+                                </SelectItem>
+                                ))}
+                            </SelectContent>
                         </Select>
+                        <Textarea
+                            placeholder="Delivery Address"
+                            className="mt-2"
+                            value={deliveryAddress}
+                            onChange={(e) => setDeliveryAddress(e.target.value)}
+                        />
                     </div>
-                    {selectedClient && (
-                    <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-                        <p className="font-bold text-foreground">{selectedClient.name}</p>
-                        <p>{selectedClient.address}</p>
-                        <p>{selectedClient.email}</p>
+                    <div className="print-only mt-4 space-y-2 text-sm text-muted-foreground">
+                       {selectedClient && <p className="font-bold text-foreground">{selectedClient.name}</p>}
+                       <p className="whitespace-pre-wrap">{deliveryAddress}</p>
                     </div>
-                    )}
                 </div>
             </div>
 
@@ -553,5 +564,3 @@ function ItemCombobox({
     </Popover>
   )
 }
-
-    

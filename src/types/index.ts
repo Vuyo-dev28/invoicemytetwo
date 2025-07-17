@@ -47,6 +47,7 @@ export type Invoice = {
   created_at: string;
   document_type: string;
   shipping_address?: string | null;
+  delivery_address?: string | null;
 };
 
 export type InvoiceItem = {
