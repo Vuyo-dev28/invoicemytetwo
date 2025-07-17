@@ -1,5 +1,5 @@
 
-import { InvoiceForm } from '@/components/invoice-form';
+import { DeliveryNoteForm } from '@/components/delivery-note-form';
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import type { Client, Item, ExpandedInvoice } from '@/types';
@@ -84,11 +84,10 @@ export default async function EditDeliveryNotePage({ params }: { params: { id: s
   }
   
   return (
-    <InvoiceForm 
+    <DeliveryNoteForm 
         clients={clients} 
         items={items} 
-        documentType="Delivery note"
-        initialInvoice={document} 
+        initialDocument={document} 
     />
   );
 }

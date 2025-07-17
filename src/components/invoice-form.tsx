@@ -38,7 +38,7 @@ type LineItem = {
 };
 
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant" | "modern" | "minimalist" | "creative" | "corporate" | "friendly" | "bold" | "vintage" | "geometric" | "industrial" | "luxury";
-type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
+type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Purchase order";
 type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
 interface InvoiceFormProps {
@@ -82,7 +82,6 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     "Invoice": "INV",
     "Estimate": "EST",
     "Credit note": "CN",
-    "Delivery note": "DN",
     "Purchase order": "PO",
   }
 
