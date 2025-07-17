@@ -1,17 +1,20 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, 'use client';
+import { useState, useEffect, useRef } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from './ui/card';
 import Image from 'next/image';
-import { Upload, Save } from 'lucide-react';
+import { Upload, Save, Moon, Sun } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { Profile } from '@/types';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
+import { Switch } from './ui/switch';
 
 const colors = [
   'hsl(210 40% 60%)',
@@ -35,6 +38,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (initialProfile) {
@@ -92,7 +96,6 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
       return;
     }
     
-    // Perform an upsert instead of an update to handle cases where a profile doesn't exist yet.
     const { error } = await supabase
         .from('profiles')
         .upsert({ ...profile, id: user.id })
@@ -173,19 +176,33 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
         <Card>
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
-            <CardDescription>Customize the look and feel.</CardDescription>
+            <CardDescription>Customize the look and feel of the application.</CardDescription>
           </CardHeader>
-          <CardContent>
-            <Label>Accent Color</Label>
-            <div className="flex gap-2 mt-2">
-              {colors.map((color) => (
-                <button
-                  key={color}
-                  className={`w-8 h-8 rounded-full border-2 ${profile?.accent_color === color ? 'border-foreground' : 'border-transparent'}`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => handleUpdate('accent_color', color)}
-                />
-              ))}
+          <CardContent className="space-y-6">
+             <div>
+                <Label>Accent Color</Label>
+                <div className="flex gap-2 mt-2">
+                  {colors.map((color) => (
+                    <button
+                      key={color}
+                      className={`w-8 h-8 rounded-full border-2 ${profile?.accent_color === color ? 'border-foreground' : 'border-transparent'}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => handleUpdate('accent_color', color)}
+                    />
+                  ))}
+                </div>
+            </div>
+            <div>
+                <Label>Theme</Label>
+                <div className="flex items-center space-x-2 mt-2">
+                    <Sun className="h-5 w-5" />
+                    <Switch
+                        checked={theme === 'dark'}
+                        onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        id="theme-switch"
+                    />
+                    <Moon className="h-5 w-5" />
+                </div>
             </div>
           </CardContent>
         </Card>
