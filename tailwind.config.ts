@@ -89,8 +89,12 @@ export default {
           },
         },
         'pulse-bg-once': {
-          '0%, 100%': { backgroundColor: 'hsl(var(--muted))' },
-          '50%': { backgroundColor: 'hsl(var(--accent))' },
+           '0%': {
+            'background-position': '-100% 0',
+          },
+          '100%': {
+            'background-position': '100% 0',
+          },
         },
       },
       animation: {

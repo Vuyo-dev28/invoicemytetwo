@@ -1,4 +1,3 @@
-
 "use client"
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
@@ -387,7 +386,10 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                  <h1 className="text-2xl font-bold">{initialInvoice ? `Edit ${documentType}` : `New ${documentType}`}</h1>
             </div>
              <div className="flex items-center gap-4">
-                 <div className="flex items-center space-x-2 rounded-lg p-1 animate-pulse-bg-once">
+                 <div className={cn(
+                    "flex items-center space-x-2 rounded-lg p-1",
+                    !initialInvoice && "[background-size:200%_100%] [background-image:linear-gradient(to_right,hsl(var(--muted))_50%,hsl(var(--primary))_50%)] animate-pulse-bg-once"
+                 )}>
                     <Label htmlFor="form-type" className={formType === 'basic' ? 'text-foreground' : 'text-muted-foreground'}>Basic</Label>
                     <Switch id="form-type" checked={formType === 'advanced'} onCheckedChange={(checked) => setFormType(checked ? 'advanced' : 'basic')} />
                     <Label htmlFor="form-type" className={formType === 'advanced' ? 'text-foreground' : 'text-muted-foreground'}>Advanced</Label>
