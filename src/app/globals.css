@@ -87,7 +87,19 @@
     margin: 0;
   }
   .invoice-container {
-    @apply w-full max-w-full m-0 p-0 shadow-none border-none;
+    @apply w-full max-w-full m-0 p-0 shadow-none border-none bg-white text-black;
+  }
+  /* Force light theme for printing */
+  .invoice-container, .invoice-container * {
+    color: #000 !important;
+    background-color: #fff !important;
+    border-color: #ccc !important;
+  }
+  .invoice-container .text-primary {
+     color: hsl(var(--primary)) !important;
+  }
+  .invoice-container .text-muted-foreground {
+    color: #555 !important;
   }
 }
 
