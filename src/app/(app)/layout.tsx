@@ -65,8 +65,8 @@ function AppLayout({
   }
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[280px_1fr] lg:grid-cols-[350px_1fr]">
-      <div className="hidden border-r bg-card md:block">
+    <div className="min-h-screen w-full">
+      <div className="hidden md:block fixed left-0 top-0 h-full w-[280px] lg:w-[350px] border-r bg-card z-20">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -113,7 +113,7 @@ function AppLayout({
           
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col md:ml-[280px] lg:ml-[350px]">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-10 no-print">
           <Sheet>
             <SheetTrigger asChild>
@@ -172,7 +172,7 @@ function AppLayout({
           </Sheet>
           <div className="w-full flex-1" />
         </header>
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-muted/40">
+        <main className="flex-1 p-4 lg:p-6 bg-muted/40">
           {children}
         </main>
       </div>
