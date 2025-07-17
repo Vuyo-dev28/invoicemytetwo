@@ -23,7 +23,8 @@ export const signIn = async (formData: FormData) => {
       return redirect('/login?message=Could not authenticate user. Please try again.');
     }
 
-    return redirect('/signup/company-name');
+    // FIX: Redirect to dashboard/home after login
+    return redirect('/');
   };
 
 export const signUp = async (formData: FormData) => {
