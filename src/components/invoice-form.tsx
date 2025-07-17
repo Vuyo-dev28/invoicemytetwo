@@ -23,6 +23,7 @@ import type SignatureCanvas from 'react-signature-canvas';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
+import { currencies } from '@/lib/currencies';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -452,20 +453,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                 )}
                 <div>
                     <Label htmlFor="currency" className="font-semibold">Currency</Label>
-                    <div className="no-print">
-                        <Select value={currency} onValueChange={setCurrency}>
-                            <SelectTrigger id="currency" className="mt-2">
-                            <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                            <SelectItem value="USD">USD</SelectItem>
-                            <SelectItem value="EUR">EUR</SelectItem>
-                            <SelectItem value="GBP">GBP</SelectItem>
-                            <SelectItem value="JPY">JPY</SelectItem>
-                            <SelectItem value="AUD">AUD</SelectItem>
-                            <SelectItem value="CAD">CAD</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="no-print mt-2">
+                        <CurrencyCombobox value={currency} onValueChange={setCurrency} />
                     </div>
                     <p className="print-only mt-2">{currency}</p>
                 </div>
@@ -684,4 +673,55 @@ function ItemCombobox({
       </PopoverContent>
     </Popover>
   )
+}
+
+function CurrencyCombobox({
+    value,
+    onValueChange,
+}: {
+    value: string;
+    onValueChange: (value: string) => void;
+}) {
+    const [open, setOpen] = React.useState(false);
+    const selectedCurrency = currencies.find(c => c.code === value);
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={open}
+                    className="w-full justify-between font-normal"
+                >
+                    <span className="truncate">
+                        {value ? `${selectedCurrency?.name} (${value})` : "Select currency..."}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                <Command>
+                    <CommandInput placeholder="Search currency..." />
+                    <CommandList>
+                        <CommandEmpty>No currency found.</CommandEmpty>
+                        <CommandGroup>
+                            {currencies.map((currency) => (
+                                <CommandItem
+                                    key={currency.code}
+                                    value={`${currency.code} ${currency.name}`}
+                                    onSelect={() => {
+                                        onValueChange(currency.code);
+                                        setOpen(false);
+                                    }}
+                                >
+                                    {currency.name} ({currency.code})
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
 }
