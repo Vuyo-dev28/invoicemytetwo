@@ -3,6 +3,8 @@ import { ItemList } from "@/components/item-list";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 
+export const dynamic = "force-dynamic";
+
 async function getItems() {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
