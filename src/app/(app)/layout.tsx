@@ -74,7 +74,7 @@ function AppLayout({
               <span className="">InvoiceMe</span>
             </Link>
           </div>
-          <div className="flex-1 flex flex-col overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {menuItems.map(item => (
                  <Link
@@ -87,7 +87,8 @@ function AppLayout({
                 </Link>
               ))}
             </nav>
-            <nav className="mt-auto grid items-start px-2 text-sm font-medium lg:px-4 mb-2">
+            </div>
+            <div className="mt-auto p-4">
                <Link
                   href="/settings"
                   className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === '/settings' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
@@ -104,12 +105,12 @@ function AppLayout({
                     />
                     <Moon className="h-4 w-4" />
                 </div>
-                <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-3 rounded-lg px-3 py-2 justify-start text-muted-foreground hover:text-primary">
+                <Button variant="ghost" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 justify-start text-muted-foreground hover:text-primary">
                     <LogOut className="h-4 w-4" />
                     Log Out
                 </Button>
-            </nav>
-          </div>
+            </div>
+          
         </div>
       </div>
       <div className="flex flex-col">
