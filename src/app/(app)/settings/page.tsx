@@ -6,6 +6,8 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { createClient } from "@/utils/supabase/client";
 
+export const dynamic = "force-dynamic";
+
 export default function SettingsPage() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
