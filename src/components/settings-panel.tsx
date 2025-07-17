@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -62,7 +63,16 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
         .upload(fileName, file);
 
     if (error) {
-        toast({ title: 'Logo Upload Failed', description: error.message, variant: 'destructive' });
+        if (error.message.includes('Bucket not found')) {
+            toast({ 
+                title: 'Logo Upload Failed', 
+                description: "The 'logos' bucket was not found. Please create it in your Supabase dashboard's Storage section and set it to public.", 
+                variant: 'destructive',
+                duration: 10000
+            });
+        } else {
+            toast({ title: 'Logo Upload Failed', description: error.message, variant: 'destructive' });
+        }
         setUploading(false);
         return;
     }
@@ -82,9 +92,10 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
       return;
     }
     
+    // Perform an upsert instead of an update to handle cases where a profile doesn't exist yet.
     const { error } = await supabase
         .from('profiles')
-        .update({ ...profile, id: user.id })
+        .upsert({ ...profile, id: user.id })
         .eq('id', user.id);
 
     if (error) {
