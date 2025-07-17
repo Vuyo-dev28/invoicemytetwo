@@ -16,7 +16,10 @@ import {
     LogOut,
     CreditCard,
     Moon,
-    Sun
+    Sun,
+    Mail,
+    Sparkles,
+    CalendarDays
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -56,6 +59,12 @@ function AppLayout({
     { href: '/items', label: 'Items', icon: Package },
     { href: '/subscription', label: 'Subscription', icon: CreditCard },
   ];
+  
+  const aiMenuItems = [
+    { href: '/ai-email', label: 'AI Email Assistant', icon: Mail },
+    { href: '/ask-ai', label: 'Ask AI', icon: Sparkles },
+    { href: '/ai-planner', label: 'AI Calendar Planner', icon: CalendarDays },
+  ]
 
   const getIsActive = (href: string) => {
     if (href === '/invoices/list') {
@@ -66,7 +75,7 @@ function AppLayout({
 
   return (
     <div className="min-h-screen w-full">
-      <div className="hidden md:block fixed left-0 top-0 h-full w-[280px] lg:w-[350px] border-r bg-card z-20">
+       <div className="hidden md:block fixed left-0 top-0 h-full w-[280px] lg:w-[350px] border-r bg-card z-20">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
@@ -86,6 +95,18 @@ function AppLayout({
                   {item.label}
                 </Link>
               ))}
+              <div className="my-2 border-t -mx-2"></div>
+                {aiMenuItems.map(item => (
+                    <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${getIsActive(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                    >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                    </Link>
+                ))}
+
             </nav>
             </div>
             <div className="mt-auto p-4">
@@ -113,7 +134,7 @@ function AppLayout({
           
         </div>
       </div>
-      <div className="flex flex-col md:ml-[280px] lg:ml-[350px]">
+       <div className="flex flex-col md:ml-[280px] lg:ml-[350px]">
         <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-10 no-print">
           <Sheet>
             <SheetTrigger asChild>
@@ -145,6 +166,18 @@ function AppLayout({
                     {item.label}
                   </Link>
                 ))}
+                <div className="my-2 border-t -mx-2"></div>
+                {aiMenuItems.map(item => (
+                    <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${getIsActive(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                    </Link>
+                ))}
+
               </nav>
               <div className="mt-auto">
                  <Link
@@ -172,7 +205,7 @@ function AppLayout({
           </Sheet>
           <div className="w-full flex-1" />
         </header>
-        <main className="flex-1 p-4 lg:p-6 bg-muted/40">
+         <main className="flex-1 p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)]">
           {children}
         </main>
       </div>
