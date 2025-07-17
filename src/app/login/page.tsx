@@ -50,48 +50,62 @@ function LoginPageContent() {
           <CardTitle className="text-2xl text-center">Sign in</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" placeholder="you@example.com" required />
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                    <Input 
-                        id="password" 
-                        name="password" 
-                        type={showPassword ? "text" : "password"} 
-                        required 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <button 
-                        type="button" 
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground"
-                    >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </button>
-                </div>
-                {password.length > 0 && (
-                    <div className="space-y-1">
-                        <Progress value={(passwordStrength / 5) * 100} className={`h-1 ${strengthColors[passwordStrength]}`} />
-                        <p className="text-xs text-muted-foreground">{strengthLabels[passwordStrength]}</p>
-                    </div>
-                )}
-            </div>
+        <form className="space-y-4" method="POST" action={signUp}>
+  <div className="space-y-2">
+    <Label htmlFor="email">Email</Label>
+    <Input
+      id="email"
+      name="email"
+      type="email"
+      placeholder="you@example.com"
+      required
+    />
+  </div>
+  <div className="space-y-2">
+    <Label htmlFor="password">Password</Label>
+    <div className="relative">
+      <Input
+        id="password"
+        name="password"
+        type={showPassword ? 'text' : 'password'}
+        required
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <button
+        type="button"
+        onClick={() => setShowPassword(!showPassword)}
+        className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground"
+      >
+        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+    {password.length > 0 && (
+      <div className="space-y-1">
+        <Progress
+          value={(passwordStrength / 5) * 100}
+          className={`h-1 ${strengthColors[passwordStrength]}`}
+        />
+        <p className="text-xs text-muted-foreground">
+          {strengthLabels[passwordStrength]}
+        </p>
+      </div>
+    )}
+  </div>
 
-            {message && (
-                <p className="p-4 bg-foreground/10 text-foreground text-center text-sm">
-                    {message}
-                </p>
-            )}
-            <div className="flex flex-col space-y-2">
-                <Button formAction={signIn} className="w-full">Sign in</Button>
-                <Button formAction={signUp} variant="secondary" className="w-full">Sign up</Button>
-            </div>
-          </form>
+  {message && (
+    <p className="p-4 bg-foreground/10 text-foreground text-center text-sm">
+      {message}
+    </p>
+  )}
+
+  <div className="flex flex-col space-y-2">
+    <Button type="submit" className="w-full">
+      Sign up
+    </Button>
+  </div>
+</form>
+
         </CardContent>
       </Card>
       
