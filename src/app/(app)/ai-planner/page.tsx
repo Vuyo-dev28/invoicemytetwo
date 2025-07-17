@@ -2,6 +2,8 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CalendarDays } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function AIPlannerPage() {
   return (
     <div className="space-y-6">
