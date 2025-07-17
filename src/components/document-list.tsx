@@ -125,7 +125,7 @@ export function DocumentList({ initialDocuments, documentType }: { initialDocume
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent>
                                                     <DropdownMenuItem asChild disabled={doc.status !== 'draft'}>
-                                                        <Link href={`/invoices/${doc.id}/edit`}>
+                                                        <Link href={`/${basePath}/${doc.id}/edit`}>
                                                           <Edit className="mr-2 h-4 w-4" />
                                                           Edit
                                                         </Link>
