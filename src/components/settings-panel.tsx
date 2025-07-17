@@ -191,18 +191,6 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                   ))}
                 </div>
             </div>
-            <div>
-                <Label>Theme</Label>
-                <div className="flex items-center space-x-2 mt-2">
-                    <Sun className="h-5 w-5" />
-                    <Switch
-                        checked={theme === 'dark'}
-                        onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                        id="theme-switch"
-                    />
-                    <Moon className="h-5 w-5" />
-                </div>
-            </div>
           </CardContent>
         </Card>
     </div>
