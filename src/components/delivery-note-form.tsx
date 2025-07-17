@@ -18,7 +18,6 @@ import Image from 'next/image';
 import { Client, Item, ExpandedInvoice, Profile } from '@/types';
 import { cn } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import type SignatureCanvas from 'react-signature-canvas';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/utils/supabase/client';
@@ -311,31 +310,40 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
         
         <main className="main-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-            <div>
-                <Label className="font-semibold text-base">Deliver To:</Label>
-                <div className="no-print">
-                    <Select onValueChange={handleClientChange} value={selectedClient?.id}>
-                    <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select a client" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {clients.map(client => (
-                        <SelectItem key={client.id} value={client.id}>
-                            {client.name}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
+                <div>
+                    <Label className="font-semibold text-base">From:</Label>
+                     <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                        <p className="font-bold text-foreground">{profile?.company_name || 'Your Company'}</p>
+                        <p>{profile?.company_address || '123 Main St, Anytown USA'}</p>
+                    </div>
                 </div>
-                {selectedClient && (
-                <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-                    <p className="font-bold text-foreground">{selectedClient.name}</p>
-                    <p>{selectedClient.address}</p>
-                    <p>{selectedClient.email}</p>
+                <div>
+                    <Label className="font-semibold text-base">Deliver To:</Label>
+                    <div className="no-print">
+                        <Select onValueChange={handleClientChange} value={selectedClient?.id}>
+                        <SelectTrigger className="mt-2">
+                            <SelectValue placeholder="Select a client" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {clients.map(client => (
+                            <SelectItem key={client.id} value={client.id}>
+                                {client.name}
+                            </SelectItem>
+                            ))}
+                        </SelectContent>
+                        </Select>
+                    </div>
+                    {selectedClient && (
+                    <div className="mt-4 space-y-2 text-sm text-muted-foreground">
+                        <p className="font-bold text-foreground">{selectedClient.name}</p>
+                        <p>{selectedClient.address}</p>
+                        <p>{selectedClient.email}</p>
+                    </div>
+                    )}
                 </div>
-                )}
             </div>
-            <div className="grid grid-cols-2 gap-4 text-sm">
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-8">
                 <div>
                     <Label htmlFor="issue-date" className="font-semibold">Date of Issue</Label>
                     <div className="no-print">
@@ -364,7 +372,6 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
                     />
                     <p className="print-only mt-2">{poNumber || 'N/A'}</p>
                 </div>
-            </div>
             </div>
             
             <div className="overflow-x-auto">
@@ -421,7 +428,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
                         <Label className="font-semibold">Sender Signature</Label>
                         <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center">
                             {senderSignature ? (
-                                <Image src={senderSignature} alt="Sender Signature" width={100} height={100} className="object-contain" />
+                                <Image src={senderSignature} alt="Sender Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
                             ) : (
                                 <Dialog open={isSenderSigDialogOpen} onOpenChange={setSenderSigDialogOpen}>
                                     <DialogTrigger asChild><Button variant="outline" className="no-print">Add Signature</Button></DialogTrigger>
@@ -438,7 +445,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
                         <Label className="font-semibold">Receiver Signature</Label>
                         <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center">
                             {receiverSignature ? (
-                                <Image src={receiverSignature} alt="Receiver Signature" width={100} height={100} className="object-contain" />
+                                <Image src={receiverSignature} alt="Receiver Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
                             ) : (
                                 <Dialog open={isReceiverSigDialogOpen} onOpenChange={setReceiverSigDialogOpen}>
                                     <DialogTrigger asChild><Button variant="outline" className="no-print">Add Signature</Button></DialogTrigger>
@@ -546,3 +553,5 @@ function ItemCombobox({
     </Popover>
   )
 }
+
+    
