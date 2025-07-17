@@ -5,6 +5,8 @@ import { cookies } from 'next/headers';
 import type { Client, Item, ExpandedInvoice } from '@/types';
 import { notFound, redirect } from 'next/navigation';
 
+export const dynamic = "force-dynamic";
+
 async function getClients(): Promise<Client[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
