@@ -37,7 +37,7 @@ type LineItem = {
   rate: number;
 };
 
-type Template = "swiss" | "formal" | "playful" | "tech" | "elegant";
+type Template = "swiss" | "formal" | "playful" | "tech" | "elegant" | "modern" | "minimalist" | "creative" | "corporate" | "friendly" | "bold" | "vintage" | "geometric" | "industrial" | "luxury";
 type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Delivery note" | "Purchase order";
 type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
 
@@ -330,6 +330,16 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                       <SelectItem value="playful">Playful</SelectItem>
                       <SelectItem value="tech">Tech</SelectItem>
                       <SelectItem value="elegant">Elegant</SelectItem>
+                      <SelectItem value="modern">Modern</SelectItem>
+                      <SelectItem value="minimalist">Minimalist</SelectItem>
+                      <SelectItem value="creative">Creative</SelectItem>
+                      <SelectItem value="corporate">Corporate</SelectItem>
+                      <SelectItem value="friendly">Friendly</SelectItem>
+                      <SelectItem value="bold">Bold</SelectItem>
+                      <SelectItem value="vintage">Vintage</SelectItem>
+                      <SelectItem value="geometric">Geometric</SelectItem>
+                      <SelectItem value="industrial">Industrial</SelectItem>
+                      <SelectItem value="luxury">Luxury</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

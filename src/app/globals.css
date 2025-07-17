@@ -270,3 +270,308 @@
 .template-elegant .totals-section .elegant-total {
   @apply font-bold text-xl;
 }
+
+/* --- Modern Template --- */
+.template-modern {
+  font-family: 'Inter', sans-serif;
+}
+.template-modern .template-header {
+  @apply p-6 bg-muted;
+}
+.template-modern .invoice-title {
+  @apply text-3xl font-bold text-foreground;
+}
+.template-modern .company-details h2 {
+  @apply text-xl font-semibold;
+}
+.template-modern .main-content {
+  @apply p-6;
+}
+.template-modern table thead {
+  @apply border-b;
+}
+.template-modern table thead th {
+  @apply text-muted-foreground uppercase text-xs tracking-wider;
+}
+.template-modern .totals-section {
+  @apply mt-6 pt-4 border-t;
+}
+.template-modern .totals-section .modern-total {
+  @apply text-2xl font-bold text-primary;
+}
+
+/* --- Minimalist Template --- */
+.template-minimalist {
+  font-family: sans-serif;
+  @apply bg-white;
+}
+.template-minimalist .template-header {
+  @apply p-6 flex justify-between;
+}
+.template-minimalist .invoice-title {
+  @apply text-2xl font-light tracking-widest uppercase;
+}
+.template-minimalist .company-details {
+  @apply text-right;
+}
+.template-minimalist .main-content {
+  @apply p-6;
+}
+.template-minimalist table thead th {
+  @apply font-normal text-left text-muted-foreground pb-2;
+}
+.template-minimalist table {
+  @apply w-full;
+}
+.template-minimalist table tr {
+  @apply border-b border-muted;
+}
+.template-minimalist .totals-section {
+  @apply mt-4 pt-2;
+}
+.template-minimalist .totals-section .minimalist-total {
+  @apply font-semibold text-lg;
+}
+
+/* --- Creative Template --- */
+.template-creative {
+  font-family: 'Georgia', serif;
+  @apply border-l-8 border-primary;
+}
+.template-creative .template-header {
+  @apply p-6 flex justify-between;
+}
+.template-creative .invoice-title {
+  font-family: 'Brush Script MT', 'Brush Script Std', 'cursive';
+  @apply text-6xl text-primary;
+}
+.template-creative .company-details h2 {
+  @apply text-2xl font-bold;
+}
+.template-creative .main-content {
+  @apply p-6;
+}
+.template-creative table thead {
+  @apply hidden;
+}
+.template-creative table tbody tr {
+  @apply border-b border-dashed;
+}
+.template-creative table tbody td {
+  @apply py-3;
+}
+.template-creative .totals-section {
+  @apply mt-6 pt-2;
+}
+.template-creative .totals-section span {
+  @apply text-muted-foreground;
+}
+
+/* --- Corporate Template --- */
+.template-corporate {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+.template-corporate .template-header {
+  @apply bg-primary text-primary-foreground p-6 flex justify-between items-center;
+}
+.template-corporate .invoice-title {
+  @apply text-3xl font-bold;
+}
+.template-corporate .company-details h2 {
+  @apply text-2xl font-bold;
+}
+.template-corporate .main-content {
+  @apply p-6;
+}
+.template-corporate table {
+  @apply w-full;
+}
+.template-corporate table thead {
+  @apply bg-muted;
+}
+.template-corporate table thead th {
+  @apply p-2 text-left font-semibold;
+}
+.template-corporate table tr {
+  @apply border-b;
+}
+.template-corporate .totals-section {
+  @apply mt-4 p-4 bg-muted;
+}
+.template-corporate .totals-section .corporate-total {
+  @apply font-bold text-xl;
+}
+
+/* --- Friendly Template --- */
+.template-friendly {
+  font-family: 'Inter', sans-serif;
+  @apply rounded-lg overflow-hidden border;
+}
+.template-friendly .template-header {
+  @apply p-6;
+}
+.template-friendly .invoice-title {
+  @apply text-3xl font-bold text-primary;
+}
+.template-friendly .company-details h2 {
+  @apply text-lg font-semibold;
+}
+.template-friendly .main-content {
+  @apply p-6;
+}
+.template-friendly table {
+  @apply w-full;
+}
+.template-friendly table thead {
+  @apply border-b-2 border-primary/50;
+}
+.template-friendly table tbody td {
+  @apply p-3;
+}
+.template-friendly .totals-section {
+  @apply mt-4 pt-4 border-t-2 border-primary/50;
+}
+.template-friendly .totals-section .friendly-total {
+  @apply text-2xl font-bold;
+}
+
+/* --- Bold Template --- */
+.template-bold {
+  font-family: 'Inter', sans-serif;
+  @apply font-bold;
+}
+.template-bold .template-header {
+  @apply p-6 bg-foreground text-background;
+}
+.template-bold .invoice-title {
+  @apply text-5xl uppercase tracking-tighter;
+}
+.template-bold .company-details {
+  @apply text-right;
+}
+.template-bold .main-content {
+  @apply p-6;
+}
+.template-bold table {
+  @apply w-full;
+}
+.template-bold table thead th {
+  @apply text-left border-b-4 border-foreground pb-2;
+}
+.template-bold table td {
+  @apply py-2;
+}
+.template-bold .totals-section {
+  @apply mt-4 pt-4 border-t-4 border-foreground;
+}
+.template-bold .totals-section .bold-total {
+  @apply text-3xl;
+}
+
+/* --- Vintage Template --- */
+.template-vintage {
+  font-family: 'Courier New', Courier, monospace;
+  @apply bg-[#fdfaf4] border-2 border-[#d3c9b4];
+}
+.template-vintage .template-header {
+  @apply p-6 border-b-2 border-[#d3c9b4];
+}
+.template-vintage .invoice-title {
+  @apply text-3xl font-bold;
+}
+.template-vintage .main-content {
+  @apply p-6;
+}
+.template-vintage table {
+  @apply w-full;
+}
+.template-vintage table th,
+.template-vintage table td {
+  @apply text-left p-2 border border-[#d3c9b4];
+}
+.template-vintage .totals-section {
+  @apply mt-4 p-2 border border-[#d3c9b4];
+}
+
+/* --- Geometric Template --- */
+.template-geometric {
+  @apply relative;
+}
+.template-geometric::after {
+  content: '';
+  @apply absolute top-0 right-0 w-48 h-48 bg-primary/20 -z-0;
+  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}
+.template-geometric .template-header {
+  @apply p-6 z-10;
+}
+.template-geometric .invoice-title {
+  @apply text-4xl font-black uppercase;
+}
+.template-geometric .main-content {
+  @apply p-6 z-10;
+}
+.template-geometric table thead th {
+  @apply text-primary font-bold border-b-2 border-primary;
+}
+.template-geometric .totals-section {
+  @apply mt-6 pt-4 border-t-2 border-primary;
+}
+
+/* --- Industrial Template --- */
+.template-industrial {
+  font-family: 'monospace';
+  @apply border-2 border-dashed;
+}
+.template-industrial .template-header {
+  @apply p-6;
+}
+.template-industrial .invoice-title {
+  @apply text-2xl;
+  text-transform: uppercase;
+}
+.template-industrial .main-content {
+  @apply p-6;
+}
+.template-industrial table {
+  @apply w-full;
+}
+.template-industrial table tr {
+  @apply border-y;
+}
+.template-industrial table th, .template-industrial table td {
+  @apply p-2;
+}
+.template-industrial .totals-section {
+  @apply mt-4;
+}
+
+/* --- Luxury Template --- */
+.template-luxury {
+  font-family: 'Garamond', 'serif';
+  @apply bg-background;
+}
+.template-luxury .template-header {
+  @apply p-8 text-center border-b-2 border-amber-400;
+}
+.template-luxury .company-details h2 {
+  @apply text-4xl font-thin tracking-widest uppercase;
+}
+.template-luxury .invoice-title {
+  @apply text-xl font-bold uppercase tracking-[0.2em] text-amber-500 mt-4;
+}
+.template-luxury .main-content {
+  @apply p-8;
+}
+.template-luxury table thead {
+  @apply border-b border-amber-400;
+}
+.template-luxury table thead th {
+  @apply text-left font-thin uppercase tracking-wider text-muted-foreground pb-3;
+}
+.template-luxury .totals-section {
+  @apply mt-6 pt-4 border-t-2 border-amber-400;
+}
+.template-luxury .totals-section .luxury-total {
+  @apply font-bold text-2xl text-amber-500;
+}
