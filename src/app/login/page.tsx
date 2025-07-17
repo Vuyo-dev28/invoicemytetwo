@@ -1,6 +1,6 @@
 
 "use client";
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,17 +11,17 @@ import { Progress } from '@/components/ui/progress';
 import { signIn, signUp } from './actions';
 import { Logo } from '@/components/logo';
 
-  const getPasswordStrength = (password: string) => {
-    let strength = 0;
-    if (password.length > 7) strength++;
-    if (password.length > 10) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-    return strength;
-  };
+const getPasswordStrength = (password: string) => {
+  let strength = 0;
+  if (password.length > 7) strength++;
+  if (password.length > 10) strength++;
+  if (/[A-Z]/.test(password)) strength++;
+  if (/[0-9]/.test(password)) strength++;
+  if (/[^A-Za-z0-9]/.test(password)) strength++;
+  return strength;
+};
 
-export default function LoginPage() {
+function LoginPageContent() {
   const searchParams = useSearchParams();
   const message = searchParams.get('message');
   const [password, setPassword] = useState('');
@@ -102,4 +102,12 @@ export default function LoginPage() {
       </div>
     </div>
   );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginPageContent />
+    </Suspense>
+  )
 }
