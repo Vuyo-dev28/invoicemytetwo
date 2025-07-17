@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Gift, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { signIn, signUp } from './actions';
+import { Logo } from '@/components/logo';
 
   const getPasswordStrength = (password: string) => {
     let strength = 0;
@@ -41,8 +42,8 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-muted/20">
       <div className="mb-8 flex flex-col items-center text-center">
-        <Gift className="h-12 w-12 text-primary" />
-        <h1 className="text-2xl font-bold mt-2">InvoiceMe</h1>
+        <Logo className="h-12 w-12 text-primary" />
+        <h1 className="text-2xl font-bold mt-2">InvoiceMyte</h1>
       </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
