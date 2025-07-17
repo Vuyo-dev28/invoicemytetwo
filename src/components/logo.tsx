@@ -4,18 +4,12 @@ export function Logo({ className, ...props }: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={cn("h-6 w-6", className)}
+      viewBox="0 0 108 96"
+      fill="currentColor"
+      className={cn("h-6 w-auto", className)}
       {...props}
     >
-        <path d="M12 18.535a6 6 0 1 0 0-12 6 6 0 0 0 0 12Z"></path>
-        <path d="M22 12a10 10 0 1 0-20 0 10 10 0 0 0 20 0Z"></path>
-        <path d="M12 12a6 6 0 1 0-6-6"></path>
+      <path d="M0 96V0h36l24 48L84 0h24v96h-20V31.5L68 63 48 24 28 63 8 31.5V96H0ZM20 28h8v16h-8V28Zm0 20a4 4 0 1 1 8 0 4 4 0 0 1-8 0Z" />
     </svg>
   );
 }
