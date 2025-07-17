@@ -58,6 +58,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [issueDate, setIssueDate] = useState<Date | undefined>(new Date());
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [notes, setNotes] = useState('');
+  const [originalInvoiceNumber, setOriginalInvoiceNumber] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -113,7 +114,20 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
       setInvoiceNumber(initialInvoice.invoice_number);
       setIssueDate(initialInvoice.issue_date ? parseISO(initialInvoice.issue_date) : undefined);
       setDueDate(initialInvoice.due_date ? parseISO(initialInvoice.due_date) : undefined);
-      setNotes(initialInvoice.notes || '');
+
+      // Extract original invoice number from notes if it's a credit note
+      if (documentType === 'Credit note' && initialInvoice.notes) {
+        const notesMatch = initialInvoice.notes.match(/Original Invoice: (.*)\n\n/);
+        if(notesMatch && notesMatch[1]) {
+            setOriginalInvoiceNumber(notesMatch[1]);
+            setNotes(initialInvoice.notes.replace(notesMatch[0], ''));
+        } else {
+            setNotes(initialInvoice.notes || '');
+        }
+      } else {
+         setNotes(initialInvoice.notes || '');
+      }
+
       setTax(initialInvoice.tax_percent || 0);
       setDiscount(initialInvoice.discount_percent || 0);
       setTotal(initialInvoice.total || 0);
@@ -183,12 +197,17 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const saveInvoice = async (status: InvoiceStatus) => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-        toast({ title: "Not authenticated", description: "You need to be logged in to save an invoice.", variant: "destructive" });
+        toast({ title: "Not authenticated", description: "You need to be logged in to save a document.", variant: "destructive" });
         return;
     }
     if (!selectedClient) {
         toast({ title: "Client not selected", description: "Please select a client.", variant: "destructive" });
         return;
+    }
+
+    let finalNotes = notes;
+    if (documentType === 'Credit note' && originalInvoiceNumber) {
+        finalNotes = `Original Invoice: ${originalInvoiceNumber}\n\n${notes}`;
     }
 
     const invoicePayload = {
@@ -198,7 +217,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         issue_date: issueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
         due_date: dueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
         status,
-        notes,
+        notes: finalNotes,
         tax_percent: tax,
         discount_percent: discount,
         total: total,
@@ -265,9 +284,16 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
       title: `${documentType} ${initialInvoice ? 'Updated' : 'Saved'}`,
       description: `Your ${documentType.toLowerCase()} has been saved as a ${status}.`,
     });
-    router.push('/invoices/list');
+    router.push(`/${documentTypeToPath[documentType]}`);
     router.refresh();
   }
+  
+  const documentTypeToPath = {
+    "Invoice": "invoices/list",
+    "Estimate": "estimates",
+    "Credit note": "credit-notes",
+    "Purchase order": "purchase-orders"
+  };
 
   const handleSaveDraft = () => saveInvoice('draft');
   const handleSend = () => saveInvoice('sent');
@@ -280,8 +306,6 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     const client = clients.find(c => c.id.toString() === clientId.toString()) || null;
     setSelectedClient(client);
   };
-
-  const isFinancialDocument = ["Invoice", "Credit note"].includes(documentType);
   
   const handleSaveSignature = () => {
     if (signatureRef.current) {
@@ -423,7 +447,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     </div>
                     <p className="print-only mt-2">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
                 </div>
-                {isFinancialDocument && (
+                {documentType !== 'Estimate' && documentType !== 'Purchase order' && (
                   <>
                     <div>
                         <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
@@ -459,6 +483,19 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                         <p className="print-only mt-2">{paymentTerms.replace('net', 'Net ')}</p>
                     </div>
                   </>
+                )}
+                 {documentType === 'Credit note' && (
+                    <div>
+                        <Label htmlFor="original-invoice" className="font-semibold">Original Invoice #</Label>
+                        <Input 
+                            id="original-invoice" 
+                            className="mt-2 no-print" 
+                            value={originalInvoiceNumber} 
+                            onChange={(e) => setOriginalInvoiceNumber(e.target.value)}
+                            placeholder="e.g. INV-2023-001"
+                        />
+                         <p className="print-only mt-2">{originalInvoiceNumber || 'N/A'}</p>
+                    </div>
                 )}
                 <div>
                     <Label htmlFor="currency" className="font-semibold">Currency</Label>
@@ -525,6 +562,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     <div className="w-1/2">
                         <Label className="font-semibold">Notes</Label>
                         <Textarea placeholder="Any additional notes..." className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
+                        <p className="print-only text-sm text-muted-foreground mt-2">{notes}</p>
                     </div>
                     <div className="w-1/2">
                         <Label className="font-semibold">Signature</Label>
@@ -734,3 +772,5 @@ function CurrencyCombobox({
         </Popover>
     );
 }
+
+    

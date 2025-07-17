@@ -42,3 +42,5 @@ export default async function NewCreditNotePage() {
     <InvoiceForm clients={clients} items={items} documentType="Credit note" />
   );
 }
+
+    
