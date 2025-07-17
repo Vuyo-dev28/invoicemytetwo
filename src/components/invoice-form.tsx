@@ -83,7 +83,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [isSignatureDialogOpen, setSignatureDialogOpen] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
 
-  const [formType, setFormType] = useState<FormType>('advanced');
+  const [formType, setFormType] = useState<FormType>('basic');
 
   const documentTypePrefixes = {
     "Invoice": "INV",
@@ -481,7 +481,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     </div>
                     )}
                 </div>
-                {formType === 'advanced' && (
+                {formType === 'advanced' && documentType !== 'Credit note' && (
                     <div>
                         <Label htmlFor="shipping-address" className="font-semibold text-base">Ship To:</Label>
                         <Textarea 
