@@ -87,7 +87,8 @@
     margin: 0;
   }
   .invoice-container {
-    @apply w-full max-w-full m-0 p-0 shadow-none border-none bg-white text-black;
+    @apply w-full max-w-full m-0 p-0 shadow-none bg-white text-black;
+    border: none !important;
   }
   /* Force light theme for printing */
   .invoice-container, .invoice-container * {
