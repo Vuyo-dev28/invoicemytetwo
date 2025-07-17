@@ -61,6 +61,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [notes, setNotes] = useState('');
   const [originalInvoiceNumber, setOriginalInvoiceNumber] = useState('');
+  const [poNumber, setPoNumber] = useState('');
   
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -119,17 +120,22 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
       setIssueDate(initialInvoice.issue_date ? parseISO(initialInvoice.issue_date) : undefined);
       setDueDate(initialInvoice.due_date ? parseISO(initialInvoice.due_date) : undefined);
 
-      // Extract original invoice number from notes if it's a credit note
-      if (documentType === 'Credit note' && initialInvoice.notes) {
-        const notesMatch = initialInvoice.notes.match(/Original Invoice: (.*)\n\n/);
-        if(notesMatch && notesMatch[1]) {
+      // Extract original invoice number from notes
+      if (initialInvoice.notes) {
+        const notesMatch = initialInvoice.notes.match(/Original Invoice: (.*?)\n/);
+        const poMatch = initialInvoice.notes.match(/P.O. Number: (.*?)\n/);
+        
+        let remainingNotes = initialInvoice.notes;
+
+        if(documentType === 'Credit note' && notesMatch && notesMatch[1]) {
             setOriginalInvoiceNumber(notesMatch[1]);
-            setNotes(initialInvoice.notes.replace(notesMatch[0], ''));
-        } else {
-            setNotes(initialInvoice.notes || '');
+            remainingNotes = remainingNotes.replace(notesMatch[0], '');
         }
-      } else {
-         setNotes(initialInvoice.notes || '');
+        if(poMatch && poMatch[1]) {
+            setPoNumber(poMatch[1]);
+            remainingNotes = remainingNotes.replace(poMatch[0], '');
+        }
+        setNotes(remainingNotes.trim());
       }
 
       setTax(initialInvoice.tax_percent || 0);
@@ -215,10 +221,14 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         return;
     }
 
-    let finalNotes = notes;
+    let structuredNotes = '';
     if (documentType === 'Credit note' && originalInvoiceNumber) {
-        finalNotes = `Original Invoice: ${originalInvoiceNumber}\n\n${notes}`;
+        structuredNotes += `Original Invoice: ${originalInvoiceNumber}\n`;
     }
+    if (formType === 'advanced' && poNumber) {
+        structuredNotes += `P.O. Number: ${poNumber}\n`;
+    }
+    const finalNotes = structuredNotes ? `${structuredNotes}\n${notes}` : notes;
 
     const invoicePayload = {
         user_id: user.id,
@@ -421,30 +431,44 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         
         <main className="main-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-            <div>
-                <Label className="font-semibold text-base">Bill To:</Label>
-                <div className="no-print">
-                    <Select onValueChange={handleClientChange} value={selectedClient?.id}>
-                    <SelectTrigger className="mt-2">
-                        <SelectValue placeholder="Select a client" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {clients.map(client => (
-                        <SelectItem key={client.id} value={client.id}>
-                            {client.name}
-                        </SelectItem>
-                        ))}
-                    </SelectContent>
-                    </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div>
+                  <Label className="font-semibold text-base">Bill To:</Label>
+                  <div className="no-print">
+                      <Select onValueChange={handleClientChange} value={selectedClient?.id}>
+                      <SelectTrigger className="mt-2">
+                          <SelectValue placeholder="Select a client" />
+                      </SelectTrigger>
+                      <SelectContent>
+                          {clients.map(client => (
+                          <SelectItem key={client.id} value={client.id}>
+                              {client.name}
+                          </SelectItem>
+                          ))}
+                      </SelectContent>
+                      </Select>
+                  </div>
+                  {selectedClient && (
+                  <div className="mt-4 space-y-1 text-sm text-muted-foreground">
+                      <p className="font-bold text-foreground">{selectedClient.name}</p>
+                      <p>{selectedClient.address}</p>
+                      <p>{selectedClient.email}</p>
+                      {selectedClient.vat_number && <p>VAT: {selectedClient.vat_number}</p>}
+                  </div>
+                  )}
+              </div>
+              {formType === 'advanced' && (
+                <div>
+                    <Label className="font-semibold text-base">Ship To:</Label>
+                     {selectedClient && (
+                      <div className="mt-2 pt-2 space-y-1 text-sm text-muted-foreground">
+                          <p className="font-bold text-foreground">{selectedClient.name}</p>
+                          <p>{selectedClient.address}</p>
+                          <p className="text-xs">(Assuming same as billing address)</p>
+                      </div>
+                      )}
                 </div>
-                {selectedClient && (
-                <div className="mt-4 space-y-2 text-sm text-muted-foreground">
-                    <p className="font-bold text-foreground">{selectedClient.name}</p>
-                    <p>{selectedClient.address}</p>
-                    <p>{selectedClient.email}</p>
-                    <p>VAT: {selectedClient.vat_number}</p>
-                </div>
-                )}
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -464,40 +488,37 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     </div>
                     <p className="print-only mt-2">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
                 </div>
-                {formType === 'advanced' && documentType !== 'Estimate' && documentType !== 'Purchase order' && (
-                  <>
-                    <div>
-                        <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
-                        <div className="no-print">
-                        <Popover>
-                            <PopoverTrigger asChild>
-                            <Button id="due-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                            </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
-                            </PopoverContent>
-                        </Popover>
-                        </div>
-                        <p className="print-only mt-2">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
-                    </div>
-                    <div>
-                        <Label htmlFor="payment-terms" className="font-semibold">Payment Terms</Label>
-                        <div className="no-print">
-                            <Select value={paymentTerms} onValueChange={setPaymentTerms}>
-                            <SelectTrigger id="payment-terms" className="mt-2">
-                                <SelectValue placeholder="Select terms" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="net15">Net 15</SelectItem>
-                                <SelectItem value="net30">Net 30</SelectItem>
-                                <SelectItem value="net60">Net 60</SelectItem>
-                            </SelectContent>
-                            </Select>
-                        </div>
-                        <p className="print-only mt-2">{paymentTerms.replace('net', 'Net ')}</p>
+                {formType === 'advanced' && (
+                   <>
+                    {documentType !== 'Estimate' && documentType !== 'Purchase order' && (
+                      <div>
+                          <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
+                          <div className="no-print">
+                          <Popover>
+                              <PopoverTrigger asChild>
+                              <Button id="due-date" variant={"outline"} className="w-full justify-start text-left font-normal mt-2">
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                              </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                              <Calendar mode="single" selected={dueDate} onSelect={setDueDate} />
+                              </PopoverContent>
+                          </Popover>
+                          </div>
+                          <p className="print-only mt-2">{dueDate ? format(dueDate, "PPP") : 'N/A'}</p>
+                      </div>
+                    )}
+                     <div>
+                        <Label htmlFor="po-number" className="font-semibold">P.O. Number</Label>
+                        <Input 
+                            id="po-number" 
+                            className="mt-2 no-print" 
+                            value={poNumber} 
+                            onChange={(e) => setPoNumber(e.target.value)} 
+                            placeholder="Optional"
+                        />
+                        <p className="print-only mt-2">{poNumber || 'N/A'}</p>
                     </div>
                   </>
                 )}
@@ -530,7 +551,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                 <TableRow>
                     <TableHead className={formType === 'basic' ? 'w-4/5' : 'w-2/5'}>Description</TableHead>
                     {formType === 'advanced' && <TableHead>Quantity</TableHead>}
-                    {formType === 'advanced' && <TableHead>Rate</TableHead>}
+                    {formType === 'advanced' && <TableHead>Unit Price</TableHead>}
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="w-12 no-print"></TableHead>
                 </TableRow>
@@ -591,8 +612,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
                 <div className="flex gap-4">
                     <div className="w-1/2">
-                        <Label className="font-semibold">Notes</Label>
-                        <Textarea placeholder="Any additional notes..." className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
+                        <Label className="font-semibold">Terms & Conditions</Label>
+                        <Textarea placeholder="Optional" className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
                         <p className="print-only text-sm text-muted-foreground mt-2">{notes}</p>
                     </div>
                     <div className="w-1/2">
@@ -803,7 +824,3 @@ function CurrencyCombobox({
         </Popover>
     );
 }
-
-    
-
-    
