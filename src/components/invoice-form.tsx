@@ -241,7 +241,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     if (formType === 'advanced' && poNumber) {
         structuredNotes.push(`P.O. Number: ${poNumber}`);
     }
-    if (formType === 'advanced' && shippingAddress) {
+    if (formType === 'advanced' && shippingAddress && documentType !== 'Credit note') {
         structuredNotes.push(`Ship To:\n${shippingAddress}`);
     }
     
@@ -387,7 +387,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                  <h1 className="text-2xl font-bold">{initialInvoice ? `Edit ${documentType}` : `New ${documentType}`}</h1>
             </div>
              <div className="flex items-center gap-4">
-                 <div className="flex items-center space-x-2">
+                 <div className="flex items-center space-x-2 rounded-lg p-1 animate-pulse-bg-once">
                     <Label htmlFor="form-type" className={formType === 'basic' ? 'text-foreground' : 'text-muted-foreground'}>Basic</Label>
                     <Switch id="form-type" checked={formType === 'advanced'} onCheckedChange={(checked) => setFormType(checked ? 'advanced' : 'basic')} />
                     <Label htmlFor="form-type" className={formType === 'advanced' ? 'text-foreground' : 'text-muted-foreground'}>Advanced</Label>
