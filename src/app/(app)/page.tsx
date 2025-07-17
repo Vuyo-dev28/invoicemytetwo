@@ -274,7 +274,7 @@ export default function DashboardPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                 {currentPlans.map((plan, index) => (
                   <Card key={index} className={`flex flex-col ${plan.mostValued ? 'border-primary border-2' : ''}`}>
-                    {plan.mostValued && <div className="bg-primary text-primary-foreground text-center text-sm font-semibold py-1 rounded-t-md">Most value</div>}
+                    {plan.mostValued && <div className="bg-primary text-primary-foreground text-center text-sm font-semibold py-1 rounded-t-lg">Most value</div>}
                     <CardHeader>
                       <CardTitle>{plan.name}</CardTitle>
                       <CardDescription>{plan.description}</CardDescription>
@@ -354,4 +354,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-

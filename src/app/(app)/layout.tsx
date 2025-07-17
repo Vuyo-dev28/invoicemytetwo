@@ -58,9 +58,9 @@ function AppLayout({
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-muted/40 md:block">
+      <div className="hidden border-r bg-[#09090b] text-white md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+          <div className="flex h-14 items-center border-b border-gray-800 px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <Gift className="h-6 w-6 text-primary" />
               <span className="">InvoiceMe</span>
@@ -72,7 +72,7 @@ function AppLayout({
                  <Link
                   key={item.href}
                   href={getHref(item.href)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === getHref(item.href) ? 'bg-muted text-primary' : 'text-muted-foreground'}`}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === getHref(item.href) ? 'bg-primary text-primary-foreground' : 'text-gray-400'}`}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
@@ -82,12 +82,12 @@ function AppLayout({
             <nav className="mt-auto grid items-start px-2 text-sm font-medium lg:px-4 mb-2">
                <Link
                   href="/settings"
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === '/settings' ? 'bg-muted text-primary' : 'text-muted-foreground'}`}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === '/settings' ? 'bg-primary text-primary-foreground' : 'text-gray-400'}`}
                 >
                   <Settings className="h-4 w-4" />
                   Settings
                 </Link>
-                <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-3 rounded-lg px-3 py-2 justify-start text-muted-foreground hover:text-primary">
+                <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-3 rounded-lg px-3 py-2 justify-start text-gray-400 hover:text-primary">
                     <LogOut className="h-4 w-4" />
                     Log Out
                 </Button>
@@ -145,7 +145,7 @@ function AppLayout({
           </Sheet>
           <div className="w-full flex-1" />
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40">
           {children}
         </main>
       </div>

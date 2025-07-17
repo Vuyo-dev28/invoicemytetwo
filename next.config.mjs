@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -14,6 +13,12 @@ const nextConfig = {
         hostname: 'placehold.co',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'fuhrwwmojigaxglsdmfl.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/logos/**',
       },
     ],
   },

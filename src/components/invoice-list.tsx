@@ -58,14 +58,14 @@ export function InvoiceList({ initialInvoices }: { initialInvoices: ExpandedInvo
 
     return (
         <>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Invoices</h1>
+                    <h1 className="text-3xl font-bold">Invoices</h1>
                     <p className="text-muted-foreground">Manage all your invoices here.</p>
                 </div>
                 <Button asChild>
                     <Link href="/invoices/new">
-                        <PlusCircle className="mr-2" />
+                        <PlusCircle className="mr-2 h-4 w-4" />
                         New Invoice
                     </Link>
                 </Button>
@@ -128,7 +128,10 @@ export function InvoiceList({ initialInvoices }: { initialInvoices: ExpandedInvo
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={7} className="text-center">No invoices found. Create one to get started.</TableCell>
+                                    <TableCell colSpan={7} className="text-center py-12">
+                                        <p className="text-lg font-medium">No invoices found.</p>
+                                        <p className="text-muted-foreground">Create one to get started.</p>
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>

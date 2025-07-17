@@ -75,15 +75,15 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
 
     return (
         <>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold">Clients</h1>
+                    <h1 className="text-3xl font-bold">Clients</h1>
                     <p className="text-muted-foreground">Manage your clients here.</p>
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setDialogOpen}>
                     <DialogTrigger asChild>
                         <Button>
-                            <PlusCircle className="mr-2" />
+                            <PlusCircle className="mr-2 h-4 w-4" />
                             Add Client
                         </Button>
                     </DialogTrigger>
@@ -146,7 +146,10 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center">No clients found. Add one to get started.</TableCell>
+                                    <TableCell colSpan={4} className="text-center py-12">
+                                        <p className="text-lg font-medium">No clients found.</p>
+                                        <p className="text-muted-foreground">Add one to get started.</p>
+                                    </TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
