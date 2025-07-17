@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { ExpandedInvoice } from "@/types";
 import { redirect } from 'next/navigation';
 
+export const dynamic = "force-dynamic";
+
 async function getInvoices(): Promise<ExpandedInvoice[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);

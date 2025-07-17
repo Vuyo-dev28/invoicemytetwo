@@ -9,6 +9,8 @@ import type { CashflowData, Invoice } from '@/types';
 import { subMonths, format, parse, startOfMonth } from 'date-fns';
 import { redirect } from 'next/navigation';
 
+export const dynamic = "force-dynamic";
+
 async function getCashflowData(): Promise<CashflowData[]> {
     const cookieStore = cookies();
     const supabase = createClient(cookieStore);
