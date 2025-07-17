@@ -74,7 +74,7 @@ function AppLayout({
               <span className="">InvoiceMe</span>
             </Link>
           </div>
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
               {menuItems.map(item => (
                  <Link
@@ -112,14 +112,14 @@ function AppLayout({
           </div>
         </div>
       </div>
-      <div className="flex flex-col flex-1">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+      <div className="flex flex-col">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6 sticky top-0 z-10 no-print">
           <Sheet>
             <SheetTrigger asChild>
               <Button
                 variant="outline"
                 size="icon"
-                className="shrink-0 md:hidden no-print"
+                className="shrink-0 md:hidden"
               >
                 <PanelLeft className="h-5 w-5" />
                 <span className="sr-only">Toggle navigation menu</span>
@@ -129,10 +129,10 @@ function AppLayout({
               <nav className="grid gap-2 text-lg font-medium">
                 <Link
                   href="/"
-                  className="flex items-center gap-2 text-lg font-semibold"
+                  className="flex items-center gap-2 text-lg font-semibold mb-4"
                 >
                   <Gift className="h-6 w-6 text-primary" />
-                  <span className="sr-only">InvoiceMe</span>
+                  <span className="">InvoiceMe</span>
                 </Link>
                 {menuItems.map(item => (
                   <Link
@@ -171,7 +171,7 @@ function AppLayout({
           </Sheet>
           <div className="w-full flex-1" />
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6 bg-muted/40">
           {children}
         </main>
       </div>
