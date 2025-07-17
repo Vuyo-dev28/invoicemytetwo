@@ -23,7 +23,7 @@ export const signIn = async (formData: FormData) => {
       return redirect('/login?message=Could not authenticate user. Please try again.');
     }
 
-    return redirect('/');
+    return redirect('/signup/company-name');
   };
 
 export const signUp = async (formData: FormData) => {
@@ -47,3 +47,4 @@ export const signUp = async (formData: FormData) => {
     
     return redirect('/signup/company-name');
   };
+
