@@ -201,7 +201,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         notes,
         tax_percent: tax,
         discount_percent: discount,
-        total: total
+        total: total,
+        document_type: documentType,
     };
     
     let savedInvoiceId = invoiceId;
@@ -216,7 +217,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             .single();
 
         if (error) {
-            toast({ title: "Error updating invoice", description: error.message, variant: "destructive" });
+            toast({ title: "Error updating document", description: error.message, variant: "destructive" });
             return;
         }
 
@@ -236,7 +237,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             .single();
 
         if (error || !data) {
-            toast({ title: "Error saving invoice", description: error?.message, variant: "destructive" });
+            toast({ title: "Error saving document", description: error?.message, variant: "destructive" });
             return;
         }
         savedInvoiceId = data.id;
@@ -261,7 +262,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     }
 
     toast({
-      title: `Invoice ${initialInvoice ? 'Updated' : 'Saved'}`,
+      title: `${documentType} ${initialInvoice ? 'Updated' : 'Saved'}`,
       description: `Your ${documentType.toLowerCase()} has been saved as a ${status}.`,
     });
     router.push('/invoices/list');

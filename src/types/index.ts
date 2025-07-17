@@ -45,6 +45,7 @@ export type Invoice = {
   discount_percent: number;
   total: number;
   created_at: string;
+  document_type: string;
 };
 
 export type InvoiceItem = {

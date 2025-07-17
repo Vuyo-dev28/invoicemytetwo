@@ -19,6 +19,7 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
       clients ( name )
     `)
     .eq('user_id', user.id)
+    .eq('document_type', 'Invoice') // Filter for only invoices
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -32,7 +33,8 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
   
   // We need to shape the data to match ExpandedInvoice
   return data.map(invoice => {
-    const clientName = Array.isArray(invoice.clients) ? invoice.clients[0].name : invoice.clients.name;
+    // Check if invoice.clients exists and is not null
+    const clientName = invoice.clients && !Array.isArray(invoice.clients) ? invoice.clients.name : "N/A";
 
     return {
       ...invoice,
