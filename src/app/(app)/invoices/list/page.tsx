@@ -1,5 +1,5 @@
 
-import { InvoiceList } from "@/components/invoice-list";
+import { DocumentList } from "@/components/document-list";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { ExpandedInvoice } from "@/types";
@@ -45,5 +45,5 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
 
 export default async function InvoiceListPage() {
   const invoices = await getInvoices();
-  return <InvoiceList initialInvoices={invoices} />;
+  return <DocumentList initialDocuments={invoices} documentType="Invoice" />;
 }

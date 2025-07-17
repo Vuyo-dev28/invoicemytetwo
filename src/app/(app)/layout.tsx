@@ -51,9 +51,11 @@ function AppLayout({
     { href: '/subscription', label: 'Subscription', icon: CreditCard },
   ];
 
-  const getHref = (href: string) => {
-    if(href === '/invoices') return '/invoices/list';
-    return href;
+  const getIsActive = (href: string) => {
+    if (href === '/invoices/list') {
+      return pathname.startsWith('/invoices');
+    }
+    return pathname === href;
   }
 
   return (
@@ -71,8 +73,8 @@ function AppLayout({
               {menuItems.map(item => (
                  <Link
                   key={item.href}
-                  href={getHref(item.href)}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === getHref(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                  href={item.href}
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${getIsActive(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
@@ -120,8 +122,8 @@ function AppLayout({
                 {menuItems.map(item => (
                   <Link
                     key={item.href}
-                    href={getHref(item.href)}
-                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${pathname === getHref(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    href={item.href}
+                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${getIsActive(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.label}
