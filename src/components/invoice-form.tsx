@@ -24,6 +24,7 @@ import dynamic from 'next/dynamic';
 import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { currencies } from '@/lib/currencies';
+import { Switch } from './ui/switch';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -40,6 +41,7 @@ type LineItem = {
 type Template = "swiss" | "formal" | "playful" | "tech" | "elegant" | "modern" | "minimalist" | "creative" | "corporate" | "friendly" | "bold" | "vintage" | "geometric" | "industrial" | "luxury";
 type DocumentType = "Invoice" | "Estimate" | "Credit note" | "Purchase order";
 type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue';
+type FormType = 'basic' | 'advanced';
 
 interface InvoiceFormProps {
   clients: Client[];
@@ -78,6 +80,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [signature, setSignature] = useState<string | null>(null);
   const [isSignatureDialogOpen, setSignatureDialogOpen] = useState(false);
   const signatureRef = useRef<SignatureCanvas>(null);
+
+  const [formType, setFormType] = useState<FormType>('advanced');
 
   const documentTypePrefixes = {
     "Invoice": "INV",
@@ -184,6 +188,12 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     ));
   };
 
+  const handleBasicAmountChange = (id: string, value: number) => {
+    setLineItems(lineItems.map(item =>
+        item.id === id ? { ...item, rate: value, quantity: 1 } : item
+    ));
+  }
+
   const handleItemSelect = (id: string, item: Item) => {
     setLineItems(lineItems.map(lineItem =>
       lineItem.id === id ? { ...lineItem, description: item.description, rate: item.rate } : lineItem
@@ -215,7 +225,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         client_id: selectedClient.id,
         invoice_number: invoiceNumber,
         issue_date: issueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
-        due_date: dueDate?.toISOString().split('T')[0], // Format as YYYY-MM-DD
+        due_date: (formType === 'advanced' && dueDate) ? dueDate?.toISOString().split('T')[0] : null, // Format as YYYY-MM-DD
         status,
         notes: finalNotes,
         tax_percent: tax,
@@ -289,7 +299,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   }
   
   const documentTypeToPath = {
-    "Invoice": "invoices/list",
+    "Invoice": "invoices",
     "Estimate": "estimates",
     "Credit note": "credit-notes",
     "Purchase order": "purchase-orders"
@@ -337,34 +347,41 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   return (
     <div className="space-y-4">
       <Card className="no-print">
-        <CardContent className="p-4 flex items-center justify-between">
+        <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
                  <h1 className="text-2xl font-bold">{initialInvoice ? `Edit ${documentType}` : `New ${documentType}`}</h1>
             </div>
-             <div className="flex items-center gap-2">
-                <Label htmlFor="template">Template</Label>
-                <Select value={template} onValueChange={(value) => setTemplate(value as Template)}>
-                    <SelectTrigger id="template" className="w-[180px]">
-                    <SelectValue placeholder="Select a template" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="swiss">Swiss</SelectItem>
-                      <SelectItem value="formal">Formal</SelectItem>
-                      <SelectItem value="playful">Playful</SelectItem>
-                      <SelectItem value="tech">Tech</SelectItem>
-                      <SelectItem value="elegant">Elegant</SelectItem>
-                      <SelectItem value="modern">Modern</SelectItem>
-                      <SelectItem value="minimalist">Minimalist</SelectItem>
-                      <SelectItem value="creative">Creative</SelectItem>
-                      <SelectItem value="corporate">Corporate</SelectItem>
-                      <SelectItem value="friendly">Friendly</SelectItem>
-                      <SelectItem value="bold">Bold</SelectItem>
-                      <SelectItem value="vintage">Vintage</SelectItem>
-                      <SelectItem value="geometric">Geometric</SelectItem>
-                      <SelectItem value="industrial">Industrial</SelectItem>
-                      <SelectItem value="luxury">Luxury</SelectItem>
-                    </SelectContent>
-                </Select>
+             <div className="flex items-center gap-4">
+                 <div className="flex items-center space-x-2">
+                    <Label htmlFor="form-type" className={formType === 'basic' ? 'text-foreground' : 'text-muted-foreground'}>Basic</Label>
+                    <Switch id="form-type" checked={formType === 'advanced'} onCheckedChange={(checked) => setFormType(checked ? 'advanced' : 'basic')} />
+                    <Label htmlFor="form-type" className={formType === 'advanced' ? 'text-foreground' : 'text-muted-foreground'}>Advanced</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Label htmlFor="template">Template</Label>
+                    <Select value={template} onValueChange={(value) => setTemplate(value as Template)}>
+                        <SelectTrigger id="template" className="w-[180px]">
+                        <SelectValue placeholder="Select a template" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="swiss">Swiss</SelectItem>
+                          <SelectItem value="formal">Formal</SelectItem>
+                          <SelectItem value="playful">Playful</SelectItem>
+                          <SelectItem value="tech">Tech</SelectItem>
+                          <SelectItem value="elegant">Elegant</SelectItem>
+                          <SelectItem value="modern">Modern</SelectItem>
+                          <SelectItem value="minimalist">Minimalist</SelectItem>
+                          <SelectItem value="creative">Creative</SelectItem>
+                          <SelectItem value="corporate">Corporate</SelectItem>
+                          <SelectItem value="friendly">Friendly</SelectItem>
+                          <SelectItem value="bold">Bold</SelectItem>
+                          <SelectItem value="vintage">Vintage</SelectItem>
+                          <SelectItem value="geometric">Geometric</SelectItem>
+                          <SelectItem value="industrial">Industrial</SelectItem>
+                          <SelectItem value="luxury">Luxury</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
         </CardContent>
       </Card>
@@ -447,7 +464,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     </div>
                     <p className="print-only mt-2">{issueDate ? format(issueDate, "PPP") : 'N/A'}</p>
                 </div>
-                {documentType !== 'Estimate' && documentType !== 'Purchase order' && (
+                {formType === 'advanced' && documentType !== 'Estimate' && documentType !== 'Purchase order' && (
                   <>
                     <div>
                         <Label htmlFor="due-date" className="font-semibold">Due Date</Label>
@@ -511,9 +528,9 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             <Table>
                 <TableHeader>
                 <TableRow>
-                    <TableHead className="w-2/5">Description</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Rate</TableHead>
+                    <TableHead className={formType === 'basic' ? 'w-4/5' : 'w-2/5'}>Description</TableHead>
+                    {formType === 'advanced' && <TableHead>Quantity</TableHead>}
+                    {formType === 'advanced' && <TableHead>Rate</TableHead>}
                     <TableHead className="text-right">Amount</TableHead>
                     <TableHead className="w-12 no-print"></TableHead>
                 </TableRow>
@@ -533,15 +550,29 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                         </div>
                         <p className="print-only">{item.description}</p>
                     </TableCell>
-                    <TableCell>
-                        <Input className="no-print w-20" type="number" value={item.quantity} onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
-                        <p className="print-only">{item.quantity}</p>
+                    {formType === 'advanced' && (
+                        <>
+                        <TableCell>
+                            <Input className="no-print w-20" type="number" value={item.quantity} onChange={(e) => handleItemChange(item.id, 'quantity', parseFloat(e.target.value) || 0)} />
+                            <p className="print-only">{item.quantity}</p>
+                        </TableCell>
+                        <TableCell>
+                            <Input className="no-print w-24" type="number" value={item.rate} onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)} />
+                            <p className="print-only">{formatCurrency(item.rate)}</p>
+                        </TableCell>
+                        </>
+                    )}
+                    <TableCell className="text-right font-medium">
+                       {formType === 'basic' ? (
+                            <Input 
+                                className="no-print w-24 ml-auto text-right" 
+                                type="number" 
+                                value={item.rate} 
+                                onChange={(e) => handleBasicAmountChange(item.id, parseFloat(e.target.value) || 0)} 
+                            />
+                       ) : null}
+                        <p className={formType === 'basic' ? 'print-only' : ''}>{formatCurrency(item.quantity * item.rate)}</p>
                     </TableCell>
-                    <TableCell>
-                        <Input className="no-print w-24" type="number" value={item.rate} onChange={(e) => handleItemChange(item.id, 'rate', parseFloat(e.target.value) || 0)} />
-                        <p className="print-only">{formatCurrency(item.rate)}</p>
-                    </TableCell>
-                    <TableCell className="text-right font-medium">{formatCurrency(item.quantity * item.rate)}</TableCell>
                     <TableCell className="no-print">
                         <Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)} disabled={lineItems.length === 1}>
                         <Trash2 className="h-4 w-4 text-muted-foreground" />
@@ -772,5 +803,7 @@ function CurrencyCombobox({
         </Popover>
     );
 }
+
+    
 
     
