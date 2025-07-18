@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="relative z-10 w-full px-4 flex flex-col items-center justify-center text-center">
+    <div className="relative z-10 w-full px-4 flex flex-col items-center justify-center text-center pt-20">
       <div className="max-w-4xl">
         <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-4">
           Simple invoicing for Small to Large Businesses
