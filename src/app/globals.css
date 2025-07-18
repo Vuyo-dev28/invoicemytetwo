@@ -125,7 +125,7 @@
 .aurora-shape {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(40px);
+    filter: blur(80px);
     opacity: 0.8;
     mix-blend-mode: screen;
 }
@@ -136,29 +136,29 @@
 }
 
 .shape-1 {
-    width: 400px;
-    height: 400px;
+    width: 800px;
+    height: 800px;
     background-color: hsl(var(--primary) / 0.5);
     animation: move-aurora 20s infinite alternate;
 }
 
 .shape-2 {
-    width: 350px;
-    height: 350px;
+    width: 700px;
+    height: 700px;
     background-color: hsl(var(--chart-2) / 0.5);
     animation: move-aurora 25s infinite alternate-reverse;
 }
 
 .shape-3 {
-    width: 300px;
-    height: 300px;
+    width: 600px;
+    height: 600px;
     background-color: hsl(var(--chart-4) / 0.5);
     animation: move-aurora 18s infinite alternate;
 }
 
 .shape-4 {
-    width: 250px;
-    height: 250px;
+    width: 500px;
+    height: 500px;
     background-color: hsl(var(--chart-5) / 0.5);
     animation: move-aurora 22s infinite alternate-reverse;
 }
@@ -731,3 +731,5 @@
 .template-luxury .totals-section .luxury-total {
   @apply font-bold text-2xl text-amber-500;
 }
+
+    
