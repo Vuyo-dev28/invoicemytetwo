@@ -1,3 +1,4 @@
+
 "use client"
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
@@ -153,7 +154,7 @@ export default function Home() {
                 width={600} 
                 height={400} 
                 className="rounded-lg shadow-2xl"
-                data-ai-hint="app screenshot"
+                data-ai-hint="dashboard screenshot"
              />
           </div>
         </div>
@@ -170,40 +171,40 @@ export default function Home() {
             
             <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
               <div className="space-y-4 text-center md:text-left">
-                <div className="inline-flex bg-card/50 p-3 rounded-lg border shadow-sm">
+                <div className="inline-flex p-3 rounded-lg border shadow-sm">
                     <Sparkles className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-2xl font-bold">Intelligent Automation</h3>
                 <p className="text-muted-foreground text-lg">Let AI draft emails, schedule follow-ups, and provide business insights so you can focus on your work, not your paperwork.</p>
               </div>
               <div>
-                <Image src="https://placehold.co/500x350.png" alt="Intelligent Automation Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="automation abstract" />
+                <Image src="https://placehold.co/500x350.png" alt="Intelligent Automation Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="ai assistant" />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
                <div className="md:order-2 space-y-4 text-center md:text-left">
-                <div className="inline-flex bg-card/50 p-3 rounded-lg border shadow-sm">
+                <div className="inline-flex p-3 rounded-lg border shadow-sm">
                     <FileText className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-2xl font-bold">Unified Document Management</h3>
                 <p className="text-muted-foreground text-lg">From invoices and estimates to purchase orders and credit notes, manage your entire financial document workflow in one place.</p>
               </div>
               <div className="md:order-1">
-                <Image src="https://placehold.co/500x350.png" alt="Unified Document Management Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="documents organization" />
+                <Image src="https://placehold.co/500x350.png" alt="Unified Document Management Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="invoice editor" />
               </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12">
               <div className="space-y-4 text-center md:text-left">
-                 <div className="inline-flex bg-card/50 p-3 rounded-lg border shadow-sm">
+                 <div className="inline-flex p-3 rounded-lg border shadow-sm">
                     <Zap className="h-8 w-8 text-primary" />
                 </div>
                 <h3 className="text-2xl font-bold">Effortless & Fast</h3>
                 <p className="text-muted-foreground text-lg">A clean, intuitive interface designed to get you from creation to paid in record time. No steep learning curves, just results.</p>
               </div>
               <div>
-                <Image src="https://placehold.co/500x350.png" alt="Effortless & Fast Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="interface speed" />
+                <Image src="https://placehold.co/500x350.png" alt="Effortless & Fast Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="mobile friendly" />
               </div>
             </div>
 
