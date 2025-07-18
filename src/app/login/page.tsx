@@ -57,6 +57,9 @@ function LoginPageContent() {
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                 Products
             </Link>
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/about">
+                About
+            </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                 Pricing
             </Link>

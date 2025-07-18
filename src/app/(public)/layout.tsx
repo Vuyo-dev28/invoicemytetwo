@@ -17,6 +17,9 @@ export default function PublicLayout({
             <span className="ml-2 text-lg font-semibold text-primary">InvoiceMyte</span>
             </Link>
             <nav className="ml-auto hidden lg:flex gap-6 items-center">
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/">
+                Home
+            </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                 Invoice app
             </Link>
