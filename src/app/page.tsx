@@ -3,12 +3,20 @@ import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { BarChart3, FileCheck, Users, Wallet, PenSquare, FileStack } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const FloatingIcon = ({ icon: Icon, className, color }: { icon: React.ElementType, className?: string, color: string }) => (
+    <div className={cn('absolute rounded-lg shadow-lg p-3', className)} style={{ backgroundColor: color }}>
+        <Icon className="h-6 w-6 text-white" />
+    </div>
+);
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="px-4 lg:px-6 h-20 flex items-center justify-center">
-        <div className="bg-card shadow-lg rounded-full px-6 py-2 flex items-center w-full max-w-7xl">
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
+        <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center">
             <Link href="/" className="flex items-center justify-center" prefetch={false}>
             <Logo className="h-6 w-6 text-primary" />
             <span className="ml-2 text-lg font-semibold text-primary">InvoiceMyte</span>
@@ -41,37 +49,38 @@ export default function LandingPage() {
             </nav>
         </div>
       </header>
-      <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden">
+       <main className="flex-1 flex items-center justify-center relative overflow-hidden">
         <div aria-hidden="true" className="floating-items-container">
-            <div className="floating-item item-1" />
-            <div className="floating-item item-2" />
-            <div className="floating-item item-3" />
-            <div className="floating-item item-4" />
-            <div className="floating-item item-5" />
-            <div className="floating-item item-6" />
-            <div className="floating-item item-7" />
+            <FloatingIcon icon={FileCheck} className="item-1" color="#63d8b1" />
+            <FloatingIcon icon={BarChart3} className="item-2" color="#80a3ff" />
+            <FloatingIcon icon={Users} className="item-3" color="#ffb380" />
+            <FloatingIcon icon={FileStack} className="item-4" color="#fcd464" />
+            <FloatingIcon icon={PenSquare} className="item-5" color="#b392f0" />
+            <FloatingIcon icon={Wallet} className="item-6" color="#ff89b3" />
         </div>
-        <div className="flex flex-col items-center space-y-4 text-center z-10">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-              Invoicing & payments for small businesses
-            </h1>
-            <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto">
-              Invoicing software that saves you time
-            </p>
-          </div>
-          <div className="w-full max-w-sm space-y-2 mx-auto">
-            <form className="flex space-x-2">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                className="max-w-lg flex-1"
-              />
-              <Button type="submit">Get started for free</Button>
-            </form>
-            <p className="text-xs text-muted-foreground">
-              Free forever. No credit card needed.
-            </p>
+        <div className="container px-4 md:px-6 z-10">
+          <div className="flex flex-col items-center space-y-4 text-center">
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
+                Level up your workflow with <br /> <span className="text-primary">AI-powered business management tools</span>
+              </h1>
+              <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                360° integrated platform – from invoicing and receiving payment, to managing rosters and electronic signatures
+              </p>
+            </div>
+            <div className="w-full max-w-2xl mx-auto pt-8">
+              <form>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <Input type="text" placeholder="*First name" className="bg-muted/50 border-0" />
+                  <Input type="text" placeholder="Last name" className="bg-muted/50 border-0" />
+                  <Input type="email" placeholder="*Email" className="bg-muted/50 border-0" />
+                  <Input type="text" placeholder="*Company name" className="bg-muted/50 border-0" />
+                  <Input type="text" placeholder="ZAR - South African Rand" className="bg-muted/50 border-0" />
+                  <Input type="text" placeholder="*Industry (type to search)" className="bg-muted/50 border-0" />
+                </div>
+                <Button type="submit" className="w-full" size="lg">Get started</Button>
+              </form>
+            </div>
           </div>
         </div>
       </main>
