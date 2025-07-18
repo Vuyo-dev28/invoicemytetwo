@@ -47,7 +47,11 @@ const plans = {
       tagline: 'Supercharge your workflow with AI.',
       buttonText: 'Get Started',
        features: [
-        'Everything in Starter, plus:',
+        'Unlimited Invoices',
+        'Unlimited Estimates',
+        'Unlimited Credit Notes',
+        'Unlimited Clients',
+        'Unlimited Items',
         'AI Email Assistant',
         'Ask AI',
         'AI Calendar Planner'
@@ -95,7 +99,11 @@ const plans = {
       tagline: 'Supercharge your workflow with AI.',
       buttonText: 'Get Started',
       features: [
-        'Everything in Starter, plus:',
+        'Unlimited Invoices',
+        'Unlimited Estimates',
+        'Unlimited Credit Notes',
+        'Unlimited Clients',
+        'Unlimited Items',
         'AI Email Assistant',
         'Ask AI',
         'AI Calendar Planner'
