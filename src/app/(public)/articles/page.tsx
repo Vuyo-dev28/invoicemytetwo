@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 
 export default function ArticlesPage() {
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto py-8 z-10 relative bg-background/80 backdrop-blur-sm rounded-xl p-8 mt-24">
       <header className="text-center mb-12">
         <h1 className="text-4xl font-bold tracking-tight lg:text-5xl">Articles & Insights</h1>
         <p className="mt-4 text-lg text-muted-foreground">

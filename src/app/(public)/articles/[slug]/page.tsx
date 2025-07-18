@@ -33,7 +33,7 @@ export default function ArticlePage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="container mx-auto max-w-4xl py-12">
+    <div className="container mx-auto max-w-4xl py-12 z-10 relative bg-background/80 backdrop-blur-sm rounded-xl p-8 mt-24">
       <Link href="/articles" className="inline-flex items-center text-primary mb-8 hover:underline">
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Articles

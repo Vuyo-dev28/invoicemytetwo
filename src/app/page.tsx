@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
@@ -74,7 +73,7 @@ export default function LandingPage() {
               <Button asChild size="lg">
                 <Link href="/login">Get started</Link>
               </Button>
-               <Button asChild variant="secondary" size="lg">
+                <Button asChild variant="secondary" size="lg">
                 <Link href="/login">Log in</Link>
               </Button>
             </div>
@@ -82,5 +81,5 @@ export default function LandingPage() {
         </div>
       </main>
     </div>
-  );
+  )
 }
