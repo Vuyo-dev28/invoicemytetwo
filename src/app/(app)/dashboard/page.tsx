@@ -2,12 +2,12 @@
 'use client';
 export const dynamic = "force-dynamic";
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { DollarSign, Users, CreditCard, Send, Check } from "lucide-react";
+import { DollarSign, Users, CreditCard, Send, Check, Settings, X, Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,10 @@ import { usePaystackPayment } from 'react-paystack';
 import type { DashboardStats } from '@/types'; // Assuming you'll create this type
 import { useEffect } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import Link from 'next/link';
+import { useLocalStorage } from '@/hooks/use-local-storage';
+
 
 const plans = {
   monthly: [
@@ -98,7 +102,47 @@ const Table = ({ children, ...props }: React.HTMLAttributes<HTMLTableElement>) =
     <table className="w-full text-left" {...props}>{children}</table>
 )
 
-export default function DashboardPage() {
+const WelcomeBanner = () => {
+    const searchParams = useSearchParams();
+    const isNewUser = searchParams.get('new_user') === 'true';
+    const [showBanner, setShowBanner] = useLocalStorage('showWelcomeBanner', isNewUser);
+    
+    if (!showBanner) {
+        return null;
+    }
+
+    return (
+        <Alert className="mb-6 bg-primary/10 border-primary/20 text-primary-foreground">
+             <Info className="h-4 w-4 text-primary" />
+            <div className="flex items-center justify-between">
+                <div>
+                    <AlertTitle className="font-bold text-primary">Welcome to InvoiceMyte!</AlertTitle>
+                    <AlertDescription className="text-primary/90">
+                        Get started by setting up your company details. This will auto-fill your documents.
+                    </AlertDescription>
+                </div>
+                <div className="flex items-center gap-4">
+                    <Button asChild variant="link" className="text-primary hover:text-primary/80">
+                        <Link href="/settings">
+                            Go to Settings <Settings className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-primary hover:bg-primary/20 hover:text-primary"
+                        onClick={() => setShowBanner(false)}
+                    >
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Dismiss</span>
+                    </Button>
+                </div>
+            </div>
+        </Alert>
+    );
+};
+
+function DashboardPageContent() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [isYearly, setIsYearly] = useState(true);
     const [userEmail, setUserEmail] = useState('');
@@ -207,6 +251,7 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-8">
+            <WelcomeBanner />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {stats ? (
                     <>
@@ -359,4 +404,13 @@ export default function DashboardPage() {
             </div>
         </div>
     );
+}
+
+
+export default function DashboardPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <DashboardPageContent />
+        </Suspense>
+    )
 }

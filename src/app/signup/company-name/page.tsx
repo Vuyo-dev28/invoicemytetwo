@@ -59,7 +59,7 @@ export default function CompanyNamePage() {
     }
     
     // Redirect to the next step or dashboard
-    return redirect('/dashboard');
+    return redirect('/dashboard?new_user=true');
   };
 
   return (
