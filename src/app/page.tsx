@@ -62,7 +62,7 @@ export default function LandingPage() {
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
                 Level up your workflow with <br /> <span className="text-primary">AI-powered business management tools</span>
               </h1>
-              <p className="max-w-[600px] text-muted-foreground md:text-xl">
+              <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
                 360° integrated platform – from invoicing and receiving payment, to managing rosters and electronic signatures
               </p>
             </div>
