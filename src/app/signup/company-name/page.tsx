@@ -81,7 +81,7 @@ export default function CompanyNamePage() {
                 <Link className="text-sm font-medium text-primary" href="#">
                     Products
                 </Link>
-                <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
+                <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/articles">
                     Articles
                 </Link>
                 <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
