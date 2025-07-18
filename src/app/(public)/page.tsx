@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check, Zap, BarChart, FileText, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Zap, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <>
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 pt-48 pb-24">
         <div className="max-w-4xl">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-4">
             Simple invoicing for Small to Large Businesses
