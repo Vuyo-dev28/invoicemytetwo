@@ -2,7 +2,7 @@
 'use client';
 export const dynamic = "force-dynamic";
 
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { DollarSign, Users, CreditCard, Send, Check, Settings, X, Info } from "lucide-react";
 import { createClient } from "@/utils/supabase/client";
@@ -11,14 +11,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { usePaystackPayment } from 'react-paystack';
-import type { DashboardStats } from '@/types'; // Assuming you'll create this type
-import { useEffect } from 'react';
+import type { DashboardStats } from '@/types'; 
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 
+declare global {
+  interface Window {
+    YocoSDK: any;
+  }
+}
 
 const plans = {
   monthly: [
@@ -150,6 +153,17 @@ function DashboardPageContent() {
     const router = useRouter();
 
     useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://sdk.yoco.com/js/v1/sdk.js';
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
+
+    useEffect(() => {
         const fetchUserAndStats = async () => {
           const supabase = createClient();
           
@@ -204,36 +218,75 @@ function DashboardPageContent() {
         fetchUserAndStats();
     }, [router]);
 
-    const handleSuccess = (reference: any) => {
-        console.log(reference);
-        toast({
-            title: "Payment Successful",
-            description: "Your subscription has been updated.",
-        });
-    };
+    const registerSubscription = async (tokenId: string, planName: string, amount: number) => {
+        try {
+            const response = await fetch('/api/yoco/charge', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    token: tokenId, 
+                    amountInCents: amount,
+                    planName: planName,
+                    billingCycle: isYearly ? 'yearly' : 'monthly',
+                }),
+            });
 
-    const handleClose = () => {
-        toast({
-            title: "Payment Closed",
-            description: "The payment popup was closed.",
-            variant: 'destructive'
-        });
-    };
+            const result = await response.json();
 
-    const PaystackButton = ({ planName, amount }: { planName: string; amount: number }) => {
-        const initializePayment = usePaystackPayment({
-            reference: (new Date()).getTime().toString(),
-            email: userEmail,
-            amount: amount * 100, // Paystack amount is in kobo
-            publicKey: 'pk_test_53ea257a8d594133643d86ff00277f6b5ff86d7f',
-            metadata: {
-                plan: planName,
-                billing_cycle: isYearly ? 'yearly' : 'monthly'
+            if (!response.ok) {
+                throw new Error(result.message || 'Payment processing failed.');
             }
-        });
+            
+            toast({
+                title: "Payment Successful",
+                description: "Your subscription has been updated.",
+            });
+            router.refresh();
+
+        } catch (error: any) {
+            toast({
+                title: 'Payment Error',
+                description: error.message,
+                variant: 'destructive',
+            });
+        }
+    };
+
+
+    const YocoButton = ({ planName, amount }: { planName: string; amount: number }) => {
+        const amountInCents = Math.round(amount * 100);
+
+        const handlePayment = () => {
+            if (!window.YocoSDK) {
+                toast({ title: 'Error', description: 'Yoco SDK not loaded.', variant: 'destructive' });
+                return;
+            }
+
+            const yoco = new window.YocoSDK({ publicKey: 'pk_test_ed3c54a6gOol69qa7f45' });
+            
+            yoco.showPopup({
+                amountInCents: amountInCents,
+                currency: 'ZAR',
+                name: `InvoiceMyte - ${planName}`,
+                description: `Subscription for ${planName} plan.`,
+                callback: (res: any) => {
+                    if (res.error) {
+                        toast({
+                            title: 'Payment Failed',
+                            description: res.error.message,
+                            variant: 'destructive',
+                        });
+                    } else {
+                        registerSubscription(res.id, planName, amountInCents);
+                    }
+                }
+            });
+        }
 
         return (
-            <Button onClick={() => initializePayment(handleSuccess, handleClose)} className="w-full">
+            <Button onClick={handlePayment} className="w-full">
                 Upgrade
             </Button>
         );
@@ -340,7 +393,7 @@ function DashboardPageContent() {
                         {plan.isCurrent ? (
                              <Button variant="outline" disabled className="w-full">Current</Button>
                         ) : (
-                            <PaystackButton planName={plan.name} amount={parseFloat(plan.price) * (isYearly ? 12 : 1)} />
+                            <YocoButton planName={plan.name} amount={parseFloat(plan.price) * (isYearly ? 12 : 1)} />
                         )}
                     </CardFooter>
                   </Card>
@@ -390,7 +443,7 @@ function DashboardPageContent() {
                          </div>
                          {currentAddOn.discount && <p className="text-sm text-green-600 font-semibold">Save {currentAddOn.discount}%</p>}
                          <p className="text-xs text-muted-foreground mt-1 mb-4">Per month, billed {isYearly ? 'yearly' : 'monthly'}</p>
-                         <PaystackButton planName="AI Website Builder Pro" amount={parseFloat(currentAddOn.price) * (isYearly ? 12 : 1)} />
+                         <YocoButton planName="AI Website Builder Pro" amount={parseFloat(currentAddOn.price) * (isYearly ? 12 : 1)} />
                     </div>
                 </Card>
               </div>
@@ -411,3 +464,5 @@ export default function DashboardPage() {
         </Suspense>
     )
 }
+
+    
