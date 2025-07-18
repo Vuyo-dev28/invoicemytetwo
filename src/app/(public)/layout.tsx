@@ -21,9 +21,6 @@ export default function PublicLayout({
                 Home
             </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
-                Invoice app
-            </Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                 Templates
             </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
