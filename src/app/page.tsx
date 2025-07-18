@@ -1,7 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
+import { FileText, Calendar, CreditCard, User } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -48,6 +48,15 @@ export default function LandingPage() {
             <div className="aurora-shape shape-4"></div>
             <div className="aurora-document">
                 <FileText className="w-48 h-48" />
+            </div>
+            <div className="aurora-document-2">
+                <Calendar className="w-32 h-32" />
+            </div>
+            <div className="aurora-document-3">
+                <CreditCard className="w-40 h-40" />
+            </div>
+            <div className="aurora-document-4">
+                <User className="w-36 h-36" />
             </div>
         </div>
         <div className="container px-4 md:px-6 z-10">
