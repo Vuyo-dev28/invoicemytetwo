@@ -161,7 +161,7 @@ export default function Home() {
       </div>
       
       <div className="relative z-10 w-full py-20 px-4">
-        <div className="max-w-5xl mx-auto p-8 md:p-12">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">What Makes Us Different?</h2>
             <p className="mt-4 text-lg text-muted-foreground">Go beyond simple invoicing with powerful, intuitive tools designed for growth.</p>
