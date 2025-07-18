@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="relative z-10 text-center px-4 pt-20">
       <h1 className="text-4xl md:text-6xl font-extrabold tracking-tighter mb-4">
-        Unleash Your Workflow: Seamless Invoicing for Ambitious Businesses.
+        Simple invoicing for Small to Large Businesses
       </h1>
       <p className="max-w-2xl mx-auto text-lg text-muted-foreground mb-8">
         Create and send professional invoices in seconds. Get paid faster and manage your finances with ease.
