@@ -125,7 +125,7 @@
 .aurora-shape {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(80px);
+    filter: blur(120px);
     opacity: 0.8;
     mix-blend-mode: screen;
 }
@@ -136,29 +136,29 @@
 }
 
 .shape-1 {
-    width: 800px;
-    height: 800px;
+    width: 1200px;
+    height: 1200px;
     background-color: hsl(var(--primary) / 0.5);
     animation: move-aurora 20s infinite alternate;
 }
 
 .shape-2 {
-    width: 700px;
-    height: 700px;
+    width: 1050px;
+    height: 1050px;
     background-color: hsl(var(--chart-2) / 0.5);
     animation: move-aurora 25s infinite alternate-reverse;
 }
 
 .shape-3 {
-    width: 600px;
-    height: 600px;
+    width: 900px;
+    height: 900px;
     background-color: hsl(var(--chart-4) / 0.5);
     animation: move-aurora 18s infinite alternate;
 }
 
 .shape-4 {
-    width: 500px;
-    height: 500px;
+    width: 750px;
+    height: 750px;
     background-color: hsl(var(--chart-5) / 0.5);
     animation: move-aurora 22s infinite alternate-reverse;
 }

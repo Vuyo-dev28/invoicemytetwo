@@ -209,7 +209,7 @@ function AppLayout({
           </Sheet>
           <div className="w-full flex-1" />
         </header>
-         <main className="flex-1 p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)]">
+         <main className="flex-1 p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)] animate-fade-in-up">
           {children}
         </main>
       </div>

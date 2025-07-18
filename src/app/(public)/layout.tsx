@@ -62,7 +62,7 @@ export default function PublicLayout({
                 <User className="w-36 h-36" />
             </div>
         </div>
-      <main className="flex-grow flex items-center justify-center">
+      <main className="flex-grow flex items-center justify-center animate-fade-in-up">
         {children}
       </main>
     </div>
