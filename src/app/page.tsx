@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
+import { FileText } from 'lucide-react';
 
 export default function LandingPage() {
   return (
@@ -45,6 +46,9 @@ export default function LandingPage() {
             <div className="aurora-shape shape-2"></div>
             <div className="aurora-shape shape-3"></div>
             <div className="aurora-shape shape-4"></div>
+            <div className="aurora-document">
+                <FileText className="w-48 h-48" />
+            </div>
         </div>
         <div className="container px-4 md:px-6 z-10">
           <div className="flex flex-col items-center space-y-6 text-center">

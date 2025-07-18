@@ -125,14 +125,14 @@
 .aurora-shape {
     position: absolute;
     border-radius: 9999px;
-    filter: blur(80px);
-    opacity: 0.6;
+    filter: blur(40px);
+    opacity: 0.8;
     mix-blend-mode: screen;
 }
 
 .dark .aurora-shape {
     mix-blend-mode: hard-light;
-    opacity: 0.5;
+    opacity: 0.7;
 }
 
 .shape-1 {
@@ -178,6 +178,28 @@
     }
     100% {
         transform: translate(calc(10vw - 100px), calc(40vh - 100px)) rotate(360deg) scale(1);
+    }
+}
+
+.aurora-document {
+    position: absolute;
+    color: hsl(var(--foreground) / 0.1);
+    animation: float-document 30s infinite alternate;
+}
+
+.dark .aurora-document {
+    color: hsl(var(--foreground) / 0.2);
+}
+
+@keyframes float-document {
+    0% {
+        transform: translate(10vw, 80vh) rotate(-10deg);
+    }
+    50% {
+        transform: translate(80vw, 10vh) rotate(10deg);
+    }
+    100% {
+        transform: translate(20vw, 70vh) rotate(-15deg);
     }
 }
 
