@@ -1,5 +1,6 @@
+
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Zap, BarChart, FileText } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -41,6 +42,32 @@ export default function Home() {
           data-ai-hint="app screenshot"
         />
       </div>
+
+      <section className="py-20">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">About InvoiceMyte</h2>
+          <p className="text-muted-foreground text-lg mb-8">
+            We're a passionate team dedicated to building tools that empower freelancers and small business owners. We believe that managing your finances should be simple, intuitive, and stress-free. InvoiceMyte was born from the idea that you should be able to focus on what you do best—not on paperwork.
+          </p>
+          <div className="grid md:grid-cols-3 gap-8 text-left">
+            <div className="bg-card/50 p-6 rounded-lg border">
+              <Zap className="h-8 w-8 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Efficiency First</h3>
+              <p className="text-muted-foreground">Streamline your workflow from creating invoices to getting paid.</p>
+            </div>
+            <div className="bg-card/50 p-6 rounded-lg border">
+              <BarChart className="h-8 w-8 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Financial Clarity</h3>
+              <p className="text-muted-foreground">Gain insights into your cash flow and business performance.</p>
+            </div>
+            <div className="bg-card/50 p-6 rounded-lg border">
+              <FileText className="h-8 w-8 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2">Professionalism</h3>
+              <p className="text-muted-foreground">Create beautiful, professional documents that impress your clients.</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }
