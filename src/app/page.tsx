@@ -41,34 +41,39 @@ export default function LandingPage() {
             </nav>
         </div>
       </header>
-      <main className="flex-1 flex items-center justify-center">
-        <section className="w-full">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                  Invoicing & payments for small businesses
-                </h1>
-                <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto">
-                  Invoicing software that saves you time
-                </p>
-              </div>
-              <div className="w-full max-w-sm space-y-2 mx-auto">
-                <form className="flex space-x-2">
-                  <Input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="max-w-lg flex-1"
-                  />
-                  <Button type="submit">Get started for free</Button>
-                </form>
-                <p className="text-xs text-muted-foreground">
-                  Free forever. No credit card needed.
-                </p>
-              </div>
-            </div>
+      <main className="flex-1 flex flex-col items-center justify-center relative overflow-hidden">
+        <div aria-hidden="true" className="floating-items-container">
+            <div className="floating-item item-1" />
+            <div className="floating-item item-2" />
+            <div className="floating-item item-3" />
+            <div className="floating-item item-4" />
+            <div className="floating-item item-5" />
+            <div className="floating-item item-6" />
+            <div className="floating-item item-7" />
+        </div>
+        <div className="flex flex-col items-center space-y-4 text-center z-10">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
+              Invoicing & payments for small businesses
+            </h1>
+            <p className="max-w-[600px] text-muted-foreground md:text-xl mx-auto">
+              Invoicing software that saves you time
+            </p>
           </div>
-        </section>
+          <div className="w-full max-w-sm space-y-2 mx-auto">
+            <form className="flex space-x-2">
+              <Input
+                type="email"
+                placeholder="Enter your email"
+                className="max-w-lg flex-1"
+              />
+              <Button type="submit">Get started for free</Button>
+            </form>
+            <p className="text-xs text-muted-foreground">
+              Free forever. No credit card needed.
+            </p>
+          </div>
+        </div>
       </main>
     </div>
   );
