@@ -16,12 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/use-local-storage';
-
-declare global {
-  interface Window {
-    YocoSDK: any;
-  }
-}
+import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 
 const plans = {
   monthly: [
@@ -33,6 +28,7 @@ const plans = {
       buttonText: 'Current',
       isCurrent: true,
       features: ['Up to 3 free', 'Up to 2 free', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Beta access'],
+      planId: null,
     },
     {
       name: 'Starter',
@@ -42,6 +38,7 @@ const plans = {
       buttonText: 'Upgrade',
       mostValued: true,
       features: ['Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Beta access'],
+      planId: process.env.NEXT_PUBLIC_PAYPAL_STARTER_MONTHLY_PLAN_ID,
     },
     {
       name: 'Professional',
@@ -50,6 +47,7 @@ const plans = {
       tagline: 'Elevate your journey.',
       buttonText: 'Upgrade',
       features: ['Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Beta access'],
+      planId: process.env.NEXT_PUBLIC_PAYPAL_PRO_MONTHLY_PLAN_ID,
     },
   ],
   yearly: [
@@ -61,6 +59,7 @@ const plans = {
       buttonText: 'Current',
       isCurrent: true,
        features: ['Up to 3 free', 'Up to 2 free', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Beta access'],
+       planId: null,
     },
     {
       name: 'Starter',
@@ -72,6 +71,7 @@ const plans = {
       buttonText: 'Upgrade',
       mostValued: true,
        features: ['Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Beta access'],
+       planId: process.env.NEXT_PUBLIC_PAYPAL_STARTER_YEARLY_PLAN_ID,
     },
     {
       name: 'Professional',
@@ -82,6 +82,7 @@ const plans = {
       tagline: 'Elevate your journey.',
       buttonText: 'Upgrade',
       features: ['Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Unlimited', 'Beta access'],
+      planId: process.env.NEXT_PUBLIC_PAYPAL_PRO_YEARLY_PLAN_ID,
     },
   ],
 };
@@ -92,11 +93,13 @@ const addOnFeatures = ['Custom fonts and colors', 'Custom domain', 'Multi page',
 const addOn = {
     monthly: {
         price: '13.00',
+        planId: process.env.NEXT_PUBLIC_PAYPAL_ADDON_MONTHLY_PLAN_ID,
     },
     yearly: {
         price: '9.99',
         originalPrice: '13.00',
-        discount: '23'
+        discount: '23',
+        planId: process.env.NEXT_PUBLIC_PAYPAL_ADDON_YEARLY_PLAN_ID,
     }
 }
 
@@ -148,20 +151,8 @@ const WelcomeBanner = () => {
 function DashboardPageContent() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [isYearly, setIsYearly] = useState(true);
-    const [userEmail, setUserEmail] = useState('');
     const { toast } = useToast();
     const router = useRouter();
-
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://sdk.yoco.com/js/v1/sdk.js';
-        script.async = true;
-        document.body.appendChild(script);
-
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
 
     useEffect(() => {
         const fetchUserAndStats = async () => {
@@ -170,8 +161,6 @@ function DashboardPageContent() {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
-                setUserEmail(user.email || '');
-
                 // Fetch total amount
                 const { data: amountData, error: amountError } = await supabase
                     .from('invoices')
@@ -218,36 +207,29 @@ function DashboardPageContent() {
         fetchUserAndStats();
     }, [router]);
 
-    const registerSubscription = async (tokenId: string, planName: string, amount: number) => {
+    const registerSubscription = async (subscriptionID: string, planId: string) => {
         try {
-            const response = await fetch('/api/yoco/charge', {
+            const response = await fetch('/api/paypal/subscribe', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ 
-                    token: tokenId, 
-                    amountInCents: amount,
-                    planName: planName,
-                    billingCycle: isYearly ? 'yearly' : 'monthly',
-                }),
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ subscriptionID, planId }),
             });
 
             const result = await response.json();
 
             if (!response.ok) {
-                throw new Error(result.message || 'Payment processing failed.');
+                throw new Error(result.message || 'Subscription registration failed.');
             }
             
             toast({
-                title: "Payment Successful",
-                description: "Your subscription has been updated.",
+                title: "Subscription Successful",
+                description: "Your new plan is now active.",
             });
             router.refresh();
 
         } catch (error: any) {
             toast({
-                title: 'Payment Error',
+                title: 'Subscription Error',
                 description: error.message,
                 variant: 'destructive',
             });
@@ -255,40 +237,32 @@ function DashboardPageContent() {
     };
 
 
-    const YocoButton = ({ planName, amount }: { planName: string; amount: number }) => {
-        const amountInCents = Math.round(amount * 100);
-
-        const handlePayment = () => {
-            if (!window.YocoSDK) {
-                toast({ title: 'Error', description: 'Yoco SDK not loaded.', variant: 'destructive' });
-                return;
-            }
-
-            const yoco = new window.YocoSDK({ publicKey: 'pk_test_ed3c54a6gOol69qa7f45' });
-            
-            yoco.showPopup({
-                amountInCents: amountInCents,
-                currency: 'ZAR',
-                name: `InvoiceMyte - ${planName}`,
-                description: `Subscription for ${planName} plan.`,
-                callback: (res: any) => {
-                    if (res.error) {
-                        toast({
-                            title: 'Payment Failed',
-                            description: res.error.message,
-                            variant: 'destructive',
-                        });
-                    } else {
-                        registerSubscription(res.id, planName, amountInCents);
-                    }
-                }
-            });
+    const PayPalButtonComponent = ({ planId }: { planId: string }) => {
+        if (!planId) {
+            return <Button disabled className="w-full">Configuration missing</Button>;
         }
-
+        
         return (
-            <Button onClick={handlePayment} className="w-full">
-                Upgrade
-            </Button>
+            <PayPalButtons
+                style={{ layout: "vertical", label: "subscribe" }}
+                createSubscription={(data, actions) => {
+                    return actions.subscription.create({
+                        plan_id: planId,
+                    });
+                }}
+                onApprove={(data, actions) => {
+                    toast({ title: "Processing...", description: "Please wait while we confirm your subscription." });
+                    return registerSubscription(data.subscriptionID, planId);
+                }}
+                onError={(err) => {
+                     toast({
+                        title: "PayPal Error",
+                        description: "An error occurred with the PayPal transaction. Please try again.",
+                        variant: "destructive"
+                    });
+                    console.error("PayPal onError", err);
+                }}
+            />
         );
     }
 
@@ -299,160 +273,175 @@ function DashboardPageContent() {
     const currentPlans = isYearly ? plans.yearly : plans.monthly;
     const currentAddOn = isYearly ? addOn.yearly : addOn.monthly;
 
+    const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+
+    if (!PAYPAL_CLIENT_ID) {
+        return (
+            <Alert variant="destructive">
+                <AlertTitle>Configuration Error</AlertTitle>
+                <AlertDescription>
+                    PayPal Client ID is not configured. Please set NEXT_PUBLIC_PAYPAL_CLIENT_ID in your environment variables.
+                </AlertDescription>
+            </Alert>
+        )
+    }
+
     return (
-        <div className="space-y-8">
-            <WelcomeBanner />
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                {stats ? (
-                    <>
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
-                                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</div>
-                                <p className="text-xs text-muted-foreground">From all paid invoices</p>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Clients</CardTitle>
-                                <Users className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">+{stats.totalClients}</div>
-                                <p className="text-xs text-muted-foreground">Total clients managed</p>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Paid Invoices</CardTitle>
-                                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">+{stats.paidInvoices}</div>
-                                <p className="text-xs text-muted-foreground">Successfully completed invoices</p>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Pending Invoices</CardTitle>
-                                <Send className="h-4 w-4 text-muted-foreground" />
-                            </CardHeader>
-                            <CardContent>
-                                <div className="text-2xl font-bold">+{stats.pendingInvoices}</div>
-                                <p className="text-xs text-muted-foreground">Invoices awaiting payment</p>
-                            </CardContent>
-                        </Card>
-                    </>
-                ) : (
-                    Array.from({ length: 4 }).map((_, i) => (
-                        <Card key={i}>
-                            <CardHeader>
-                                <Skeleton className="h-5 w-3/4" />
-                            </CardHeader>
-                            <CardContent>
-                                <Skeleton className="h-8 w-1/2 mb-2" />
-                                <Skeleton className="h-4 w-full" />
-                            </CardContent>
-                        </Card>
-                    ))
-                )}
-            </div>
-
-            <div className="container mx-auto py-8">
-              <div className="text-center mb-8">
-                <h1 className="text-4xl font-bold">Select a plan</h1>
-                <div className="flex items-center justify-center gap-4 mt-4">
-                  <Label htmlFor="billing-cycle">Monthly</Label>
-                  <Switch id="billing-cycle" checked={isYearly} onCheckedChange={setIsYearly} />
-                  <Label htmlFor="billing-cycle">Yearly discount</Label>
-                  {isYearly && <span className="text-primary font-semibold">You've saved 25%!</span>}
+        <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, intent: "subscription", vault: true }}>
+            <div className="space-y-8">
+                <WelcomeBanner />
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {stats ? (
+                        <>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">Total Amount</CardTitle>
+                                    <DollarSign className="h-4 w-4 text-muted-foreground" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold">{formatCurrency(stats.totalAmount)}</div>
+                                    <p className="text-xs text-muted-foreground">From all paid invoices</p>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">Clients</CardTitle>
+                                    <Users className="h-4 w-4 text-muted-foreground" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold">+{stats.totalClients}</div>
+                                    <p className="text-xs text-muted-foreground">Total clients managed</p>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">Paid Invoices</CardTitle>
+                                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold">+{stats.paidInvoices}</div>
+                                    <p className="text-xs text-muted-foreground">Successfully completed invoices</p>
+                                </CardContent>
+                            </Card>
+                            <Card>
+                                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                    <CardTitle className="text-sm font-medium">Pending Invoices</CardTitle>
+                                    <Send className="h-4 w-4 text-muted-foreground" />
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="text-2xl font-bold">+{stats.pendingInvoices}</div>
+                                    <p className="text-xs text-muted-foreground">Invoices awaiting payment</p>
+                                </CardContent>
+                            </Card>
+                        </>
+                    ) : (
+                        Array.from({ length: 4 }).map((_, i) => (
+                            <Card key={i}>
+                                <CardHeader>
+                                    <Skeleton className="h-5 w-3/4" />
+                                </CardHeader>
+                                <CardContent>
+                                    <Skeleton className="h-8 w-1/2 mb-2" />
+                                    <Skeleton className="h-4 w-full" />
+                                </CardContent>
+                            </Card>
+                        ))
+                    )}
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                {currentPlans.map((plan, index) => (
-                  <Card key={index} className={`flex flex-col ${plan.mostValued ? 'border-primary border-2' : ''}`}>
-                    {plan.mostValued && <div className="bg-primary text-primary-foreground text-center text-sm font-semibold py-1 rounded-t-lg">Most value</div>}
-                    <CardHeader>
-                      <CardTitle>{plan.name}</CardTitle>
-                      <CardDescription>{plan.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex-grow">
-                      <p className="text-sm text-muted-foreground mb-4">{plan.tagline}</p>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-bold">${plan.price}</span>
-                        {plan.originalPrice && <span className="text-muted-foreground line-through">${plan.originalPrice}</span>}
-                      </div>
-                      {plan.discount && <p className="text-sm text-green-600 font-semibold">Save {plan.discount}%</p>}
-                      <p className="text-xs text-muted-foreground mt-1">Per month, billed {isYearly ? 'yearly' : 'monthly'}</p>
-                    </CardContent>
-                    <CardFooter>
-                        {plan.isCurrent ? (
-                             <Button variant="outline" disabled className="w-full">Current</Button>
-                        ) : (
-                            <YocoButton planName={plan.name} amount={parseFloat(plan.price) * (isYearly ? 12 : 1)} />
-                        )}
-                    </CardFooter>
-                  </Card>
-                ))}
-              </div>
+                <div className="container mx-auto py-8">
+                  <div className="text-center mb-8">
+                    <h1 className="text-4xl font-bold">Select a plan</h1>
+                    <div className="flex items-center justify-center gap-4 mt-4">
+                      <Label htmlFor="billing-cycle">Monthly</Label>
+                      <Switch id="billing-cycle" checked={isYearly} onCheckedChange={setIsYearly} />
+                      <Label htmlFor="billing-cycle">Yearly discount</Label>
+                      {isYearly && <span className="text-primary font-semibold">You've saved 25%!</span>}
+                    </div>
+                  </div>
 
-              <div>
-                <Table>
-                  <thead>
-                    <tr>
-                      <th className="text-left py-4"></th>
-                      {currentPlans.map(plan => <th key={plan.name} className="text-center font-bold py-4">{plan.name}</th>)}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {featureNames.map((featureName, featureIndex) => (
-                      <tr key={featureName} className="border-b">
-                        <td className="py-3 font-medium">{featureName}</td>
-                        {currentPlans.map(plan => (
-                          <td key={plan.name} className="text-center py-3">
-                            {plan.features[featureIndex] === 'Unlimited' ? <Check className="mx-auto text-primary" /> : plan.features[featureIndex]}
-                          </td>
-                        ))}
-                      </tr>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    {currentPlans.map((plan, index) => (
+                      <Card key={index} className={`flex flex-col ${plan.mostValued ? 'border-primary border-2' : ''}`}>
+                        {plan.mostValued && <div className="bg-primary text-primary-foreground text-center text-sm font-semibold py-1 rounded-t-lg">Most value</div>}
+                        <CardHeader>
+                          <CardTitle>{plan.name}</CardTitle>
+                          <CardDescription>{plan.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                          <p className="text-sm text-muted-foreground mb-4">{plan.tagline}</p>
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-4xl font-bold">${plan.price}</span>
+                            {plan.originalPrice && <span className="text-muted-foreground line-through">${plan.originalPrice}</span>}
+                          </div>
+                          {plan.discount && <p className="text-sm text-green-600 font-semibold">Save {plan.discount}%</p>}
+                          <p className="text-xs text-muted-foreground mt-1">Per month, billed {isYearly ? 'yearly' : 'monthly'}</p>
+                        </CardContent>
+                        <CardFooter>
+                            {plan.isCurrent ? (
+                                 <Button variant="outline" disabled className="w-full">Current</Button>
+                            ) : (
+                                <PayPalButtonComponent planId={plan.planId!} />
+                            )}
+                        </CardFooter>
+                      </Card>
                     ))}
-                  </tbody>
-                </Table>
-              </div>
+                  </div>
 
-              <div className="mt-16">
-                <h2 className="text-2xl font-bold mb-2">Add-ons</h2>
-                <Card className="flex flex-col md:flex-row items-center justify-between p-6">
-                    <div className="flex-1 mb-4 md:mb-0">
-                        <div className="flex items-center gap-2 mb-2">
-                            <span className="bg-yellow-200 text-yellow-800 text-xs font-bold px-2 py-1 rounded-md">NEW</span>
-                            <h3 className="text-lg font-semibold">AI Website Builder Pro</h3>
+                  <div>
+                    <Table>
+                      <thead>
+                        <tr>
+                          <th className="text-left py-4"></th>
+                          {currentPlans.map(plan => <th key={plan.name} className="text-center font-bold py-4">{plan.name}</th>)}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {featureNames.map((featureName, featureIndex) => (
+                          <tr key={featureName} className="border-b">
+                            <td className="py-3 font-medium">{featureName}</td>
+                            {currentPlans.map(plan => (
+                              <td key={plan.name} className="text-center py-3">
+                                {plan.features[featureIndex] === 'Unlimited' ? <Check className="mx-auto text-primary" /> : plan.features[featureIndex]}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+
+                  <div className="mt-16">
+                    <h2 className="text-2xl font-bold mb-2">Add-ons</h2>
+                    <Card className="flex flex-col md:flex-row items-center justify-between p-6">
+                        <div className="flex-1 mb-4 md:mb-0">
+                            <div className="flex items-center gap-2 mb-2">
+                                <span className="bg-yellow-200 text-yellow-800 text-xs font-bold px-2 py-1 rounded-md">NEW</span>
+                                <h3 className="text-lg font-semibold">AI Website Builder Pro</h3>
+                            </div>
+                            <p className="text-muted-foreground mb-4">Professional tools to empower your website</p>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                {addOnFeatures.map(f => <div key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" />{f}</div>)}
+                            </div>
                         </div>
-                        <p className="text-muted-foreground mb-4">Professional tools to empower your website</p>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            {addOnFeatures.map(f => <div key={f} className="flex items-center gap-2"><Check className="h-4 w-4 text-primary" />{f}</div>)}
+                        <div className="flex flex-col items-center md:items-end w-full md:w-auto">
+                             <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-bold">${currentAddOn.price}</span>
+                                {currentAddOn.originalPrice && <span className="text-muted-foreground line-through">${currentAddOn.originalPrice}</span>}
+                             </div>
+                             {currentAddOn.discount && <p className="text-sm text-green-600 font-semibold">Save {currentAddOn.discount}%</p>}
+                             <p className="text-xs text-muted-foreground mt-1 mb-4">Per month, billed {isYearly ? 'yearly' : 'monthly'}</p>
+                             <PayPalButtonComponent planId={currentAddOn.planId!} />
                         </div>
+                    </Card>
+                  </div>
+                  
+                   <div className="text-center text-muted-foreground text-sm mt-8">
+                        <p>Automatically renews. Subscription is per company. Cancel anytime.</p>
                     </div>
-                    <div className="flex flex-col items-center md:items-end w-full md:w-auto">
-                         <div className="flex items-baseline gap-2">
-                            <span className="text-2xl font-bold">${currentAddOn.price}</span>
-                            {currentAddOn.originalPrice && <span className="text-muted-foreground line-through">${currentAddOn.originalPrice}</span>}
-                         </div>
-                         {currentAddOn.discount && <p className="text-sm text-green-600 font-semibold">Save {currentAddOn.discount}%</p>}
-                         <p className="text-xs text-muted-foreground mt-1 mb-4">Per month, billed {isYearly ? 'yearly' : 'monthly'}</p>
-                         <YocoButton planName="AI Website Builder Pro" amount={parseFloat(currentAddOn.price) * (isYearly ? 12 : 1)} />
-                    </div>
-                </Card>
-              </div>
-              
-               <div className="text-center text-muted-foreground text-sm mt-8">
-                    <p>Automatically renews. Subscription is per company. Cancel anytime.</p>
                 </div>
             </div>
-        </div>
+        </PayPalScriptProvider>
     );
 }
 
@@ -464,3 +453,5 @@ export default function DashboardPage() {
         </Suspense>
     )
 }
+
+    
