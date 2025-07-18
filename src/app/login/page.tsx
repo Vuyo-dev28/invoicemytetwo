@@ -41,7 +41,7 @@ function LoginPageContent() {
   const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen bg-background items-center justify-center">
       <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
         <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center">
             <Link href="/" className="flex items-center justify-center" prefetch={false}>
@@ -155,7 +155,7 @@ function LoginPageContent() {
             <a href="#" className="underline">Terms</a>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
