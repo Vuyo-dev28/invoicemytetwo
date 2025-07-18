@@ -29,7 +29,7 @@ export default function PublicLayout({
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/about">
                 About
             </Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/#pricing">
                 Pricing
             </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">

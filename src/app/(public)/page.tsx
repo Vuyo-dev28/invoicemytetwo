@@ -1,4 +1,3 @@
-
 "use client"
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
@@ -212,7 +211,7 @@ export default function Home() {
         </div>
       </div>
 
-       <div className="relative z-10 w-full py-20 px-4">
+       <div id="pricing" className="relative z-10 w-full py-20 px-4">
         <div className="max-w-7xl mx-auto">
            <div className="text-center mb-12">
             <h2 className="text-4xl font-extrabold tracking-tight">Flexible plans for everyone</h2>
