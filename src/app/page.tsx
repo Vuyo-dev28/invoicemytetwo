@@ -40,7 +40,7 @@ export default function LandingPage() {
             </nav>
         </div>
       </header>
-      <main className="flex-1">
+      <main className="flex-1 flex items-center justify-center">
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
           <div className="container px-4 md:px-6">
             <div className="flex flex-col items-center space-y-4 text-center">
@@ -52,7 +52,7 @@ export default function LandingPage() {
                   360° integrated platform – from invoicing and receiving payment, to managing rosters and electronic signatures
                 </p>
               </div>
-              <div className="space-x-4">
+              <div className="space-x-4 mt-6">
                 <Button asChild>
                   <Link href="/login">Get started</Link>
                 </Button>
