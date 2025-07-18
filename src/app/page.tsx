@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
 import { BarChart3, FileCheck, Users, Wallet, PenSquare, FileStack } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -58,7 +57,7 @@ export default function LandingPage() {
             <FloatingIcon icon={Wallet} className="item-6" color="#ff89b3" />
         </div>
         <div className="container px-4 md:px-6 z-10">
-          <div className="flex flex-col items-center space-y-4 text-center">
+          <div className="flex flex-col items-center space-y-6 text-center">
             <div className="space-y-2">
               <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl">
                 Level up your workflow with <br /> <span className="text-primary">AI-powered business management tools</span>
@@ -67,18 +66,13 @@ export default function LandingPage() {
                 360° integrated platform – from invoicing and receiving payment, to managing rosters and electronic signatures
               </p>
             </div>
-            <div className="w-full max-w-2xl mx-auto pt-8">
-              <form>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                  <Input type="text" placeholder="*First name" className="bg-muted/50 border-0" />
-                  <Input type="text" placeholder="Last name" className="bg-muted/50 border-0" />
-                  <Input type="email" placeholder="*Email" className="bg-muted/50 border-0" />
-                  <Input type="text" placeholder="*Company name" className="bg-muted/50 border-0" />
-                  <Input type="text" placeholder="ZAR - South African Rand" className="bg-muted/50 border-0" />
-                  <Input type="text" placeholder="*Industry (type to search)" className="bg-muted/50 border-0" />
-                </div>
-                <Button type="submit" className="w-full" size="lg">Get started</Button>
-              </form>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button asChild size="lg">
+                <Link href="/login">Get started</Link>
+              </Button>
+               <Button asChild variant="secondary" size="lg">
+                <Link href="/login">Log in</Link>
+              </Button>
             </div>
           </div>
         </div>
