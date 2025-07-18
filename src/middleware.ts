@@ -7,8 +7,6 @@ const publicPaths = [
     '/',
     '/login',
     '/signup/company-name',
-    '/articles',
-    /^\/articles\/.*$/, // Regex for individual article pages
     '/auth/callback'
 ];
 
