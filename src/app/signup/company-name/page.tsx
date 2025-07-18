@@ -1,3 +1,4 @@
+
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -81,7 +82,7 @@ export default function CompanyNamePage() {
                     Products
                 </Link>
                 <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
-                    Resources
+                    Articles
                 </Link>
                 <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                     Pricing

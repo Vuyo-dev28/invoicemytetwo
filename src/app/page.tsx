@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
@@ -23,7 +24,7 @@ export default function LandingPage() {
                 Products
             </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
-                Resources
+                Articles
             </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                 Pricing
