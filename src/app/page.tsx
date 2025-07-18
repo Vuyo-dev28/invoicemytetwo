@@ -1,14 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/logo';
 import Link from 'next/link';
-import { BarChart3, FileCheck, Users, Wallet, PenSquare, FileStack } from 'lucide-react';
-import { cn } from '@/lib/utils';
-
-const FloatingIcon = ({ icon: Icon, className, color }: { icon: React.ElementType, className?: string, color: string }) => (
-    <div className={cn('absolute rounded-lg shadow-lg p-3', className)} style={{ backgroundColor: color }}>
-        <Icon className="h-6 w-6 text-white" />
-    </div>
-);
 
 export default function LandingPage() {
   return (
@@ -48,13 +40,11 @@ export default function LandingPage() {
         </div>
       </header>
        <main className="flex-1 flex items-center justify-center relative overflow-hidden">
-        <div aria-hidden="true" className="floating-items-container">
-            <FloatingIcon icon={FileCheck} className="item-1" color="#63d8b1" />
-            <FloatingIcon icon={BarChart3} className="item-2" color="#80a3ff" />
-            <FloatingIcon icon={Users} className="item-3" color="#ffb380" />
-            <FloatingIcon icon={FileStack} className="item-4" color="#fcd464" />
-            <FloatingIcon icon={PenSquare} className="item-5" color="#b392f0" />
-            <FloatingIcon icon={Wallet} className="item-6" color="#ff89b3" />
+        <div aria-hidden="true" className="aurora-background">
+            <div className="aurora-shape shape-1"></div>
+            <div className="aurora-shape shape-2"></div>
+            <div className="aurora-shape shape-3"></div>
+            <div className="aurora-shape shape-4"></div>
         </div>
         <div className="container px-4 md:px-6 z-10">
           <div className="flex flex-col items-center space-y-6 text-center">
