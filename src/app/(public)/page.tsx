@@ -33,7 +33,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="relative z-10 w-full py-20 px-4 bg-background">
+      <div className="relative z-10 w-full py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight">What Makes Us Different?</h2>
