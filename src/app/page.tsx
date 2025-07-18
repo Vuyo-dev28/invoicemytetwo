@@ -40,29 +40,31 @@ export default function LandingPage() {
             </nav>
         </div>
       </header>
-      <main className="flex-1 flex items-center justify-center">
-        <section className="w-full">
-          <div className="container px-4 md:px-6">
-            <div className="flex flex-col items-center space-y-4 text-center">
-              <div className="space-y-2">
-                <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-                  Level up your workflow with <span className="text-primary">AI-powered business management tools</span>
-                </h1>
-                <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                  360° integrated platform – from invoicing and receiving payment, to managing rosters and electronic signatures
-                </p>
-              </div>
-              <div className="space-x-4 mt-6">
-                <Button asChild>
-                  <Link href="/login">Get started</Link>
-                </Button>
-                <Button variant="outline" asChild>
-                  <Link href="/login">Log in</Link>
-                </Button>
+      <main className="flex-1">
+        <div className="h-full flex flex-col items-center justify-center">
+          <section className="w-full">
+            <div className="container px-4 md:px-6">
+              <div className="flex flex-col items-center space-y-4 text-center">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
+                    Level up your workflow with <span className="text-primary">AI-powered business management tools</span>
+                  </h1>
+                  <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
+                    360° integrated platform – from invoicing and receiving payment, to managing rosters and electronic signatures
+                  </p>
+                </div>
+                <div className="space-x-4 mt-6">
+                  <Button asChild>
+                    <Link href="/login">Get started</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/login">Log in</Link>
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
       </main>
     </div>
   );
