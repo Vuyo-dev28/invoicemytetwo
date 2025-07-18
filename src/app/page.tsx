@@ -40,8 +40,7 @@ export default function LandingPage() {
             </nav>
         </div>
       </header>
-      <main className="flex-1">
-        <div className="h-full flex flex-col items-center justify-center">
+      <main className="flex-1 flex items-center justify-center">
           <section className="w-full">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center space-y-4 text-center">
@@ -64,7 +63,6 @@ export default function LandingPage() {
               </div>
             </div>
           </section>
-        </div>
       </main>
     </div>
   );
