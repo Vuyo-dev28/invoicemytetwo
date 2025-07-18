@@ -24,7 +24,7 @@ export const signIn = async (formData: FormData) => {
     }
 
     // FIX: Redirect to dashboard/home after login
-    return redirect('/');
+    return redirect('/dashboard');
   };
 
 export const signUp = async (formData: FormData) => {
@@ -48,4 +48,3 @@ export const signUp = async (formData: FormData) => {
     
     return redirect('/signup/company-name');
   };
-

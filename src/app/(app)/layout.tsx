@@ -1,3 +1,4 @@
+
 'use client';
 export const dynamic = "force-dynamic";
 import Link from 'next/link';
@@ -48,7 +49,7 @@ function AppLayout({
   }
 
   const menuItems = [
-    { href: '/', label: 'Dashboard', icon: Activity },
+    { href: '/dashboard', label: 'Dashboard', icon: Activity },
     { href: '/cashflow', label: 'Cashflow', icon: LineChart },
     { href: '/invoices/list', label: 'Invoices', icon: Receipt },
     { href: '/estimates', label: 'Estimates', icon: FileScan },
@@ -69,6 +70,9 @@ function AppLayout({
   const getIsActive = (href: string) => {
     if (href === '/invoices/list') {
       return pathname.startsWith('/invoices');
+    }
+    if (href === '/dashboard') {
+        return pathname === '/dashboard' || pathname === '/';
     }
     return pathname === href;
   }
