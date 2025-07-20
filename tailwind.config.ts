@@ -1,7 +1,7 @@
 import type {Config} from 'tailwindcss';
 
 export default {
-  darkMode: ['class'],
+  darkMode: 'class', // or 'media' if you want to use system preference
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -96,22 +96,11 @@ export default {
             'background-position': '100% 0',
           },
         },
-        'fade-in-up': {
-          '0%': {
-            opacity: '0',
-            transform: 'translateY(10px)',
-          },
-          '100%': {
-            opacity: '1',
-            transform: 'translateY(0)',
-          },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-bg-once': 'pulse-bg-once 1.5s ease-out',
-        'fade-in-up': 'fade-in-up 0.5s ease-out',
       },
     },
   },
