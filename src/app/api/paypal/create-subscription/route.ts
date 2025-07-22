@@ -31,8 +31,8 @@ export async function POST(req: Request) {
       plan_id: paypalPlanId,
       application_context: {
         brand_name: "InvoiceMyte",
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?subscribed=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?subscribed=false`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://invoicemytetwo.vercel.app'}/subscription?subscribed=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://invoicemytetwo.vercel.app'}/subscription?subscribed=false`,
       },
     }),
   });
