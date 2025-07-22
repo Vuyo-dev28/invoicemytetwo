@@ -191,9 +191,9 @@ export async function POST(req: NextRequest) {
     const event = JSON.parse(bodyText);
     console.log("Verified webhook event:", event);
 
-    if (event.event_type === "BILLING.PLAN.ACTIVATED") {
+    if (event.event_type === "BILLING.SUBSCRIPTION.ACTIVATED") {
       // Your logic here, e.g., update database
-      console.log("Billing plan activated:", event.resource.id);
+      console.log("Billing subscription activated:", event.resource.id);
 
       try {
         const resource = event.resource;
