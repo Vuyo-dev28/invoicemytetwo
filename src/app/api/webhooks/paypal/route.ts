@@ -3,38 +3,43 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
+// Use service role key for server side secure actions (like inserting logs)
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Simple debug logger — you can enhance this
+// Simple debug logger — optional helper
 function logDebug(message: string, data?: any) {
   if (data !== undefined) {
     console.log(`[Webhook Debug] ${message}:`, JSON.stringify(data, null, 2));
   } else {
     console.log(`[Webhook Debug] ${message}`);
   }
+}
 
 export async function POST(req: NextRequest) {
-
+  try {
     const payload = await req.json();
     const eventType = payload.event_type;
+
+    // Log webhook payload for debugging (in console)
+    logDebug("Received PayPal webhook", payload);
 
     // Save webhook payload to DB for debugging
     const { error: logError } = await supabase.from("webhook_logs").insert({
       event_type: eventType,
-      payload: payload,
+      payload,
     });
-    
-  try {
-    const payload = await req.json();
-    const eventType = payload.event_type;
-    const resource = payload.resource;
+
+    if (logError) {
+      console.error("Failed to log webhook payload:", logError);
+    }
 
     if (eventType === "BILLING.SUBSCRIPTION.ACTIVATED") {
+      const resource = payload.resource;
+
       const email = resource?.subscriber?.email_address;
-      const planId = resource?.plan_id; // optional: you can map this if you use multiple PayPal plans
       const paypalSubId = resource?.id;
       const startTime = resource?.start_time;
       const endTime = resource?.billing_info?.final_payment_time;
@@ -44,7 +49,7 @@ export async function POST(req: NextRequest) {
         return new Response("Invalid payload", { status: 400 });
       }
 
-      // Step 1: Find user by email
+      // Find user by email
       const { data: user, error: userError } = await supabase
         .from("users")
         .select("id")
@@ -56,7 +61,7 @@ export async function POST(req: NextRequest) {
         return new Response("User not found", { status: 404 });
       }
 
-      // Step 2: Update subscriptions
+      // Update subscription
       const { error: updateError } = await supabase
         .from("subscriptions")
         .update({
