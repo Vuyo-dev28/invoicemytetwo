@@ -94,31 +94,92 @@
 //     return new Response("Internal Server Error", { status: 500 });
 //   }
 // }
-// /app/api/test-webhook/route.ts
 import { NextRequest } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID || "15987149KA077520D";
+async function getPayPalAccessToken() {
+  const clientId = process.env.PAYPAL_CLIENT_ID!;
+  const secret = process.env.PAYPAL_CLIENT_SECRET!;
+  const base64 = Buffer.from(`${clientId}:${secret}`).toString("base64");
+
+  const res = await fetch("https://api-m.paypal.com/v1/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Authorization": `Basic ${base64}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: "grant_type=client_credentials",
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`PayPal token fetch failed: ${errorText}`);
+  }
+
+  const json = await res.json();
+  return json.access_token;
+}
 
 export async function POST(req: NextRequest) {
   try {
+    const webhookId = process.env.PAYPAL_WEBHOOK_ID!;
+    if (!webhookId) {
+      return new Response("Missing PAYPAL_WEBHOOK_ID env variable", { status: 500 });
+    }
+
+    // Read raw body text (needed for verification)
     const bodyText = await req.text();
-    const body = JSON.parse(bodyText);
 
-    const transmissionId = req.headers.get("paypal-transmission-id");
-    const transmissionSig = req.headers.get("paypal-transmission-sig");
+    // PayPal sends verification info in headers prefixed with paypal-
+    const headers = Object.fromEntries(req.headers.entries());
 
-    console.log("📥 PAYPAL WEBHOOK TEST RECEIVED");
-    console.log("✅ Webhook ID:", WEBHOOK_ID);
-    console.log("🧾 Headers:");
-    console.log("  - paypal-transmission-id:", transmissionId);
-    console.log("  - paypal-transmission-sig:", transmissionSig);
-    console.log("📦 Payload:", body);
+    // Get OAuth token to verify signature
+    const accessToken = await getPayPalAccessToken();
 
-    return new Response("Test webhook received successfully", { status: 200 });
-  } catch (err) {
-    console.error("❌ Webhook test failed:", err);
-    return new Response("Test error", { status: 500 });
+    // Verify webhook signature
+    const verificationRes = await fetch(
+      "https://api-m.paypal.com/v1/notifications/verify-webhook-signature",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          auth_algo: headers["paypal-auth-algo"],
+          cert_url: headers["paypal-cert-url"],
+          transmission_id: headers["paypal-transmission-id"],
+          transmission_sig: headers["paypal-transmission-sig"],
+          transmission_time: headers["paypal-transmission-time"],
+          webhook_id: webhookId,
+          webhook_event: JSON.parse(bodyText),
+        }),
+      }
+    );
+
+    const verification = await verificationRes.json();
+
+    console.log("PayPal webhook verification result:", verification);
+
+    if (verification.verification_status !== "SUCCESS") {
+      console.error("Webhook verification failed");
+      return new Response("Invalid webhook signature", { status: 400 });
+    }
+
+    // Parse webhook event JSON
+    const event = JSON.parse(bodyText);
+    console.log("Verified webhook event:", event);
+
+    if (event.event_type === "BILLING.PLAN.ACTIVATED") {
+      // Your logic here, e.g., update database
+      console.log("Billing plan activated:", event.resource.id);
+      // TODO: update your DB or call supabase here
+    }
+
+    return new Response("Webhook processed", { status: 200 });
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    return new Response("Internal Server Error", { status: 500 });
   }
 }
