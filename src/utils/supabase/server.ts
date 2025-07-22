@@ -1,11 +1,20 @@
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
-import { createBrowserClient } from "@supabase/ssr";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+export const createClient = () => {
+  const cookieStore = cookies();
 
-export const createClient = () =>
-  createBrowserClient(
-    supabaseUrl!,
-    supabaseKey!,
-  );
+  return createServerClient(supabaseUrl, supabaseKey, {
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: (cookies) => {
+        for (const cookie of cookies) {
+          cookieStore.set(cookie.name, cookie.value, cookie.options);
+        }
+      },
+    },
+  });
+};

@@ -1,15 +1,22 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { createClient } from '@/utils/supabase/server';
+import { createClient as createServerClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
 export const signIn = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const cookieStore = cookies();  // NO await here
-  const supabase = createClient(cookieStore);
+  const cookieStore = cookies();
+  const supabase = createServerClient({
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+      },
+    },
+  });
 
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -27,8 +34,16 @@ export const signUp = async (formData: FormData) => {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
 
-  const cookieStore = cookies();  // NO await here
-  const supabase = createClient(cookieStore);
+  const cookieStore = cookies();
+
+  const supabase = createServerClient({
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+      },
+    },
+  });
 
   const { error } = await supabase.auth.signUp({ email, password });
 
