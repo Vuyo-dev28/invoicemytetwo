@@ -15,8 +15,21 @@ function logDebug(message: string, data?: any) {
   } else {
     console.log(`[Webhook Debug] ${message}`);
   }
-  
+
 export async function POST(req: NextRequest) {
+
+    const payload = await req.json();
+    const eventType = payload.event_type;
+
+    console.log("Received PayPal webhook event:", eventType);
+    console.log("Full payload:", JSON.stringify(payload, null, 2));
+
+    // Save webhook payload to DB for debugging
+    const { error: logError } = await supabase.from("webhook_logs").insert({
+      event_type: eventType,
+      payload: payload,
+    });
+    
   try {
     const payload = await req.json();
     const eventType = payload.event_type;
