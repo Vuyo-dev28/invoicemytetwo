@@ -18,6 +18,10 @@ function logDebug(message: string, data?: any) {
   }
 }
 
+export async function GET(req: Request) {
+  return new Response("GET OK");
+}
+
 export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
