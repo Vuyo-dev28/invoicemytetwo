@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
       console.error("Failed to log webhook payload:", logError);
     }
 
-    if (eventType === "BILLING.SUBSCRIPTION.ACTIVATED") {
+    if (eventType === "BILLING.PLAN.ACTIVATED") {
       const resource = payload.resource;
 
       const email = resource?.subscriber?.email_address;
