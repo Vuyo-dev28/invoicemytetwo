@@ -8,6 +8,14 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+// Simple debug logger — you can enhance this
+function logDebug(message: string, data?: any) {
+  if (data !== undefined) {
+    console.log(`[Webhook Debug] ${message}:`, JSON.stringify(data, null, 2));
+  } else {
+    console.log(`[Webhook Debug] ${message}`);
+  }
+  
 export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
