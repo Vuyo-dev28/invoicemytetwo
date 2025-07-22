@@ -94,7 +94,9 @@
 //     return new Response("Internal Server Error", { status: 500 });
 //   }
 // }
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/utils/supabase/server"; // Import your Supabase client
+import { cookies } from 'next/headers'; // Import cookies
 
 export const dynamic = "force-dynamic";
 
@@ -114,6 +116,7 @@ async function getPayPalAccessToken() {
 
   if (!res.ok) {
     const errorText = await res.text();
+    console.error("PayPal token fetch failed:", errorText);
     throw new Error(`PayPal token fetch failed: ${errorText}`);
   }
 
@@ -121,18 +124,35 @@ async function getPayPalAccessToken() {
   return json.access_token;
 }
 
+export async function OPTIONS(req: NextRequest) {
+  // Handle preflight requests
+  return NextResponse.json({ body: 'OK' }, { status: 200, headers: {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  } });
+}
+
 export async function POST(req: NextRequest) {
+  // Set CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
   try {
     const webhookId = process.env.PAYPAL_WEBHOOK_ID!;
     if (!webhookId) {
-      return new Response("Missing PAYPAL_WEBHOOK_ID env variable", { status: 500 });
+      console.error("Missing PAYPAL_WEBHOOK_ID env variable");
+      return new NextResponse("Missing PAYPAL_WEBHOOK_ID env variable", { status: 500, headers });
     }
 
     // Read raw body text (needed for verification)
     const bodyText = await req.text();
 
     // PayPal sends verification info in headers prefixed with paypal-
-    const headers = Object.fromEntries(req.headers.entries());
+    const reqHeaders = Object.fromEntries(req.headers.entries());
 
     // Get OAuth token to verify signature
     const accessToken = await getPayPalAccessToken();
@@ -147,11 +167,11 @@ export async function POST(req: NextRequest) {
           "Authorization": `Bearer ${accessToken}`,
         },
         body: JSON.stringify({
-          auth_algo: headers["paypal-auth-algo"],
-          cert_url: headers["paypal-cert-url"],
-          transmission_id: headers["paypal-transmission-id"],
-          transmission_sig: headers["paypal-transmission-sig"],
-          transmission_time: headers["paypal-transmission-time"],
+          auth_algo: reqHeaders["paypal-auth-algo"],
+          cert_url: reqHeaders["paypal-cert-url"],
+          transmission_id: reqHeaders["paypal-transmission-id"],
+          transmission_sig: reqHeaders["paypal-transmission-sig"],
+          transmission_time: reqHeaders["paypal-transmission-time"],
           webhook_id: webhookId,
           webhook_event: JSON.parse(bodyText),
         }),
@@ -164,7 +184,7 @@ export async function POST(req: NextRequest) {
 
     if (verification.verification_status !== "SUCCESS") {
       console.error("Webhook verification failed");
-      return new Response("Invalid webhook signature", { status: 400 });
+      return new NextResponse("Invalid webhook signature", { status: 400, headers });
     }
 
     // Parse webhook event JSON
@@ -174,12 +194,64 @@ export async function POST(req: NextRequest) {
     if (event.event_type === "BILLING.PLAN.ACTIVATED") {
       // Your logic here, e.g., update database
       console.log("Billing plan activated:", event.resource.id);
-      // TODO: update your DB or call supabase here
+
+      try {
+        const resource = event.resource;
+
+        const email = resource?.subscriber?.email_address;
+        const paypalSubId = resource?.id;
+        const startTime = resource?.start_time;
+        const endTime = resource?.billing_info?.final_payment_time;
+
+        if (!email || !paypalSubId || !startTime || !endTime) {
+          console.error("Missing required fields in payload");
+          return new NextResponse("Invalid payload", { status: 400, headers });
+        }
+
+        // Find user by email
+        const cookieStore = cookies();
+        const supabase = await createClient();
+
+        const { data: users, error: userError } = await supabase
+          .from("users")
+          .select("id")
+          .eq("email", email);
+
+        if (userError || !users || users.length === 0) {
+          console.error("User not found for email:", email, userError);
+          return new NextResponse("User not found", { status: 404, headers });
+        }
+
+        const user = users[0];
+
+        // Update subscription
+        const { error: updateError } = await supabase
+          .from("subscriptions")
+          .update({
+            plan_id: "Professional",
+            status: "active",
+            subscription_id: paypalSubId,
+            start_date: new Date(startTime),
+            end_date: new Date(endTime),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("user_id", user.id);
+
+        if (updateError) {
+          console.error("Failed to update subscription:", updateError);
+          return new NextResponse("DB error", { status: 500, headers });
+        }
+
+        console.log(`Subscription updated for user ${user.id} with PayPal sub ID ${paypalSubId}`);
+      } catch (dbError) {
+        console.error("Database update error:", dbError);
+        return new NextResponse("Database update error", { status: 500, headers });
+      }
     }
 
-    return new Response("Webhook processed", { status: 200 });
+    return new NextResponse("Webhook processed", { status: 200, headers });
   } catch (error) {
     console.error("Error processing webhook:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    return new NextResponse("Internal Server Error", { status: 500, headers });
   }
 }
