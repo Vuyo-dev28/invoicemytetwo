@@ -3,13 +3,6 @@
 import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export const dynamic = "force-dynamic"; // ✅ this forces dynamic behavior for SSR
-// Use service role key for server side secure actions (like inserting logs)
-// const supabase = createClient(
-//  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-//   process.env.SUPABASE_SERVICE_ROLE_KEY!
-// );
-
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -19,7 +12,6 @@ if (!supabaseUrl || !supabaseKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// Simple debug logger — optional helper
 function logDebug(message: string, data?: any) {
   if (data !== undefined) {
     console.log(`[Webhook Debug] ${message}:`, JSON.stringify(data, null, 2));
@@ -32,22 +24,19 @@ export async function POST(req: NextRequest) {
   try {
     const payload = await req.json();
     const eventType = payload.event_type;
+    const resource = payload.resource;
 
-    // Log webhook payload for debugging (in console)
     logDebug("Received PayPal webhook", payload);
 
-    // Save webhook payload to DB for debugging
     const { error: logError } = await supabase.from("webhook_logs").insert({
       event_type: eventType,
       payload,
     });
 
-    if (logError) {
-      console.error("Failed to log webhook payload:", logError);
-    }
+    if (logError) console.error("Failed to log webhook payload:", logError);
 
     if (eventType === "BILLING.PLAN.ACTIVATED") {
-      const resource = payload.resource;
+      logDebug("BILLING.PLAN.ACTIVATED resource", resource);
 
       const email = resource?.subscriber?.email_address;
       const paypalSubId = resource?.id;
@@ -59,7 +48,6 @@ export async function POST(req: NextRequest) {
         return new Response("Invalid payload", { status: 400 });
       }
 
-      // Find user by email
       const { data: user, error: userError } = await supabase
         .from("users")
         .select("id")
@@ -71,7 +59,6 @@ export async function POST(req: NextRequest) {
         return new Response("User not found", { status: 404 });
       }
 
-      // Update subscription
       const { error: updateError } = await supabase
         .from("subscriptions")
         .update({
