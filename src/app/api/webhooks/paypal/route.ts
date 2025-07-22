@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Use service role key for server side secure actions (like inserting logs)
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+ process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
@@ -16,10 +16,6 @@ function logDebug(message: string, data?: any) {
   } else {
     console.log(`[Webhook Debug] ${message}`);
   }
-}
-
-export async function GET(req: Request) {
-  return new Response("GET OK");
 }
 
 export async function POST(req: NextRequest) {
@@ -40,8 +36,6 @@ export async function POST(req: NextRequest) {
       console.error("Failed to log webhook payload:", logError);
     }
 
-    // Commented out all validation and user lookup, just insert:
-    /*
     if (eventType === "BILLING.SUBSCRIPTION.ACTIVATED") {
       const resource = payload.resource;
 
@@ -87,10 +81,8 @@ export async function POST(req: NextRequest) {
 
       return new Response("Webhook processed", { status: 200 });
     }
-    */
 
-    // Just always return 200 OK for now:
-    return new Response("Webhook payload saved", { status: 200 });
+    return new Response("Unhandled event type", { status: 400 });
   } catch (err) {
     console.error("Webhook error:", err);
     return new Response("Internal Server Error", { status: 500 });
