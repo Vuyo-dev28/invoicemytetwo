@@ -2,11 +2,37 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { createClient } from '@/utils/supabase/client'; // Import supabase client
 
 export default function PaypalSuccessPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const updateSubscription = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        // Assuming you have a subscription table with user_id and status columns
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .update({ status: 'active' }) // Update status and payment method
+          .eq('user_id', user.id); // Ensure you update the correct user's subscription
+
+        if (error) {
+          console.error('Error updating subscription:', error);
+          // Optionally handle the error, e.g., display an error message
+        } else {
+          console.log('Subscription updated successfully:', data);
+        }
+      } else {
+        console.error('No user found, cannot update subscription.');
+        // Handle the case where the user is not authenticated
+      }
+    };
+
+    updateSubscription(); // Call the function to update the subscription
+
     // Redirect to the subscription page with a success query parameter
     router.push('/subscription?paypal=success');
   }, [router]);

@@ -62,6 +62,7 @@ export default function SubscriptionPage() {
     });
     const data = await res.json();
     if (data.approvalUrl) {
+       localStorage.setItem("selectedPlan", planId); // ✅ Save before redirect
       window.location.href = data.approvalUrl; // Redirect to PayPal
     } else {
       alert(data.error || "Failed to initiate PayPal payment.");

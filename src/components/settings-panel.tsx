@@ -172,7 +172,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
            </CardFooter>
         </Card>
         
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle>Appearance</CardTitle>
             <CardDescription>Customize the look and feel of the application.</CardDescription>
@@ -192,7 +192,7 @@ export function SettingsPanel({ initialProfile }: { initialProfile: Profile | nu
                 </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
     </div>
   );
 }

@@ -55,5 +55,8 @@ export const signUp = async (formData: FormData) => {
     return redirect('/signup?message=Could not sign up user. Please try again.');
   }
 
-  // Optional: redirect somewhere after signup
+  // Set a cookie to indicate a new user
+  cookieStore.set('new_user', 'true', { path: '/', maxAge: 3600 }); // Expires in 1 hour
+
+  return redirect('/dashboard');
 };

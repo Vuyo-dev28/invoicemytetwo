@@ -19,6 +19,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
 
+  
+
   const { error } = await supabase
     .from("subscriptions")
     .update({ plan_id: planId, status: "active" })

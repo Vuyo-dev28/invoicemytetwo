@@ -1,4 +1,3 @@
-
 'use client';
 export const dynamic = "force-dynamic";
 
@@ -20,9 +19,10 @@ const WelcomeBanner = () => {
     const isNewUser = searchParams.get('new_user') === 'true';
     const [showBanner, setShowBanner] = useLocalStorage('showWelcomeBanner', isNewUser);
     
-    if (!showBanner) {
-        return null;
-    }
+    // Always display the banner
+    // if (!showBanner) {
+    //     return null;
+    // }
 
     return (
         <Alert className="mb-6 bg-primary/10 border-primary/20 text-primary-foreground">
