@@ -4,10 +4,19 @@ import { NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
 // Use service role key for server side secure actions (like inserting logs)
-const supabase = createClient(
- process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// const supabase = createClient(
+//  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//   process.env.SUPABASE_SERVICE_ROLE_KEY!
+// );
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Missing Supabase environment variables for server-side API");
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // Simple debug logger — optional helper
 function logDebug(message: string, data?: any) {
