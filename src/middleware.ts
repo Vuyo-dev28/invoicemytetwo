@@ -6,7 +6,8 @@ import { createServerClient } from '@supabase/ssr';
 const publicPaths = [
     '/',
     '/login',
-    '/signup/company-name',
+    '/signup', // ✅ Allow unauthenticated users to visit /signup
+    // '/signup/company-name',
     '/auth/callback'
 ];
 

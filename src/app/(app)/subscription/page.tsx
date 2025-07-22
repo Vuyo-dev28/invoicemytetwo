@@ -37,17 +37,34 @@ export default function SubscriptionPage() {
   ];
 
   const handleChangePlan = async (planId: string) => {
-    const res = await fetch("/api/subscription/change", {
+    // For Free plan, just update in DB (no payment)
+    if (planId === "Free") {
+      const res = await fetch("/api/subscription/change", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Subscription changed to Free.");
+        window.location.reload();
+      } else {
+        alert(data.error || "Failed to change subscription.");
+      }
+      return;
+    }
+
+    // For paid plans, initiate PayPal flow
+    const res = await fetch("/api/paypal/create-subscription", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ planId }),
     });
     const data = await res.json();
-    if (data.success) {
-      alert(`Subscription changed to ${planId}.`);
-      window.location.reload();
+    if (data.approvalUrl) {
+      window.location.href = data.approvalUrl; // Redirect to PayPal
     } else {
-      alert(data.error || "Failed to change subscription.");
+      alert(data.error || "Failed to initiate PayPal payment.");
     }
   };
 
