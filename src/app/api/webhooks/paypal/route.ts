@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 // Use service role key for server side secure actions (like inserting logs)
 const supabase = createClient(
  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 // Simple debug logger — optional helper
