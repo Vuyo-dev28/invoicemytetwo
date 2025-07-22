@@ -1,59 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+// File: /app/api/webhooks/paypal/route.ts
+
+import { NextRequest } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! // Needed for server-side access to RLS-protected tables
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const headers = req.headers;
+  try {
+    const payload = await req.json();
+    const eventType = payload.event_type;
+    const resource = payload.resource;
 
-  console.log('🔔 PayPal Webhook Received:', body);
+    if (eventType === "BILLING.SUBSCRIPTION.ACTIVATED") {
+      const email = resource?.subscriber?.email_address;
+      const planId = resource?.plan_id; // optional: you can map this if you use multiple PayPal plans
+      const paypalSubId = resource?.id;
+      const startTime = resource?.start_time;
+      const endTime = resource?.billing_info?.final_payment_time;
 
-  if (body.event_type === 'PAYMENT.SALE.COMPLETED') {
-    const sale = body.resource;
-    const payerEmail = sale.payer?.payer_info?.email;
+      if (!email || !paypalSubId || !startTime || !endTime) {
+        console.error("Missing required fields in payload");
+        return new Response("Invalid payload", { status: 400 });
+      }
 
-    if (!payerEmail) {
-      console.warn('❌ No payer email found in PayPal webhook.');
-      return NextResponse.json({ error: 'Missing payer email' }, { status: 400 });
+      // Step 1: Find user by email
+      const { data: user, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("email", email)
+        .single();
+
+      if (userError || !user) {
+        console.error("User not found for email:", email);
+        return new Response("User not found", { status: 404 });
+      }
+
+      // Step 2: Update subscriptions
+      const { error: updateError } = await supabase
+        .from("subscriptions")
+        .update({
+          plan_id: "Professional",
+          status: "active",
+          subscription_id: paypalSubId,
+          start_date: new Date(startTime),
+          end_date: new Date(endTime),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id);
+
+      if (updateError) {
+        console.error("Failed to update subscription:", updateError);
+        return new Response("DB error", { status: 500 });
+      }
+
+      return new Response("Webhook processed", { status: 200 });
     }
 
-    // 1. Find user in Supabase by email
-    const { data: user, error } = await supabase
-      .from('profiles') // or wherever user emails are stored
-      .select('id')
-      .eq('email', payerEmail)
-      .single();
-
-    if (error || !user) {
-      console.warn('❌ No matching user for email:', payerEmail);
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // 2. Update their subscription
-    const { error: updateError } = await supabase
-      .from('subscriptions')
-      .upsert({
-        user_id: user.id,
-        plan_id: 'Professional',
-        status: 'active',
-        start_date: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }, {
-        onConflict: 'user_id', // ensures update if user already has a subscription
-      });
-
-    if (updateError) {
-      console.error('❌ Failed to update subscription:', updateError.message);
-      return NextResponse.json({ error: 'Subscription update failed' }, { status: 500 });
-    }
-
-    console.log('✅ Subscription set to Professional for user:', payerEmail);
-    return NextResponse.json({ status: 'success' }, { status: 200 });
+    return new Response("Unhandled event type", { status: 400 });
+  } catch (err) {
+    console.error("Webhook error:", err);
+    return new Response("Internal Server Error", { status: 500 });
   }
-
-  return NextResponse.json({ status: 'Unhandled event type' }, { status: 200 });
 }
