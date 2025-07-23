@@ -54,7 +54,7 @@ export const dynamic = "force-dynamic";
 
 const planIdMap: Record<string, string> = {
   Starter: "P-7E867494AN108783GNB6NY4Y",
-  Professional: "P-1VH34161DW222191VNB6OXSA",
+  Professional: "P-89K34688GL760071RNCARSJQ",
 };
 
 const paypalErrorMap: Record<string, { code: string; message: string }> = {
@@ -90,8 +90,8 @@ export async function POST(req: Request) {
       plan_id: paypalPlanId,
       application_context: {
         brand_name: "InvoiceMyte",
-        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/subscription?subscribed=true`,
-        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://invoicemytetwo.vercel.app"}/subscription?subscribed=false`,
+        return_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.invoicemyte.online"}/subscription?subscribed=true`,
+        cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://www.invoicemyte.online"}/subscription?subscribed=false`,
       },
     }),
   });
