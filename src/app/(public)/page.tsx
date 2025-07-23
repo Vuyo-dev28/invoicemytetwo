@@ -73,28 +73,12 @@ const plans = {
         '3 Items'
       ]
     },
-    {
-      name: 'Starter',
-      price: '7.60',
-      originalPrice: '9.99',
-      discount: '24',
-      description: 'For growing businesses and freelancers.',
-      tagline: 'Unlock your potential.',
-      buttonText: 'Get Started',
-      mostValued: true,
-       features: [
-        'Unlimited Invoices',
-        'Unlimited Estimates',
-        'Unlimited Credit Notes',
-        'Unlimited Clients',
-        'Unlimited Items'
-      ]
-    },
+
     {
       name: 'Professional',
-      price: '39.00',
+      price: '7.50',
       originalPrice: '52.00',
-      discount: '25',
+      discount: '86',
       description: 'For established businesses and power users.',
       tagline: 'Supercharge your workflow with AI.',
       buttonText: 'Get Started',
@@ -149,7 +133,7 @@ export default function Home() {
           </div>
            <div className="lg:w-1/2">
              <Image 
-                src="https://placehold.co/600x400.png" 
+                src="/Macbook.png" 
                 alt="InvoiceMyte App Screenshot" 
                 width={600} 
                 height={400} 
@@ -177,8 +161,8 @@ export default function Home() {
                 <h3 className="text-2xl font-bold">Intelligent Automation</h3>
                 <p className="text-muted-foreground text-lg">Let AI draft emails, schedule follow-ups, and provide business insights so you can focus on your work, not your paperwork.</p>
               </div>
-              <div>
-                <Image src="https://placehold.co/500x350.png" alt="Intelligent Automation Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="ai assistant" />
+              <div className="animate-fade-in-up delay-200 duration-700">
+                <Image src="/phone.png" alt="Intelligent Automation Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="ai assistant" />
               </div>
             </div>
 
@@ -191,7 +175,7 @@ export default function Home() {
                 <p className="text-muted-foreground text-lg">From invoices and estimates to purchase orders and credit notes, manage your entire financial document workflow in one place.</p>
               </div>
               <div className="md:order-1">
-                <Image src="https://placehold.co/500x350.png" alt="Unified Document Management Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="invoice editor" />
+                <Image src="/documents.png" alt="Unified Document Management Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="invoice editor" />
               </div>
             </div>
             
@@ -204,7 +188,7 @@ export default function Home() {
                 <p className="text-muted-foreground text-lg">A clean, intuitive interface designed to get you from creation to paid in record time. No steep learning curves, just results.</p>
               </div>
               <div>
-                <Image src="https://placehold.co/500x350.png" alt="Effortless & Fast Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="mobile friendly" />
+                <Image src="/cashflow.png" alt="Effortless & Fast Feature" width={500} height={350} className="rounded-lg shadow-xl" data-ai-hint="mobile friendly" />
               </div>
             </div>
 
@@ -218,10 +202,11 @@ export default function Home() {
             <h2 className="text-4xl font-extrabold tracking-tight">Flexible plans for everyone</h2>
             <p className="mt-4 text-lg text-muted-foreground">Choose a plan that works for you. All plans are backed by our 30-day money-back guarantee.</p>
             <div className="flex items-center justify-center gap-4 mt-6">
-                <Label htmlFor="billing-cycle">Monthly</Label>
-                <Switch id="billing-cycle" checked={isYearly} onCheckedChange={setIsYearly} />
-                <Label htmlFor="billing-cycle">Yearly discount</Label>
-                {isYearly && <span className="text-primary font-semibold">Save up to 25%!</span>}
+                {/* <Label  htmlFor="billing-cycle">Monthly</Label> */}
+                <span className="text-primary font-semibold">MONTHLY</span>
+                {/* <Switch id="billing-cycle" checked={isYearly} onCheckedChange={setIsYearly} /> */}
+                {/* <Label htmlFor="billing-cycle">Yearly discount</Label> */}
+                {/* {isYearly && <span className="text-primary font-semibold">Save up to 25%!</span>} */}
             </div>
           </div>
 
@@ -241,7 +226,7 @@ export default function Home() {
                     </div>
                     {plan.originalPrice && <span className="text-muted-foreground line-through">${plan.originalPrice}/month</span>}
                     {plan.discount && <p className="text-sm text-green-600 font-semibold mt-1">Save {plan.discount}%</p>}
-                    <p className="text-xs text-muted-foreground mt-2">Billed {isYearly ? 'yearly' : 'monthly'}</p>
+                    <p className="text-xs text-muted-foreground mt-2">Billed {isYearly ? 'monthly' : 'monthly'}</p>
                   </div>
                    <ul className="space-y-2 text-sm">
                     {plan.features.map((feature, i) => (

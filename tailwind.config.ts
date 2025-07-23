@@ -1,4 +1,4 @@
-import type {Config} from 'tailwindcss';
+import type { Config } from 'tailwindcss'
 
 export default {
   darkMode: ['class'],
@@ -14,6 +14,8 @@ export default {
         headline: ['Inter', 'sans-serif'],
         code: ['monospace'],
       },
+
+      
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
@@ -89,11 +91,22 @@ export default {
           },
         },
         'pulse-bg-once': {
-           '0%': {
+          '0%': {
             'background-position': '-100% 0',
           },
           '100%': {
             'background-position': '100% 0',
+          },
+        },
+        // 👇 fade-in-up keyframes added here
+        'fade-in-up': {
+          '0%': {
+            opacity: '0',
+            transform: 'translateY(1rem)',
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)',
           },
         },
       },
@@ -101,8 +114,10 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'pulse-bg-once': 'pulse-bg-once 1.5s ease-out',
+        // 👇 fade-in-up animation added here
+        'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
-} satisfies Config;
+} satisfies Config

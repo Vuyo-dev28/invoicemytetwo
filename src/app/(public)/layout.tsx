@@ -9,7 +9,10 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col min-h-screen bg-background relative">
+    // <div className="flex flex-col min-h-screen bg-background relative">
+<div className="bg-background min-h-screen relative">
+  <div className="max-w-6xl mx-auto px-6 py-0 pt-16"></div>
+    {/* <div className="max-w-6xl mx-auto px-6 py-12 pt-16 bg-background relative"> pt-16 = 4rem = 64px */}
        <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
         <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center">
             <Link href="/" className="flex items-center justify-center" prefetch={false}>
@@ -20,19 +23,19 @@ export default function PublicLayout({
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/">
                 Home
             </Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
+            {/* <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
                 Templates
-            </Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
+            </Link> */}
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="./products">
                 Products
             </Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/about">
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="./about">
                 About
             </Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/#pricing">
                 Pricing
             </Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="./support">
                 Support
             </Link>
             <Link className="text-sm font-medium" href="/login">
@@ -66,5 +69,6 @@ export default function PublicLayout({
         {children}
       </main>
     </div>
+    
   )
 }

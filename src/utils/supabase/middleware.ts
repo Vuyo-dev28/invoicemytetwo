@@ -60,13 +60,21 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Define public routes
-  const publicRoutes = ['/login', '/signup/company-name', '/articles'];
+  const publicRoutes = [
+  '/login',
+  '/signup/company-name',
+  '/articles',
+  '/about',
+  '/reset-password',
+  '/update-password'
+];
 
-  if (
-    !user &&
-    !publicRoutes.some(path => request.nextUrl.pathname.startsWith(path)) &&
-    request.nextUrl.pathname !== '/'
-  ) {
+
+  const isPublicRoute = publicRoutes.some(path =>
+    request.nextUrl.pathname === path || request.nextUrl.pathname.startsWith(path + '/')
+  );
+
+  if (!user && !isPublicRoute && request.nextUrl.pathname !== '/') {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);

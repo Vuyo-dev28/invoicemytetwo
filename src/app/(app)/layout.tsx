@@ -164,7 +164,7 @@ function AppLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${getIsActive(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    className={`-mx-2 flex items-center gap-4 rounded-xl px-3 py-2 sm:px-4 transition-all hover:text-foreground ${getIsActive(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
                   >
                     <item.icon className="h-5 w-5" />
                     {item.label}
@@ -175,7 +175,7 @@ function AppLayout({
                     <Link
                     key={item.href}
                     href={item.href}
-                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${getIsActive(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    className={`-mx-2 flex items-center gap-4 rounded-xl px-3 py-2 sm:px-4 transition-all hover:text-foreground ${getIsActive(item.href) ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
                     >
                     <item.icon className="h-5 w-5" />
                     {item.label}
@@ -186,7 +186,7 @@ function AppLayout({
               <div className="mt-auto">
                  <Link
                     href="/settings"
-                    className={`mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 transition-all hover:text-foreground ${pathname === '/settings' ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
+                    className={`-mx-2 flex items-center gap-4 rounded-xl px-3 py-2 sm:px-4 transition-all hover:text-foreground ${pathname === '/settings' ? 'bg-muted text-foreground' : 'text-muted-foreground'}`}
                   >
                     <Settings className="h-5 w-5" />
                     Settings
@@ -209,7 +209,7 @@ function AppLayout({
           </Sheet>
           <div className="w-full flex-1" />
         </header>
-         <main className="flex-1 p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)] animate-fade-in-up">
+         <main className="flex-1 px-4 py-2 sm:p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)] animate-fade-in-up">
           {children}
         </main>
       </div>

@@ -7,6 +7,11 @@ const publicPaths = [
     '/',
     '/login',
     '/signup', // ✅ Allow unauthenticated users to visit /signup
+    '/about',
+    '/support',
+    '/products',
+    '/reset-password',
+    '/update-password',
     // '/signup/company-name',
     '/auth/callback'
 ];

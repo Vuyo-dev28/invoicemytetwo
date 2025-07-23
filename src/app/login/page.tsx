@@ -41,7 +41,7 @@ function LoginPageContent() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background items-center justify-center">
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
+      {/* <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
         <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center">
             <Link href="/" className="flex items-center justify-center" prefetch={false}>
             <Logo className="h-6 w-6 text-primary" />
@@ -74,7 +74,41 @@ function LoginPageContent() {
             </Button>
             </nav>
         </div>
-      </header>
+      </header> */}
+             <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
+              <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center">
+                  <Link href="/" className="flex items-center justify-center" prefetch={false}>
+                  <Logo className="h-6 w-6 text-primary" />
+                  <span className="ml-2 text-lg font-semibold text-primary">InvoiceMyte</span>
+                  </Link>
+                  <nav className="ml-auto hidden lg:flex gap-6 items-center">
+                  <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/">
+                      Home
+                  </Link>
+                  {/* <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="#">
+                      Templates
+                  </Link> */}
+                  <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="./products">
+                      Products
+                  </Link>
+                  <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="./about">
+                      About
+                  </Link>
+                  <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="/#pricing">
+                      Pricing
+                  </Link>
+                  <Link className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors" href="./support">
+                      Support
+                  </Link>
+                  <Link className="text-sm font-medium" href="/login">
+                      Log in
+                  </Link>
+                  <Button asChild>
+                      <Link href="/login">Get started</Link>
+                  </Button>
+                  </nav>
+              </div>
+            </header>
       <div aria-hidden="true" className="aurora-background">
             <div className="aurora-shape shape-1"></div>
             <div className="aurora-shape shape-2"></div>
@@ -145,8 +179,17 @@ function LoginPageContent() {
                     <Button formAction={signUp} variant="secondary" className="w-full">Sign up</Button>
                 </div>
             </form>
+
+          
             </CardContent>
         </Card>
+
+          <Link
+                href="/reset-password"
+                className="text-sm text-primary hover:underline text-right block"
+                >
+                Forgot password?
+            </Link>
         
         <div className="mt-8 text-center text-xs text-muted-foreground">
             <a href="#" className="underline">Privacy</a>

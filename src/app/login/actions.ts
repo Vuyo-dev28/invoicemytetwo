@@ -60,3 +60,33 @@ export const signUp = async (formData: FormData) => {
 
   return redirect('/dashboard');
 };
+
+
+export const resetPassword = async (formData: FormData) => {
+  const email = formData.get('email') as string;
+
+  const cookieStore = cookies();
+
+  const supabase = createServerClient({
+    cookies: {
+      getAll: () => cookieStore.getAll(),
+      setAll: (cookiesToSet) => {
+        cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+      },
+    },
+  });
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`, // Make sure this route exists
+  });
+
+  if (error) {
+    console.error("Password reset error:", error.message);
+    return redirect(`/login?message=${encodeURIComponent(error.message)}`);
+  }
+
+  return redirect(`/login?message=${encodeURIComponent("If that email exists, a reset link has been sent.")}`);
+};
+
+
+
