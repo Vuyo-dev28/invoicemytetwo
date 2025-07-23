@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -133,6 +134,7 @@ export default function SubscriptionPage() {
   if (!sub) return <p>Loading subscription...</p>;
 
 return (
+<Suspense fallback={<div>Loading...</div>}>
   <div className="max-w-4xl mx-auto px-6 py-12">
     <h1 className="text-3xl font-bold mb-6 text-center">Your Subscription</h1>
 
@@ -201,6 +203,7 @@ return (
         ))}
     </div>
   </div>
+</Suspense>
 );
 
 
