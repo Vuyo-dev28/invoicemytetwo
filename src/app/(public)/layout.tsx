@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { FileText, Calendar, CreditCard, User, Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Analytics } from "@vercel/analytics/next"
+
 
 export default function PublicLayout({
   children,

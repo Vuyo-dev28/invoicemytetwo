@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Analytics } from "@vercel/analytics/react"; // ✅ Import Analytics
 
 const plans = {
   monthly: [
@@ -247,7 +248,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-
+      <Analytics />        
     </div>
   )
 }
