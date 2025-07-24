@@ -1,12 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function DashboardPage() {
-  const supabase = createClient();
-
+  const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalRevenue: 0,
@@ -20,39 +18,27 @@ export default function DashboardPage() {
   }, []);
 
   const fetchDashboardData = async () => {
-    // ✅ 1. Total Users
-    const { count: totalUsers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
+    try {
+      const res = await fetch('/api/dashboard-data');
+      const data = await res.json();
 
-    // ✅ 2. Active Subscriptions
-    const { count: activeSubscriptions } = await supabase
-      .from('subscriptions')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'active');
-
-    // ✅ 3. Total Revenue
-    const { data: invoices } = await supabase
-      .from('invoices')
-      .select('total')
-      .eq('status', 'paid');
-
-    const totalRevenue = invoices?.reduce((sum, inv) => sum + (inv.total || 0), 0) || 0;
-
-    // ✅ 4. Chart: User Growth
-    const { data: userGrowth } = await supabase.rpc('get_user_growth'); // We'll create this function below
-
-    // ✅ 5. Chart: Revenue Growth
-    const { data: revenueGrowth } = await supabase.rpc('get_revenue_growth'); // We'll create this function too
-
-    setStats({
-      totalUsers: totalUsers || 0,
-      totalRevenue,
-      activeSubscriptions: activeSubscriptions || 0,
-    });
-    setUserChart(userGrowth || []);
-    setRevenueChart(revenueGrowth || []);
+      setStats({
+        totalUsers: data.totalUsers,
+        totalRevenue: data.totalRevenue,
+        activeSubscriptions: data.activeSubscriptions,
+      });
+      setUserChart(data.userGrowth);
+      setRevenueChart(data.revenueGrowth);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return <div className="p-6 text-gray-500">Loading dashboard...</div>;
+  }
 
   return (
     <div className="p-6">

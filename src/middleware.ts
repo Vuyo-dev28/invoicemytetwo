@@ -16,7 +16,9 @@ const publicPaths = [
     '/auth/callback',
     '/admin/login',
     '/admin/dashboard',
-    '/api/admin/login' 
+    '/api/admin/login',
+     '/api/dashboard-data', // ✅ Add this
+    
 ];
 
 function isPublicPath(path: string): boolean {
