@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
+import { Analytics } from "@vercel/analytics/react"; // ✅ Import Analytics
 
 export const metadata: Metadata = {
   title: 'InvoiceMyte | Free Invoice Generator & Billing Software for Businesses',
@@ -70,6 +71,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
+         <Analytics /> {/* ✅ Add this here */}
         <ThemeProvider
             attribute="class"
             defaultTheme="light"
