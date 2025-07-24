@@ -322,6 +322,7 @@ import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Logo } from '@/components/logo';
 // import Spinner from '@/components/ui/Spinner'; // ✅ Your spinner component
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 import { useEffect, useState } from 'react';
 
 import {
@@ -542,6 +543,7 @@ function AppLayout({
                   </Link>
 
                   <div className="flex items-center gap-4 text-muted-foreground">
+                    <ThemeSwitcher />
                     <Sun className="h-5 w-5" />
                     <Switch
                       checked={theme === "dark"}

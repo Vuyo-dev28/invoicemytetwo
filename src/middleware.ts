@@ -13,7 +13,10 @@ const publicPaths = [
     '/reset-password',
     '/update-password',
     // '/signup/company-name',
-    '/auth/callback'
+    '/auth/callback',
+    '/admin/login',
+    '/admin/dashboard',
+    '/api/admin/login' 
 ];
 
 function isPublicPath(path: string): boolean {

@@ -2,6 +2,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/theme-provider';
+import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 
 export const metadata: Metadata = {
   title: 'InvoiceMyte',
