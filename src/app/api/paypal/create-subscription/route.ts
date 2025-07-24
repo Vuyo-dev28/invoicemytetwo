@@ -53,8 +53,8 @@ import { getPayPalAccessToken } from "@/utils/paypal";
 export const dynamic = "force-dynamic";
 
 const planIdMap: Record<string, string> = {
-  Starter: "P-7E867494AN108783GNB6NY4Y",
-  Professional: "P-39921749T19698203NCBBLKQ",
+  FreeTrial:    "P-39921749T19698203NCBBLKQ",
+  Professional: "P-89K34688GL760071RNCARSJQ",
 };
 
 const paypalErrorMap: Record<string, { code: string; message: string }> = {

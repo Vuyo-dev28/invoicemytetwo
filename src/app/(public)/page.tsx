@@ -27,27 +27,13 @@ const plans = {
       ]
     },
     {
-      name: 'Starter',
-      price: '9.99',
-      description: 'For growing businesses and freelancers.',
-      tagline: 'Unlock your potential.',
-      buttonText: 'Get Started',
-      mostValued: true,
+      name: 'Trial',
+      price: '0',
+      description: 'Try everything free for 7 days.',
+      tagline: 'Full access without limits.',
+      buttonText: 'Start Free Trial',
+      trial: true, // ✅ Added property to style differently
       features: [
-        'Unlimited Invoices',
-        'Unlimited Estimates',
-        'Unlimited Credit Notes',
-        'Unlimited Clients',
-        'Unlimited Items'
-      ]
-    },
-    {
-      name: 'Professional',
-      price: '52.00',
-      description: 'For established businesses and power users.',
-      tagline: 'Supercharge your workflow with AI.',
-      buttonText: 'Get Started',
-       features: [
         'Unlimited Invoices',
         'Unlimited Estimates',
         'Unlimited Credit Notes',
@@ -58,6 +44,38 @@ const plans = {
         'AI Calendar Planner'
       ]
     },
+    // {
+    //   name: 'Starter',
+    //   price: '9.99',
+    //   description: 'For growing businesses and freelancers.',
+    //   tagline: 'Unlock your potential.',
+    //   buttonText: 'Get Started',
+    //   mostValued: true,
+    //   features: [
+    //     'Unlimited Invoices',
+    //     'Unlimited Estimates',
+    //     'Unlimited Credit Notes',
+    //     'Unlimited Clients',
+    //     'Unlimited Items'
+    //   ]
+    // },
+    {
+      name: 'Professional',
+      price: '7.50',
+      description: 'For established businesses and power users.',
+      tagline: 'Supercharge your workflow with AI.',
+      buttonText: 'Get Started',
+      features: [
+        'Unlimited Invoices',
+        'Unlimited Estimates',
+        'Unlimited Credit Notes',
+        'Unlimited Clients',
+        'Unlimited Items',
+        'AI Email Assistant',
+        'Ask AI',
+        'AI Calendar Planner'
+      ]
+    }
   ],
   yearly: [
     {
@@ -66,7 +84,7 @@ const plans = {
       description: 'For those just getting started.',
       tagline: 'Explore the core features.',
       buttonText: 'Get Started',
-       features: [
+      features: [
         '3 Invoices',
         '3 Estimates',
         '3 Credit Notes',
@@ -74,7 +92,6 @@ const plans = {
         '3 Items'
       ]
     },
-
     {
       name: 'Professional',
       price: '7.50',
@@ -93,13 +110,14 @@ const plans = {
         'Ask AI',
         'AI Calendar Planner'
       ]
-    },
-  ],
+    }
+  ]
 };
 
 
+
 export default function Home() {
-  const [isYearly, setIsYearly] = useState(true);
+  const [isYearly, setIsYearly] = useState(false);
   const currentPlans = isYearly ? plans.yearly : plans.monthly;
 
   return (
@@ -211,7 +229,7 @@ export default function Home() {
             </div>
           </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+          {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             {currentPlans.map((plan, index) => (
               <Card key={index} className={`flex flex-col ${plan.mostValued ? 'border-primary border-2 shadow-2xl' : ''}`}>
                 {plan.mostValued && <div className="bg-primary text-primary-foreground text-center text-sm font-semibold py-1 rounded-t-lg">Most Popular</div>}
@@ -245,7 +263,78 @@ export default function Home() {
                 </CardFooter>
               </Card>
             ))}
+          </div> */}
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+  {currentPlans.map((plan, index) => (
+    <Card
+      key={index}
+      className={`flex flex-col ${
+        plan.mostValued ? "border-primary border-2 shadow-2xl" : ""
+      }`}
+    >
+      {/* ✅ Highlight Trial */}
+      {plan.trial && (
+        <div className="bg-blue-500 text-white text-center text-sm font-semibold py-1 rounded-t-lg">
+          7-Day Trial
+        </div>
+      )}
+
+      {/* ✅ Highlight Most Popular */}
+      {plan.mostValued && (
+        <div className="bg-primary text-primary-foreground text-center text-sm font-semibold py-1 rounded-t-lg">
+          Most Popular
+        </div>
+      )}
+
+      <CardHeader>
+        <CardTitle>{plan.name}</CardTitle>
+        <CardDescription>{plan.description}</CardDescription>
+      </CardHeader>
+
+      <CardContent className="flex-grow space-y-6">
+        <div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-bold">${plan.price}</span>
+            <span className="text-muted-foreground">/ month</span>
           </div>
+          {plan.originalPrice && (
+            <span className="text-muted-foreground line-through">
+              ${plan.originalPrice}/month
+            </span>
+          )}
+          {plan.discount && (
+            <p className="text-sm text-green-600 font-semibold mt-1">
+              Save {plan.discount}%
+            </p>
+          )}
+          <p className="text-xs text-muted-foreground mt-2">
+            Billed {isYearly ? "monthly" : "monthly"}
+          </p>
+        </div>
+
+        <ul className="space-y-2 text-sm">
+          {plan.features.map((feature, i) => (
+            <li key={i} className="flex items-center gap-2">
+              <Check className="h-4 w-4 text-primary" />
+              <span className="text-muted-foreground">{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+
+      <CardFooter>
+        <Button asChild className="w-full">
+          <Link href="/login">{plan.buttonText}</Link>
+        </Button>
+      </CardFooter>
+    </Card>
+  ))}
+          </div>
+
+
+
+          
         </div>
       </div>
       <Analytics />        

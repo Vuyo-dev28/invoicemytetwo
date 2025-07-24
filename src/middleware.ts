@@ -10,6 +10,7 @@ const publicPaths = [
     '/about',
     '/support',
     '/products',
+    '/privacy/', 
     '/reset-password',
     '/update-password',
     // '/signup/company-name',
@@ -17,7 +18,8 @@ const publicPaths = [
     '/admin/login',
     '/admin/dashboard',
     '/api/admin/login',
-     '/api/dashboard-data', // ✅ Add this
+     '/api/dashboard-data',
+     
     
 ];
 

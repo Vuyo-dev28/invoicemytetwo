@@ -16,8 +16,17 @@ import { useLocalStorage } from '@/hooks/use-local-storage';
 
 const WelcomeBanner = () => {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const isNewUser = searchParams.get('new_user') === 'true';
     const [showBanner, setShowBanner] = useLocalStorage('showWelcomeBanner', isNewUser);
+    const handleStartTrial = () => {
+    // Redirect to pricing or checkout page
+    router.push('/subscription');
+
+    // OR call your API endpoint (optional)
+    // fetch('/api/start-trial', { method: 'POST' });
+        };
+
     
     // Always display the banner
     // if (!showBanner) {
@@ -40,6 +49,15 @@ const WelcomeBanner = () => {
                             Go to Settings <Settings className="ml-2 h-4 w-4" />
                         </Link>
                     </Button>
+
+                    <Button 
+                        variant="default" 
+                        className="bg-primary text-white hover:bg-primary/90"
+                        onClick={handleStartTrial}
+                    >
+                        Start Free Trial
+                    </Button>
+                    
                     <Button
                         variant="ghost"
                         size="icon"
