@@ -36,7 +36,7 @@ const WelcomeBanner = () => {
     return (
         <Alert className="mb-6 bg-primary/10 border-primary/20 text-primary-foreground">
              <Info className="h-4 w-4 text-primary" />
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
                 <div>
                     <AlertTitle className="font-bold text-primary">Welcome to InvoiceMyte!</AlertTitle>
                     <AlertDescription className="text-primary/90">
@@ -58,7 +58,7 @@ const WelcomeBanner = () => {
                         Start Free Trial
                     </Button>
                     
-                    <Button
+                    {/* <Button
                         variant="ghost"
                         size="icon"
                         className="h-8 w-8 text-primary hover:bg-primary/20 hover:text-primary"
@@ -66,7 +66,7 @@ const WelcomeBanner = () => {
                     >
                         <X className="h-4 w-4" />
                         <span className="sr-only">Dismiss</span>
-                    </Button>
+                    </Button> */}
                 </div>
             </div>
         </Alert>
