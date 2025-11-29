@@ -1,21 +1,53 @@
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+export function createClient() {
+  const cookieStore = cookies()
 
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
 
-export const createClient = () => {
-  const cookieStore = cookies();
+        set(name: string, value: string, options: any) {
+          try {
+            cookieStore.set({ name, value, ...options })
+          } catch (error) {
+            console.error('Error setting cookie:', error)
+          }
+        },
 
-  return createServerClient(supabaseUrl, supabaseKey, {
-    cookies: {
-      getAll: () => cookieStore.getAll(),
-      setAll: (cookies) => {
-        for (const cookie of cookies) {
-          cookieStore.set(cookie.name, cookie.value, cookie.options);
-        }
+        remove(name: string, options: any) {
+          try {
+            cookieStore.set({ name, value: '', ...options })
+          } catch (error) {
+            console.error('Error removing cookie:', error)
+          }
+        },
+
+        // Next.js removed getAll() — so we manually polyfill it
+        getAll() {
+          return cookieStore.getAll().map((c) => ({
+            name: c.name,
+            value: c.value,
+          }))
+        },
+
+        // supabase calls this internally
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set({ name, value, ...options })
+            })
+          } catch (error) {
+            console.error('Error setting multiple cookies:', error)
+          }
+        },
       },
-    },
-  });
-};
+    }
+  )
+}

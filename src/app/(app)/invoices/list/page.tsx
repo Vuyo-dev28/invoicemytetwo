@@ -1,9 +1,8 @@
-
 import { DocumentList } from "@/components/document-list";
 import { createClient } from "@/utils/supabase/server";
 import { cookies } from "next/headers";
 import { ExpandedInvoice } from "@/types";
-import { redirect } from 'next/navigation';
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -11,38 +10,34 @@ async function getInvoices(): Promise<ExpandedInvoice[]> {
   const cookieStore = cookies();
   const supabase = createClient(cookieStore);
 
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-  
+  // Get current user
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError) {
+    console.error("Error fetching user:", userError.message);
+    redirect("/login");
+  }
+
+  if (!user) redirect("/login");
+
+  // Fetch invoices for this user
   const { data, error } = await supabase
-    .from('invoices')
-    .select(`
-      *,
-      clients ( name )
-    `)
-    .eq('user_id', user.id)
-    .eq('document_type', 'Invoice') // Filter for only invoices
-    .order('created_at', { ascending: false });
+    .from("invoices")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
   if (error) {
-    console.error('Error fetching invoices:', error);
+    console.error("Error fetching invoices:", error.message);
     return [];
   }
 
-  if (!data) {
-    return [];
-  }
-  
-  // We need to shape the data to match ExpandedInvoice
-  return data.map(invoice => {
-    // Check if invoice.clients exists and is not null
-    const clientName = invoice.clients && !Array.isArray(invoice.clients) ? invoice.clients.name : "N/A";
+  if (!data) return [];
 
-    return {
-      ...invoice,
-      client_name: clientName,
-    }
-  }) as unknown as ExpandedInvoice[];
+  // Map data to ExpandedInvoice type
+  return data.map(invoice => ({
+    ...invoice,
+    client_name: invoice.client_name || "N/A", // use existing client_name column
+  })) as unknown as ExpandedInvoice[];
 }
 
 export default async function InvoiceListPage() {

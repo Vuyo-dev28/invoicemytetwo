@@ -1,9 +1,9 @@
-
-import { redirect } from 'next/navigation';
+import { DocumentList } from "@/components/document-list";
+import { getDocuments } from "../getDocuments";
 
 export const dynamic = "force-dynamic";
 
-// Redirect to the list page by default.
 export default async function InvoicesPage() {
-  redirect('/invoices/list');
+  const documents = await getDocuments('invoices');
+  return <DocumentList initialDocuments={documents} documentType="Invoice" />;
 }
