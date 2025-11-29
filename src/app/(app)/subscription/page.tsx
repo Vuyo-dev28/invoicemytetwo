@@ -1,37 +1,27 @@
-'use client';
+// app/subscription/page.tsx
 
-import React from 'react';
-import PayPalBtn from '../../../components/PayPalButton';
+import { createClient } from "@/utils/supabase/server";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import PayPalBtn from "../../../components/PayPalButton"; // Client Component
 
-export default function SubscriptionPage() {
-  const createSubscription = (data: any, actions: any) => {
-    return actions.subscription.create({
-      plan_id: 'P-81K74833NS848920GNEU2EKI', // Your PayPal plan ID
-    });
-  };
+export default async function SubscriptionPage() {
+  // Create Supabase client on the server
+  const supabase = createClient(cookies());
 
-  const onApprove = (data: any) => {
-    console.log('Subscription approved:', data);
-    // Save subscription info to your DB here
-  };
+  // Get logged-in user
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  const onError = (err: any) => {
-    console.error('PayPal error:', err);
-  };
-
-  const onCancel = () => {
-    console.log('Subscription canceled');
-  };
+  if (error || !user) {
+    redirect("/login"); // Redirect if not logged in
+  }
 
   return (
-    <div className="App">
+    <div className="max-w-3xl mx-auto p-8">
       <h1 className="text-2xl font-bold mb-4">Subscribe</h1>
-      <PayPalBtn
-        createSubscription={createSubscription}
-        onApprove={onApprove}
-        onError={onError}
-        onCancel={onCancel}
-      />
+
+      {/* Render client component for PayPal button */}
+      <PayPalBtn userId={user.id} />
     </div>
   );
 }
