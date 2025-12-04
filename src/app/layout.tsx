@@ -1,9 +1,8 @@
-import type {Metadata} from 'next';
+import type { Metadata } from 'next';
 import './globals.css';
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from '@/components/theme-provider';
-import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
-import { Analytics } from "@vercel/analytics/react"; // ✅ Import Analytics
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: 'InvoiceMyte | Free Invoice Generator & Billing Software for Businesses',
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
     'business accounting app'
   ],
   icons: {
-    icon: '/logo.png', // ✅ Your real logo
+    icon: '/logo.png',
   },
   openGraph: {
     title: 'InvoiceMyte | Professional Online Invoice Generator',
@@ -40,7 +39,7 @@ export const metadata: Metadata = {
     siteName: 'InvoiceMyte',
     images: [
       {
-        url: '/logo.png', // ✅ Your real logo
+        url: '/logo.png',
         width: 1200,
         height: 630,
         alt: 'InvoiceMyte Dashboard Preview'
@@ -56,8 +55,6 @@ export const metadata: Metadata = {
   }
 };
 
-
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -71,14 +68,18 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-         <Analytics /> {/* ✅ Add this here */}
+        <Analytics />
         <ThemeProvider
             attribute="class"
             defaultTheme="light"
             enableSystem={false}
             disableTransitionOnChange
         >
-          {children}
+          <div className="flex flex-col min-h-screen">
+            <main className="flex-grow">
+              {children}
+            </main>
+          </div>
           <Toaster />
         </ThemeProvider>
       </body>

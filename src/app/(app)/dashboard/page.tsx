@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import Link from 'next/link';
 import { useLocalStorage } from '@/hooks/use-local-storage';
+import EmailConfirmationBanner from '@/components/EmailConfirmationBanner'; // Import the new component
 
 const WelcomeBanner = () => {
     const searchParams = useSearchParams();
@@ -20,18 +21,8 @@ const WelcomeBanner = () => {
     const isNewUser = searchParams.get('new_user') === 'true';
     const [showBanner, setShowBanner] = useLocalStorage('showWelcomeBanner', isNewUser);
     const handleStartTrial = () => {
-    // Redirect to pricing or checkout page
-    router.push('/subscription');
-
-    // OR call your API endpoint (optional)
-    // fetch('/api/start-trial', { method: 'POST' });
-        };
-
-    
-    // Always display the banner
-    // if (!showBanner) {
-    //     return null;
-    // }
+        router.push('/subscription');
+    };
 
     return (
         <Alert className="mb-6 bg-primary/10 border-primary/20 text-primary-foreground">
@@ -57,16 +48,6 @@ const WelcomeBanner = () => {
                     >
                         Start Free Trial
                     </Button>
-                    
-                    {/* <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-primary hover:bg-primary/20 hover:text-primary"
-                        onClick={() => setShowBanner(false)}
-                    >
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Dismiss</span>
-                    </Button> */}
                 </div>
             </div>
         </Alert>
@@ -77,6 +58,8 @@ function DashboardPageContent() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const { toast } = useToast();
     const router = useRouter();
+    const [userEmail, setUserEmail] = useState('');
+    const [isEmailConfirmed, setIsEmailConfirmed] = useState(true);
 
     useEffect(() => {
         const fetchUserAndStats = async () => {
@@ -85,6 +68,8 @@ function DashboardPageContent() {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
+                setUserEmail(user.email || '');
+                setIsEmailConfirmed(!!user.email_confirmed_at);
                 // Fetch total amount
                 const { data: amountData, error: amountError } = await supabase
                     .from('invoices')
@@ -137,6 +122,7 @@ function DashboardPageContent() {
 
     return (
         <div className="space-y-8">
+            {!isEmailConfirmed && <EmailConfirmationBanner email={userEmail} />}
             <WelcomeBanner />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 {stats ? (

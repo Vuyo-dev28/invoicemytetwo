@@ -58,7 +58,7 @@ export const signUp = async (formData: FormData) => {
   // Set a cookie to indicate a new user
   cookieStore.set('new_user', 'true', { path: '/', maxAge: 3600 }); // Expires in 1 hour
 
-  return redirect('/dashboard');
+  return redirect('/signup/business-details');
 };
 
 
@@ -77,7 +77,7 @@ export const resetPassword = async (formData: FormData) => {
   });
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/reset-password`, // Make sure this route exists
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/update-password`, // Make sure this route exists
   });
 
   if (error) {
@@ -87,6 +87,3 @@ export const resetPassword = async (formData: FormData) => {
 
   return redirect(`/login?message=${encodeURIComponent("If that email exists, a reset link has been sent.")}`);
 };
-
-
-

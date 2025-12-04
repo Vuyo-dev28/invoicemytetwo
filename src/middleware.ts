@@ -6,21 +6,19 @@ import { createServerClient } from '@supabase/ssr';
 const publicPaths = [
     '/',
     '/login',
-    '/signup', // ✅ Allow unauthenticated users to visit /signup
+    '/signup',
+    '/signup/business-details', // ✅ Allow access to business details page
     '/about',
     '/support',
     '/products',
     '/privacy/', 
     '/reset-password',
     '/update-password',
-    // '/signup/company-name',
     '/auth/callback',
     '/admin/login',
     '/admin/dashboard',
     '/api/admin/login',
      '/api/dashboard-data',
-     
-    
 ];
 
 function isPublicPath(path: string): boolean {
@@ -70,7 +68,6 @@ export async function middleware(request: NextRequest) {
     );
 
     const { data: { session } } = await supabase.auth.getSession();
-
     const { pathname } = request.nextUrl;
 
     // If the user is not logged in and the path is not public, redirect to login
@@ -78,9 +75,15 @@ export async function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
 
-    // If the user is logged in and tries to access login/signup, redirect to dashboard
-    if (session && (pathname === '/login' || pathname === '/signup/company-name')) {
-        return NextResponse.redirect(new URL('/dashboard', request.url));
+    // If the user is logged in, redirect them based on the path
+    if (session) {
+        if (pathname === '/login' || pathname === '/signup') {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
+        }
+        // If they are on the business details page, let them stay
+        if (pathname === '/signup/business-details') {
+            return response;
+        }
     }
 
     return response;
@@ -88,13 +91,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        /*
-         * Match all request paths except for the ones starting with:
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * Feel free to modify this pattern to include more paths.
-         */
         '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
     ],
 };

@@ -1,5 +1,4 @@
 
-
 export type Profile = {
   id: string; // This is a UUID from auth.users.id
   company_name: string | null;
@@ -7,6 +6,11 @@ export type Profile = {
   logo_url: string | null;
   accent_color: string | null;
   business_type?: string | null;
+  business_name?: string | null;
+  street?: string | null;
+  city?: string | null;
+  country?: string | null;
+  postal_code?: string | null;
   currency?: string | null;
   first_name?: string | null;
   last_name?: string | null;

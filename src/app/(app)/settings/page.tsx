@@ -1,56 +1,32 @@
 
-"use client"
-import { SettingsPanel } from "@/components/settings-panel";
-import type { Profile } from "@/types";
-import { useEffect, useState } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from '@/utils/supabase/server';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { SettingsForm } from '@/components/settings-form';
 
-export const dynamic = "force-dynamic";
+export default async function SettingsPage() {
+  const cookieStore = cookies();
+  const supabase = createClient(cookieStore);
 
-export default function SettingsPage() {
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [loading, setLoading] = useState(true);
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
 
-    useEffect(() => {
-        const getProfile = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
+  if (userError || !user) {
+    redirect('/login');
+  }
 
-            if (user) {
-                const { data, error } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', user.id)
-                    .single();
-                
-                if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
-                    console.error('Error fetching profile:', error.message || error);
-                } else {
-                    setProfile(data);
-                }
-            }
-            setLoading(false);
-        }
-        getProfile();
-    }, []);
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('full_name, business_name, website, street, city, country, postal_code, currency, timezone')
+    .eq('id', user.id)
+    .single();
 
+  if (profileError) {
+    console.error('Error fetching profile:', profileError.message);
+  }
 
-    if (loading) {
-        return (
-            <div className="space-y-6">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-24 w-full" />
-                <div className="flex justify-end">
-                    <Skeleton className="h-10 w-24" />
-                </div>
-            </div>
-        )
-    }
-
-    return (
-        <div className="flex flex-col h-full">
-            <SettingsPanel initialProfile={profile} />
-        </div>
-    );
+  return (
+    <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
+      <SettingsForm user={user} profile={profile || {}} />
+    </div>
+  );
 }

@@ -424,37 +424,65 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
       </Card>
       
       <div className={cn('invoice-container', `template-${template}`)}>
-        <header className="template-header">
-          {template === 'formal' || template === 'elegant' ? (
-            <div className="w-full flex flex-col items-center">
-               <div className="company-details">
-                 {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 mx-auto" data-ai-hint="logo" />}
-                 <h2>{profile?.company_name || 'Your Company'}</h2>
-                 <p>{profile?.company_address || 'Your Address'}</p>
-               </div>
-               <div className={cn("invoice-title-section", template === 'elegant' && 'mt-4')}>
-                 <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
-                 {template === 'formal' && <p className="text-sm text-muted-foreground mt-2"># {invoiceNumber}</p>}
-               </div>
+      <header className="template-header">
+        {template === 'formal' || template === 'elegant' ? (
+          <div className="w-full flex flex-col items-center">
+            <div className="company-details">
+              {profile?.logo_url && (
+                <Image
+                  src={profile.logo_url}
+                  alt="Company Logo"
+                  width={100}
+                  height={100}
+                  className="mb-4 mx-auto"
+                />
+              )}
+              <h2>{profile?.business_name || 'Your Company'}</h2>
+              <p>{[
+                  profile?.street,
+                  profile?.city,
+                  profile?.country,
+                  profile?.postal_code
+                ].filter(Boolean).join(', ') || 'Your Address'}</p>
             </div>
-          ) : (
-            <>
-              <div>
-                  <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
-                  <p className="text-muted-foreground"># {invoiceNumber}</p>
-              </div>
-              <div className="company-details">
-                {profile?.logo_url && <Image src={profile.logo_url} alt="Company Logo" width={100} height={100} className="mb-4 ml-auto" data-ai-hint="logo" />}
-                <h2 className={cn('text-xl font-semibold')}>
-                  {profile?.company_name || 'Your Company'}
-                </h2>
-                <p className={cn('text-muted-foreground text-sm')}>
-                  {profile?.company_address || 'Your Address'}
-                </p>
-              </div>
-            </>
+            <div className={cn("invoice-title-section", template === 'elegant' && 'mt-4')}>
+              <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
+              {template === 'formal' && (
+                <p className="text-sm text-muted-foreground mt-2"># {invoiceNumber}</p>
+              )}
+            </div>
+          </div>
+        ) : (
+      <>
+        <div>
+            <h1 className="invoice-title">{documentType.toUpperCase()}</h1>
+            <p className="text-muted-foreground"># {invoiceNumber}</p>
+        </div>
+        <div className="company-details">
+          {profile?.logo_url && (
+            <Image
+              src={profile.logo_url}
+              alt="Company Logo"
+              width={100}
+              height={100}
+              className="mb-4 ml-auto"
+            />
           )}
-        </header>
+          <h2 className={cn('text-xl font-semibold')}>
+            {profile?.business_name || 'Your Company'}
+          </h2>
+          <p className={cn('text-muted-foreground text-sm')}>
+            {[
+              profile?.street,
+              profile?.city,
+              profile?.country,
+              profile?.postal_code
+            ].filter(Boolean).join(', ') || 'Your Address'}
+          </p>
+        </div>
+      </>
+    )}
+      </header>
         
         <main className="main-content">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">

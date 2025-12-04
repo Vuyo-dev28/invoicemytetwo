@@ -70,6 +70,21 @@
   }
 }
 
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
 
 @media print {
   body {
@@ -516,7 +531,7 @@
 .template-creative table tbody td {
   @apply py-3;
 }
-.template-creative .totals-section {
+..template-creative .totals-section {
   @apply mt-6 pt-2;
 }
 .template-creative .totals-section span {

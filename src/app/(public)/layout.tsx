@@ -1,11 +1,12 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { FileText, Calendar, CreditCard, User, Menu, X } from "lucide-react";
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import Footer from "@/components/footer";
 
 export default function PublicLayout({
   children,
@@ -14,11 +15,21 @@ export default function PublicLayout({
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
+
   return (
     <div className="bg-background min-h-screen relative">
-      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
+      <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-30">
         <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center justify-between">
-          {/* Logo */}
           <Link
             href="/"
             className="flex items-center justify-center"
@@ -30,7 +41,6 @@ export default function PublicLayout({
             </span>
           </Link>
 
-          {/* Desktop Nav */}
           <nav className="ml-auto hidden lg:flex gap-6 items-center">
             <Link className="text-sm font-medium hover:text-primary" href="/">
               Home
@@ -67,50 +77,66 @@ export default function PublicLayout({
             </Button>
           </nav>
 
-          {/* Mobile Menu Button */}
           <button
             className="lg:hidden p-2 rounded-md text-primary"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={() => setIsOpen(true)}
           >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            <Menu className="h-6 w-6" />
           </button>
         </div>
+      </header>
 
-        {/* Mobile Dropdown */}
-        {isOpen && (
-          <div
-            className="absolute top-full mt-2 left-1/2 -translate-x-1/2 w-11/12 max-w-sm bg-card/95 backdrop-blur-md shadow-lg rounded-xl p-4 flex flex-col gap-4 z-10"
-          >
-            <Link href="/" onClick={() => setIsOpen(false)}>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-sm lg:hidden">
+          <div className="flex items-center justify-between p-4 border-b">
+            <Link
+              href="/"
+              className="flex items-center justify-center"
+              prefetch={false}
+              onClick={() => setIsOpen(false)}
+            >
+              <Logo className="h-6 w-6 text-primary" />
+              <span className="ml-2 text-lg font-semibold text-primary">
+                InvoiceMyte
+              </span>
+            </Link>
+            <button
+              className="p-2 rounded-md text-primary"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-6 w-6" />
+            </button>
+          </div>
+          <div className="flex flex-col items-center justify-center h-[calc(100vh-80px)] gap-8 text-xl">
+            <Link href="/" className="hover:text-primary" onClick={() => setIsOpen(false)}>
               Home
             </Link>
-            <Link href="/products" onClick={() => setIsOpen(false)}>
+            <Link href="/products" className="hover:text-primary" onClick={() => setIsOpen(false)}>
               Products
             </Link>
-            <Link href="/about" onClick={() => setIsOpen(false)}>
+            <Link href="/about" className="hover:text-primary" onClick={() => setIsOpen(false)}>
               About
             </Link>
-            <Link href="/#pricing" onClick={() => setIsOpen(false)}>
+            <Link href="/#pricing" className="hover:text-primary" onClick={() => setIsOpen(false)}>
               Pricing
             </Link>
-            <Link href="/support" onClick={() => setIsOpen(false)}>
+            <Link href="/support" className="hover:text-primary" onClick={() => setIsOpen(false)}>
               Support
             </Link>
-            <Link href="/login" onClick={() => setIsOpen(false)}>
+            <hr className="w-1/2 border-border"/>
+            <Link href="/login" className="hover:text-primary" onClick={() => setIsOpen(false)}>
               Log in
             </Link>
-            <Button asChild>
+            <Button asChild size="lg">
               <Link href="/login" onClick={() => setIsOpen(false)}>
                 Get started
               </Link>
             </Button>
           </div>
-        )}
+        </div>
+      )}
 
-      </header>
-
-      {/* Aurora Background */}
-      <div aria-hidden="true" className="aurora-background">
+      <div aria-hidden="true" className="aurora-background pointer-events-none">
         <div className="aurora-shape shape-1"></div>
         <div className="aurora-shape shape-2"></div>
         <div className="aurora-shape shape-3"></div>
@@ -129,10 +155,10 @@ export default function PublicLayout({
         </div>
       </div>
 
-      {/* Main */}
-      <main className="flex-grow flex items-center justify-center animate-fade-in-up">
+      <main className="flex-grow flex items-center justify-center animate-fade-in-up pt-28">
         {children}
       </main>
+      <Footer />
     </div>
   );
 }
