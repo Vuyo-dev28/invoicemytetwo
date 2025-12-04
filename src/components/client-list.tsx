@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { createClient } from '@/utils/supabase/client';
+import { checkClientLimit } from '@/utils/subscription-limits';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Client } from '@/types';
@@ -72,6 +73,13 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
         setClients(prev => prev.map(c => c.id === editingClient.id ? data[0] : c));
       }
     } else {
+      // Creating a new client – enforce free-plan limits when no ACTIVE subscription.
+      const limitResult = await checkClientLimit(user.id);
+      if (!limitResult.ok) {
+        toast({ title: "Limit reached", description: limitResult.message, variant: 'destructive' });
+        return;
+      }
+
       const payload = { ...values, user_id: user.id };
       const { data, error } = await supabase.from('clients').insert([payload]).select();
 

@@ -1,44 +1,11 @@
 
 import { DeliveryNoteForm } from '@/components/delivery-note-form';
-import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
-import type { Client, Item } from '@/types';
-import { redirect } from 'next/navigation';
+import { getClientsAndItems } from '../../reference-data';
 
 export const dynamic = "force-dynamic";
 
-async function getClients(): Promise<Client[]> {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
-  const { data, error } = await supabase.from('clients').select('*').eq('user_id', user.id);
-
-  if (error) {
-    console.error('Error fetching clients:', error);
-    return [];
-  }
-  return data;
-}
-
-async function getItems(): Promise<Item[]> {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-  const { data, error } = await supabase.from('items').select('*');
-
-  if (error) {
-    console.error('Error fetching items:', error);
-    return [];
-  }
-  return data;
-}
-
-
 export default async function NewDeliveryNotePage() {
-  const clients = await getClients();
-  const items = await getItems();
+  const { clients, items } = await getClientsAndItems();
   
   return (
     <DeliveryNoteForm clients={clients} items={items} />

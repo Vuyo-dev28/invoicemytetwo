@@ -24,6 +24,7 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { currencies } from '@/lib/currencies';
 import { Switch } from './ui/switch';
+import { checkDocumentLimit } from '@/utils/subscription-limits';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -218,7 +219,27 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     ));
   };
   
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "You need to be logged in to download a PDF.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const limitResult = await checkDocumentLimit(user.id, documentType as any);
+    if (!limitResult.ok) {
+      toast({
+        title: "Limit reached",
+        description: limitResult.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     window.print();
   };
 
@@ -231,6 +252,19 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
     if (!selectedClient) {
         toast({ title: "Client not selected", description: "Please select a client.", variant: "destructive" });
         return;
+    }
+
+    // Enforce free-plan limits only when creating new documents.
+    if (!invoiceId) {
+      const limitResult = await checkDocumentLimit(user.id, documentType as any);
+      if (!limitResult.ok) {
+        toast({
+          title: "Limit reached",
+          description: limitResult.message,
+          variant: "destructive",
+        });
+        return;
+      }
     }
 
     let structuredNotes: string[] = [];
@@ -260,7 +294,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         notes: finalNotes,
         tax_percent: tax,
         discount_percent: discount,
-        total: total,
+        total,
+        amount: total,
         document_type: documentType,
     };
     

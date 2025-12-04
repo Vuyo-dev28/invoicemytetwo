@@ -21,6 +21,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import type SignatureCanvas from 'react-signature-canvas';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/utils/supabase/client';
+import { checkDocumentLimit } from '@/utils/subscription-limits';
 import { useRouter } from 'next/navigation';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
@@ -145,7 +146,27 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
     ));
   };
   
-  const handlePrint = () => {
+  const handlePrint = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({
+        title: "Not authenticated",
+        description: "You need to be logged in to download a PDF.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const limitResult = await checkDocumentLimit(user.id, 'Delivery note');
+    if (!limitResult.ok) {
+      toast({
+        title: "Limit reached",
+        description: limitResult.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
     window.print();
   };
 
@@ -160,6 +181,19 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
         return;
     }
 
+    // Enforce free-plan limits when creating new delivery notes.
+    if (!docId) {
+      const limitResult = await checkDocumentLimit(user.id, 'Delivery note');
+      if (!limitResult.ok) {
+        toast({
+          title: "Limit reached",
+          description: limitResult.message,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const docPayload = {
         user_id: user.id,
         client_id: selectedClient.id,
@@ -170,6 +204,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
         delivery_address: deliveryAddress,
         document_type: 'Delivery note',
         total: 0, // Not a financial document
+        amount: 0,
         tax_percent: 0,
         discount_percent: 0,
     };

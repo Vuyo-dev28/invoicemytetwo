@@ -70,9 +70,15 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
   const onSubmit = async (values: ItemFormValues) => {
     if (editingItem) {
       // UPDATE
+      const updatePayload = {
+        ...values,
+        // Keep the database's required "name" column in sync with description.
+        name: values.description,
+      };
+
       const { data, error } = await supabase
         .from("items")
-        .update(values)
+        .update(updatePayload)
         .eq("id", editingItem.id)
         .select();
 
@@ -84,7 +90,13 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
       }
     } else {
       // CREATE
-      const { data, error } = await supabase.from("items").insert([values]).select();
+      const insertPayload = {
+        ...values,
+        // Satisfy NOT NULL constraint on "name" by mirroring description.
+        name: values.description,
+      };
+
+      const { data, error } = await supabase.from("items").insert([insertPayload]).select();
 
       if (error) {
         toast({ title: "Error creating item", description: error.message, variant: "destructive" });

@@ -4,6 +4,6 @@ import { getDocuments } from "../getDocuments";
 export const dynamic = "force-dynamic";
 
 export default async function CreditNotesPage() {
-  const documents = await getDocuments('credit_notes');
+  const documents = await getDocuments('Credit note');
   return <DocumentList initialDocuments={documents} documentType="Credit note" />;
 }
