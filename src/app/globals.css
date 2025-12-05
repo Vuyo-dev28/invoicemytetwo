@@ -101,6 +101,16 @@
     size: A4;
     margin: 0;
   }
+  /* Hide page break indicators */
+  @page {
+    margin: 0;
+    padding: 0;
+  }
+  /* Remove page break visual indicators */
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
   .invoice-container {
     width: 100%;
     max-width: 100%;
@@ -108,6 +118,8 @@
     padding: 0;
     box-shadow: none;
     border: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
   /* Force light theme for printing */
   .invoice-container, .invoice-container * {
@@ -120,6 +132,17 @@
   }
   .invoice-container .text-muted-foreground {
     color: #555 !important;
+  }
+  /* Hide any page break visual elements */
+  * {
+    page-break-inside: auto;
+    orphans: 3;
+    widows: 3;
+  }
+  /* Prevent page breaks in key sections */
+  .template-header, .main-content {
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
 }
 

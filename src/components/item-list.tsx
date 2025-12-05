@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -30,7 +30,19 @@ import { createClient } from "@/utils/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import type { Item } from "@/types";
-import { PlusCircle, Edit } from "lucide-react";
+import { PlusCircle, Edit, Trash2 } from "lucide-react";
+import { formatCurrency as formatCurrencyUtil } from '@/lib/currency-utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const itemSchema = z.object({
   description: z.string().min(1, "Description is required"),
@@ -43,9 +55,28 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
   const [items, setItems] = useState(initialItems);
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [userCurrency, setUserCurrency] = useState<string>('USD');
   const { toast } = useToast();
   const router = useRouter();
   const supabase = createClient();
+
+  useEffect(() => {
+    const getProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('currency')
+        .eq('id', user.id)
+        .maybeSingle();
+      
+      if (profileData?.currency) {
+        setUserCurrency(profileData.currency);
+      }
+    };
+    getProfile();
+  }, [supabase]);
 
   const form = useForm<ItemFormValues>({
     resolver: zodResolver(itemSchema),
@@ -113,11 +144,26 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(amount);
+    return formatCurrencyUtil(amount, userCurrency);
+  };
+
+  const handleDelete = async (itemId: string) => {
+    const { error } = await supabase
+      .from('items')
+      .delete()
+      .eq('id', itemId);
+
+    if (error) {
+      toast({ title: "Error deleting item", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Item deleted", description: "The item has been deleted successfully." });
+      setItems(prev => prev.filter(item => item.id !== itemId));
+      router.refresh();
+    }
   };
 
   return (
-    <>
+    <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold">Items</h1>
@@ -184,7 +230,7 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
                 <TableCell className="font-medium">{item.description}</TableCell>
                 <TableCell className="text-right">{formatCurrency(item.rate)}</TableCell>
                 <TableCell className="text-center">
-                    <div className="flex justify-center">
+                    <div className="flex justify-center gap-2">
                     <Button
                         variant="outline"
                         size="sm"
@@ -193,6 +239,34 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
                     >
                         <Edit className="h-4 w-4" /> Edit
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1 text-destructive hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Item</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete "{item.description}"? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(item.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                     </div>
                 </TableCell>
                 </TableRow>
@@ -209,6 +283,6 @@ export function ItemList({ initialItems }: { initialItems: Item[] }) {
           </Table>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }

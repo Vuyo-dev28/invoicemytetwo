@@ -1,5 +1,6 @@
 import { DocumentList } from "@/components/document-list";
 import { createClient } from "@/utils/supabase/server";
+import { deleteDocumentAction } from "@/app/(app)/documents/actions"; // or wherever your server action is
 import { cookies } from "next/headers";
 import { ExpandedInvoice } from "@/types";
 import { redirect } from "next/navigation";

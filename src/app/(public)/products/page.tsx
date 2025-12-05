@@ -30,9 +30,9 @@ const featureCategories = [
     items: [
       { href: '/invoices/list', label: 'Invoices', icon: Receipt, description: 'Create, send, and track professional invoices to get paid faster.' },
       { href: '/estimates', label: 'Estimates', icon: FileScan, description: 'Provide clients with detailed project estimates and quotes.' },
-      { href: '/credit-notes', label: 'Credit Notes', icon: FileDiff, description: 'Issue credit notes for refunds or to correct invoice errors.' },
-      { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck, description: 'Generate and manage delivery notes for your shipments.' },
-      { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart, description: 'Create and manage purchase orders for your suppliers.' },
+      { href: '/credit_notes', label: 'Credit Notes', icon: FileDiff, description: 'Issue credit notes for refunds or to correct invoice errors.' },
+      { href: '/delivery_notes', label: 'Delivery Notes', icon: Truck, description: 'Generate and manage delivery notes for your shipments.' },
+      { href: '/purchase_orders', label: 'Purchase Orders', icon: ShoppingCart, description: 'Create and manage purchase orders for your suppliers.' },
     ]
   },
   {

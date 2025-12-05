@@ -41,5 +41,5 @@ export const saveBusinessDetails = async (formData: FormData) => {
         return redirect(`/signup/business-details?message=${errorMessage}`);
     }
 
-    return redirect('/dashboard?new_user=true');
+    return redirect('/signup/start-trial');
 };

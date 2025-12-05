@@ -25,6 +25,7 @@ import { useRouter } from 'next/navigation';
 import { currencies } from '@/lib/currencies';
 import { Switch } from './ui/switch';
 import { checkDocumentLimit } from '@/utils/subscription-limits';
+import { formatCurrency as formatCurrencyUtil } from '@/lib/currency-utils';
 
 const DynamicSignatureCanvas = dynamic(() => import('react-signature-canvas'), {
   ssr: false,
@@ -84,6 +85,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const signatureRef = useRef<SignatureCanvas>(null);
 
   const [formType, setFormType] = useState<FormType>('basic');
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const documentTypePrefixes = {
     "Invoice": "INV",
@@ -105,12 +107,16 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         
         if (profileData) {
             setProfile(profileData);
+            // Set currency from profile if available
+            if (profileData.currency && !initialInvoice) {
+                setCurrency(profileData.currency);
+            }
         } else if (error && error.code !== 'PGRST116') { // PGRST116: No rows found
              console.error("Error fetching profile:", error.message || error);
         }
     }
     getProfile();
-  }, [supabase]);
+  }, [supabase, initialInvoice]);
 
 
   useEffect(() => {
@@ -220,27 +226,47 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   };
   
   const handlePrint = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (isPrinting) return; // Prevent multiple clicks
+    
+    setIsPrinting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsPrinting(false);
+        toast({
+          title: "Not authenticated",
+          description: "You need to be logged in to download a PDF.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const limitResult = await checkDocumentLimit(user.id, documentType as any);
+      if (!limitResult.ok) {
+        setIsPrinting(false);
+        toast({
+          title: "Limit reached",
+          description: limitResult.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Use requestAnimationFrame to allow UI to update before printing
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          window.print();
+          setIsPrinting(false);
+        }, 100);
+      });
+    } catch (error) {
+      setIsPrinting(false);
       toast({
-        title: "Not authenticated",
-        description: "You need to be logged in to download a PDF.",
+        title: "Error",
+        description: "Failed to prepare print preview. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    const limitResult = await checkDocumentLimit(user.id, documentType as any);
-    if (!limitResult.ok) {
-      toast({
-        title: "Limit reached",
-        description: limitResult.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    window.print();
   };
 
   const saveInvoice = async (status: InvoiceStatus) => {
@@ -366,16 +392,16 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const documentTypeToPath = {
     "Invoice": "invoices",
     "Estimate": "estimates",
-    "Credit note": "credit-notes",
-    "Purchase order": "purchase-orders",
-    "Delivery note": "delivery-notes",
+    "Credit note": "credit_notes",
+    "Purchase order": "purchase_orders",
+    "Delivery note": "delivery_notes",
   };
 
   const handleSaveDraft = () => saveInvoice('draft');
   const handleSend = () => saveInvoice('sent');
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+    return formatCurrencyUtil(amount, currency);
   };
 
   const handleClientChange = (clientId: string) => {
@@ -414,7 +440,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-3 sm:px-4">
       <Card className="no-print">
         <CardContent className="p-4 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-2">
@@ -704,13 +730,13 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
                     <div>
                         <Label className="font-semibold">Terms & Conditions</Label>
                         <Textarea placeholder="Optional" className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
-                        <p className="print-only text-sm text-muted-foreground mt-2">{notes}</p>
+                        <div className="print-only mt-2 p-3 text-sm text-muted-foreground whitespace-pre-wrap break-words leading-relaxed">{notes}</div>
                     </div>
                     <div>
                         <Label className="font-semibold">Signature</Label>
-                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center print:border-none">
+                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-start print:border-none">
                             {signature ? (
-                                <div className="text-center">
+                                <div className="flex flex-col items-start">
                                     <Image src={signature} alt="Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
                                     <Button variant="link" size="sm" onClick={() => setSignature(null)} className="text-destructive no-print -mt-2">Remove</Button>
                                 </div>
@@ -789,7 +815,10 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
         </main>
         <CardFooter className="p-4 bg-muted/50 border-t flex justify-end gap-2 no-print">
             <Button variant="outline" onClick={handleSaveDraft}>Save Draft</Button>
-            <Button onClick={handlePrint} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PDF</Button>
+            <Button onClick={handlePrint} variant="secondary" disabled={isPrinting}>
+              <Download className="mr-2 h-4 w-4" /> 
+              {isPrinting ? 'Preparing...' : 'Download PDF'}
+            </Button>
             <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send {documentType}</Button>
         </CardFooter>
       </div>

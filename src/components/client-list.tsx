@@ -15,7 +15,18 @@ import { checkClientLimit } from '@/utils/subscription-limits';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Client } from '@/types';
-import { PlusCircle, Edit } from 'lucide-react';
+import { PlusCircle, Edit, Trash2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const clientSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -97,8 +108,23 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
     router.refresh();
   };
 
+  const handleDelete = async (clientId: string) => {
+    const { error } = await supabase
+      .from('clients')
+      .delete()
+      .eq('id', clientId);
+
+    if (error) {
+      toast({ title: "Error deleting client", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Client deleted", description: "The client has been deleted successfully." });
+      setClients(prev => prev.filter(client => client.id !== clientId));
+      router.refresh();
+    }
+  };
+
   return (
-    <>
+    <div>
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold">Clients</h1>
@@ -170,14 +196,44 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
                     <TableCell>{client.address}</TableCell>
                     <TableCell>{client.vat_number}</TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-1"
-                        onClick={() => handleEditClick(client)}
-                      >
-                        <Edit className="h-4 w-4" /> Edit
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-1"
+                          onClick={() => handleEditClick(client)}
+                        >
+                          <Edit className="h-4 w-4" /> Edit
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-1 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" /> Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Client</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{client.name}"? This action cannot be undone. Any invoices associated with this client will remain, but the client reference will be removed.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDelete(client.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -193,6 +249,6 @@ export function ClientList({ initialClients }: { initialClients: Client[] }) {
           </Table>
         </CardContent>
       </Card>
-    </>
+    </div>
   );
 }

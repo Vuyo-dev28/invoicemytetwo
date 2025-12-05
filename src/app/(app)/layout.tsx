@@ -23,7 +23,8 @@ import {
   Sparkles,
   CalendarDays,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Search
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -34,6 +35,8 @@ import { useTheme } from 'next-themes';
 import { Switch } from '@/components/ui/switch';
 import { Logo } from '@/components/logo';
 import { useEffect, useState } from 'react';
+import { GuidedTour } from '@/components/tour/guided-tour';
+import { appTourSteps } from '@/components/tour/tour-steps';
 
 import {
   AlertDialog,
@@ -67,12 +70,13 @@ function AppLayout({
 
   const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Activity },
+    { href: '/search', label: 'Search', icon: Search },
     { href: '/cashflow', label: 'Cashflow', icon: LineChart },
     { href: '/invoices/list', label: 'Invoices', icon: Receipt },
     { href: '/estimates', label: 'Estimates', icon: FileScan },
-    { href: '/credit-notes', label: 'Credit Notes', icon: FileDiff },
-    { href: '/delivery-notes', label: 'Delivery Notes', icon: Truck },
-    { href: '/purchase-orders', label: 'Purchase Orders', icon: ShoppingCart },
+    { href: '/credit_notes', label: 'Credit Notes', icon: FileDiff },
+    { href: '/delivery_notes', label: 'Delivery Notes', icon: Truck },
+    { href: '/purchase_orders', label: 'Purchase Orders', icon: ShoppingCart },
     { href: '/clients', label: 'Clients', icon: Users },
     { href: '/items', label: 'Items', icon: Package },
     { href: '/subscription', label: 'Subscription', icon: CreditCard },
@@ -91,6 +95,9 @@ function AppLayout({
     if (href === '/dashboard') {
       return pathname === '/dashboard' || pathname === '/';
     }
+    if (href === '/search') {
+      return pathname === '/search';
+    }
     return pathname === href;
   };
 
@@ -100,8 +107,32 @@ function AppLayout({
     return () => clearTimeout(timer);
   }, [pathname]);
 
+  // Keyboard shortcut for search (Cmd/Ctrl + K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        router.push('/search');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [router]);
+
   return (
-    <div className="min-h-screen w-full">
+    <>
+      <GuidedTour 
+        steps={appTourSteps}
+        storageKey="invoicemyte_tour_completed"
+        onComplete={() => {
+          // Tour completed
+        }}
+        onSkip={() => {
+          // Tour skipped
+        }}
+      />
+      <div className="min-h-screen w-full">
       <div className={`hidden md:block fixed left-0 top-0 h-full border-r bg-card z-20 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-[280px] lg:w-[350px]'}`}>
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
@@ -115,16 +146,24 @@ function AppLayout({
           </div>
           <div className="flex-1 overflow-y-auto">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-              {menuItems.map(item => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${getIsActive(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span className={`${isSidebarCollapsed ? 'hidden' : 'block'}`}>{item.label}</span>
-                </Link>
-              ))}
+              {menuItems.map(item => {
+                const tourId = item.href === '/dashboard' ? 'dashboard' : 
+                              item.href === '/search' ? 'search' : 
+                              item.href === '/invoices/list' ? 'invoices' : 
+                              item.href === '/clients' ? 'clients' : 
+                              item.href === '/items' ? 'items' : undefined;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    {...(tourId ? { 'data-tour': tourId } : {})}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${getIsActive(item.href) ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className={`${isSidebarCollapsed ? 'hidden' : 'block'}`}>{item.label}</span>
+                  </Link>
+                );
+              })}
               <div className="my-2 border-t -mx-2"></div>
               {aiMenuItems.map(item => (
                 <Link
@@ -141,6 +180,7 @@ function AppLayout({
           <div className="mt-auto p-4">
             <Link
               href="/settings"
+              data-tour="settings"
               className={`flex items-center gap-3 rounded-lg px-3 py-2 transition-all hover:text-primary ${pathname === '/settings' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'}`}
             >
               <Settings className="h-4 w-4" />
@@ -274,11 +314,12 @@ function AppLayout({
           <div className="w-full flex-1" />
         </header>
 
-        <main className="flex-1 px-4 py-2 sm:p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)] animate-fade-in-up pt-16">
+        <main className="flex-1 px-4 py-2 sm:p-4 lg:p-6 bg-muted/40 overflow-y-auto h-[calc(100vh-60px)] pt-16">
           {children}
         </main>
       </div>
     </div>
+    </>
   );
 }
 

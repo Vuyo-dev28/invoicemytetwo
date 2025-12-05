@@ -17,7 +17,7 @@ export default async function BusinessDetailsPage({ searchParams }: { searchPara
     }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900 px-4 py-8">
       <div className="w-full max-w-lg p-8 space-y-6 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <h1 className="text-3xl font-bold text-center">Business Details</h1>
         <p className='text-center'>This information will be used to automatically populate your invoices and other documents.</p>

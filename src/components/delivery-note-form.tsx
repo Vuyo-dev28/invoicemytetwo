@@ -67,6 +67,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
   const [receiverSignature, setReceiverSignature] = useState<string | null>(null);
   const [isSenderSigDialogOpen, setSenderSigDialogOpen] = useState(false);
   const [isReceiverSigDialogOpen, setReceiverSigDialogOpen] = useState(false);
+  const [isPrinting, setIsPrinting] = useState(false);
 
   const senderSigRef = useRef<SignatureCanvas>(null);
   const receiverSigRef = useRef<SignatureCanvas>(null);
@@ -147,27 +148,47 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
   };
   
   const handlePrint = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    if (isPrinting) return; // Prevent multiple clicks
+    
+    setIsPrinting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setIsPrinting(false);
+        toast({
+          title: "Not authenticated",
+          description: "You need to be logged in to download a PDF.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const limitResult = await checkDocumentLimit(user.id, 'Delivery note');
+      if (!limitResult.ok) {
+        setIsPrinting(false);
+        toast({
+          title: "Limit reached",
+          description: limitResult.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Use requestAnimationFrame to allow UI to update before printing
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          window.print();
+          setIsPrinting(false);
+        }, 100);
+      });
+    } catch (error) {
+      setIsPrinting(false);
       toast({
-        title: "Not authenticated",
-        description: "You need to be logged in to download a PDF.",
+        title: "Error",
+        description: "Failed to prepare print preview. Please try again.",
         variant: "destructive",
       });
-      return;
     }
-
-    const limitResult = await checkDocumentLimit(user.id, 'Delivery note');
-    if (!limitResult.ok) {
-      toast({
-        title: "Limit reached",
-        description: limitResult.message,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    window.print();
   };
 
   const saveDocument = async (status: InvoiceStatus) => {
@@ -264,7 +285,7 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
       title: `Delivery Note ${initialDocument ? 'Updated' : 'Saved'}`,
       description: `Your delivery note has been saved as a ${status}.`,
     });
-    router.push('/delivery-notes');
+    router.push('/delivery_notes');
     router.refresh();
   }
 
@@ -300,9 +321,9 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 px-3 sm:px-4">
       <Card className="no-print">
-        <CardContent className="p-4 flex items-center justify-between">
+        <CardContent className="p-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
                  <h1 className="text-2xl font-bold">{initialDocument ? `Edit Delivery Note` : `New Delivery Note`}</h1>
             </div>
@@ -467,14 +488,16 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
                 <div>
                     <Label className="font-semibold">Delivery Notes / Instructions</Label>
                     <Textarea placeholder="e.g. Handle with care, leave at front porch..." className="mt-2 no-print h-28" value={notes} onChange={(e) => setNotes(e.target.value)} />
-                    <p className="print-only text-sm text-muted-foreground mt-2">{notes}</p>
+                    <div className="print-only mt-2 p-3 text-sm text-muted-foreground whitespace-pre-wrap break-words leading-relaxed">{notes}</div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                      <div>
                         <Label className="font-semibold">Sender Signature</Label>
-                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center">
+                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-start print:border-none">
                             {senderSignature ? (
-                                <Image src={senderSignature} alt="Sender Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
+                                <div className="flex flex-col items-start">
+                                    <Image src={senderSignature} alt="Sender Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
+                                </div>
                             ) : (
                                 <Dialog open={isSenderSigDialogOpen} onOpenChange={setSenderSigDialogOpen}>
                                     <DialogTrigger asChild><Button variant="outline" className="no-print">Add Signature</Button></DialogTrigger>
@@ -489,9 +512,11 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
                     </div>
                      <div>
                         <Label className="font-semibold">Receiver Signature</Label>
-                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-center">
+                        <div className="mt-2 border rounded-md p-2 h-28 flex items-center justify-start print:border-none">
                             {receiverSignature ? (
-                                <Image src={receiverSignature} alt="Receiver Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
+                                <div className="flex flex-col items-start">
+                                    <Image src={receiverSignature} alt="Receiver Signature" width={100} height={100} className="object-contain" data-ai-hint="signature" />
+                                </div>
                             ) : (
                                 <Dialog open={isReceiverSigDialogOpen} onOpenChange={setReceiverSigDialogOpen}>
                                     <DialogTrigger asChild><Button variant="outline" className="no-print">Add Signature</Button></DialogTrigger>
@@ -511,7 +536,10 @@ export function DeliveryNoteForm({ clients, items, initialDocument = null }: Del
         </main>
         <CardFooter className="p-4 bg-muted/50 border-t flex justify-end gap-2 no-print">
             <Button variant="outline" onClick={handleSaveDraft}>Save Draft</Button>
-            <Button onClick={handlePrint} variant="secondary"><Download className="mr-2 h-4 w-4" /> Download PDF</Button>
+            <Button onClick={handlePrint} variant="secondary" disabled={isPrinting}>
+              <Download className="mr-2 h-4 w-4" /> 
+              {isPrinting ? 'Preparing...' : 'Download PDF'}
+            </Button>
             <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send Delivery Note</Button>
         </CardFooter>
       </div>

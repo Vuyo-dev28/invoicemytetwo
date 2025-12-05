@@ -19,7 +19,9 @@ function LoginPageContent() {
   const message = searchParams.get("message");
 
   return (
-    <div className="flex flex-col min-h-screen bg-background items-center justify-center p-4">
+    <div className="relative flex flex-col min-h-screen items-center justify-center p-4 
+    before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/30 before:via-primary/20 before:to-transparent before:blur-3xl before:opacity-40 overflow-hidden">
+
       {/* Header */}
       <header className="fixed top-4 left-1/2 -translate-x-1/2 w-full max-w-7xl px-4 z-20">
         <div className="bg-card/80 backdrop-blur-sm shadow-lg rounded-full px-6 py-2 flex items-center justify-between">
@@ -29,9 +31,13 @@ function LoginPageContent() {
               InvoiceMyte
             </span>
           </Link>
+
           <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/products">Products</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/about">About</Link>
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Pricing">Pricing</Link>
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Support">Support</Link>
+            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/login">Log In</Link>
             <Button asChild><Link href="/signup">Get started</Link></Button>
           </nav>
         </div>
@@ -39,7 +45,7 @@ function LoginPageContent() {
 
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center w-full">
-        <Card className="w-full max-w-sm">
+        <Card className="w-full max-w-sm bg-card/90 backdrop-blur-md shadow-xl">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Sign In</CardTitle>
           </CardHeader>
@@ -68,20 +74,21 @@ function LoginPageContent() {
               <div className="flex flex-col space-y-2">
                 <Button formAction={signIn} className="w-full">Sign In</Button>
                 <Button asChild variant="secondary" className="w-full">
-                    <Link href="/signup">Create an account</Link>
+                  <Link href="/signup">Create an account</Link>
                 </Button>
               </div>
             </form>
           </CardContent>
         </Card>
 
-        <div className="mt-5 text-center text-xs text-muted-foreground">
+        <div className="mt-5 text-center text-xs text-muted-foreground relative z-10">
           <a href="/privacy" className="underline">Privacy</a> - <a href="/privacy" className="underline">Terms</a>
         </div>
       </div>
     </div>
   );
 }
+
 
 export default function LoginPage() {
   return (

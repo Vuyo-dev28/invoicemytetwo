@@ -1,9 +1,9 @@
 'use server';
 
 import { createClient } from '@/utils/supabase/server';
-import { cookies } from 'next/headers';
 import { z } from 'zod';
 
+// Schema for validation
 const schema = z.object({
   email: z.string().email(),
   full_name: z.string().optional(),
@@ -17,69 +17,57 @@ const schema = z.object({
   timezone: z.string().optional(),
 });
 
-export async function updateUserAction(formData: FormData) {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
+export async function updateUserAction(values: any) {
+  const supabase = createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user) {
-    return { error: 'You must be logged in to update your profile.' };
-  }
+  if (!user) return { error: 'You must be logged in to update your profile.' };
 
-  const validatedFields = schema.safeParse({
-    email: formData.get('email'),
-    full_name: formData.get('full_name'),
-    business_name: formData.get('business_name'),
-    website: formData.get('website'),
-    street: formData.get('street'),
-    city: formData.get('city'),
-    country: formData.get('country'),
-    postal_code: formData.get('postal_code'),
-    currency: formData.get('currency'),
-    timezone: formData.get('timezone'),
-  });
+  const validated = schema.safeParse(values);
+  if (!validated.success) return { error: 'Invalid fields provided.', details: validated.error.flatten() };
 
-  if (!validatedFields.success) {
-    return { error: 'Invalid fields provided.', details: validatedFields.error.flatten() };
-  }
+  const data = validated.data;
 
-  const {
-    full_name,
-    business_name,
-    street,
-    city,
-    country,
-    postal_code,
-    ...otherProfileData
-  } = validatedFields.data;
+  // Build profile update/insert object
+  const profileData: { [key: string]: any } = {
+    id: user.id,
+    email: data.email || user.email,
+    full_name: data.full_name || null,
+    business_name: data.business_name || null,
+    company_name: data.business_name || null, // Support both fields
+    website: data.website || null,
+    currency: data.currency || 'USD',
+    timezone: data.timezone || 'GMT',
+    updated_at: new Date().toISOString(),
 
-  const profileUpdate: { [key: string]: any } = { ...otherProfileData, full_name };
+    // Individual address fields
+    street: data.street || null,
+    city: data.city || null,
+    country: data.country || null,
+    postal_code: data.postal_code || null,
+  };
 
-  if (business_name) {
-    profileUpdate.company_name = business_name;
-  }
-  
-  const addressParts = [street, city, country, postal_code].filter(Boolean);
-  if (addressParts.length > 0) {
-    profileUpdate.company_address = addressParts.join(', ');
-  } else {
-    profileUpdate.company_address = ''; 
-  }
+  // Optional combined company address
+  const addressParts = [data.street, data.city, data.country, data.postal_code].filter(Boolean);
+  profileData.company_address = addressParts.length > 0 ? addressParts.join(', ') : null;
 
-  Object.keys(profileUpdate).forEach(key => profileUpdate[key] === undefined && delete profileUpdate[key]);
-  
+  // Use upsert to insert if doesn't exist, or update if it does
   const { error: profileError } = await supabase
     .from('profiles')
-    .update(profileUpdate)
-    .eq('id', user.id);
+    .upsert(profileData, {
+      onConflict: 'id'
+    });
 
   if (profileError) {
-    return { error: `Error updating profile: ${profileError.message}` };
+    console.error('Profile upsert error:', profileError);
+    return { error: `Error saving profile: ${profileError.message}` };
   }
 
-  if (validatedFields.data.email && validatedFields.data.email !== user.email) {
-    const { error: emailError } = await supabase.auth.updateUser({ email: validatedFields.data.email });
+  // Update email in auth.users separately if it changed
+  if (data.email && data.email !== user.email) {
+    const { error: emailError } = await supabase.auth.updateUser({ email: data.email });
     if (emailError) {
+      console.error('Email update error:', emailError);
       return { error: `Error updating email: ${emailError.message}` };
     }
   }
