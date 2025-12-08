@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import ProfileForm from '@/components/profile-form';
-import { SettingsPanel } from '@/components/settings-panel';
+// import ProfileForm from '@/components/profile-form';
+// import { SettingsPanel } from '@/components/settings-panel';
 import ThemeSwitcher from '@/components/ui/ThemeSwitcher';
 
 export default async function SettingsPage() {
