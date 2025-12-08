@@ -59,7 +59,7 @@ export default function PublicLayout({
             </Link>
             <Link
               className="text-sm font-medium hover:text-primary"
-              href="/#pricing"
+              href="/pricing"
             >
               Pricing
             </Link>

@@ -1,7 +1,7 @@
 // utils/paypal.ts
 import fetch from 'node-fetch';
 
-const PAYPAL_API = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com';
+const PAYPAL_API = process.env.PAYPAL_API_URL || 'https://api-m.paypal.com';
 const CLIENT_ID = process.env.PAYPAL_CLIENT_ID!;
 const CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET!;
 const WEBHOOK_ID = process.env.PAYPAL_WEBHOOK_ID || '';

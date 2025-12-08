@@ -24,7 +24,7 @@ export default function PayPalBtn({ userId }: PayPalBtnProps) {
 
   const createSubscription = (data: any, actions: any) => {
     return actions.subscription.create({
-      plan_id: "P-81K74833NS848920GNEU2EKI",
+      plan_id: "P-2UA04610MV6127005NEUUSII",
     });
   };
 
@@ -33,7 +33,7 @@ export default function PayPalBtn({ userId }: PayPalBtnProps) {
 
     const subscriptionData: Subscription = {
       id: data.subscriptionID,
-      plan_id: "P-81K74833NS848920GNEU2EKI",
+      plan_id: "P-2UA04610MV6127005NEUUSII",
       status: "ACTIVE",
       current_period_start: new Date().toISOString(),
       current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -74,24 +74,37 @@ export default function PayPalBtn({ userId }: PayPalBtnProps) {
   // Load PayPal script and render buttons
   useEffect(() => {
     if (!paypalRef.current || !clientId) return;
-
+  
     const script = document.createElement("script");
     script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&vault=true&intent=subscription`;
     script.async = true;
-
+  
     script.onload = () => {
       // @ts-ignore
-      window.paypal.Buttons({
-        createSubscription,
-        onApprove,
-        onError,
-        onCancel,
-      }).render(paypalRef.current);
+      if (window.paypal && paypalRef.current) {
+        window.paypal.Buttons({
+          createSubscription,
+          onApprove,
+          onError,
+          onCancel,
+        }).render(paypalRef.current);
+      }
     };
-
+  
     document.body.appendChild(script);
-    return () => document.body.removeChild(script);
+  
+    return () => {
+      // Remove PayPal buttons safely
+      if (paypalRef.current) {
+        paypalRef.current.innerHTML = "";
+      }
+      // Remove script safely
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
+    };
   }, [clientId]);
+  
 
   return (
     <div>

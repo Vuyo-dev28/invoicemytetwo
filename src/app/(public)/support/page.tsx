@@ -187,7 +187,7 @@ export default function SupportPage() {
                 <Mail className="mr-3 text-blue-500" />
                 Direct Contact
               </h2>
-              <p className="text-gray-600 dark:text-gray-400">For urgent matters, you can email us directly at <a href="mailto:support@invoicemyte.com" className="text-blue-500 hover:underline">support@invoicemyte.com</a></p>
+              <p className="text-gray-600 dark:text-gray-400">For urgent matters, you can email us directly at <a href="mailto:invoicemyte@gmail.com" className="text-blue-500 hover:underline">invoicemyte@gmail.com</a></p>
             </div>
 
           </div>

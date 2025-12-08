@@ -64,6 +64,8 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   const [originalInvoiceNumber, setOriginalInvoiceNumber] = useState('');
   const [poNumber, setPoNumber] = useState('');
   const [shippingAddress, setShippingAddress] = useState('');
+  const link = `https://document.invoicemyte.online/${invoiceId}`;
+
   
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -398,7 +400,68 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
   };
 
   const handleSaveDraft = () => saveInvoice('draft');
-  const handleSend = () => saveInvoice('sent');
+
+  const handleSend = async () => {
+    if (!selectedClient) {
+      toast({
+        title: "Feature coming soon",
+        description: "You can download the invoice as PDF and send it manually to the customer.",
+        variant: "default",
+      });
+      return;
+    }
+  
+    // Save the invoice as 'sent'
+    await saveInvoice('sent');
+  
+    if (!selectedClient.email) {
+      toast({
+        title: "No client email",
+        description: "This client does not have an email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+  
+    // Generate email HTML content
+    const emailHtml = `
+      <h2>Invoice ${invoiceNumber}</h2>
+      <p>Total: ${formatCurrency(total)}</p>
+      <p>Dear ${selectedClient.name},</p>
+      <p>Please find your invoice attached or view it online.</p>
+    `;
+  
+    try {
+      const res = await fetch("/api/send-document", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: selectedClient.email,
+          subject: `Invoice ${invoiceNumber}`,
+          html: emailHtml,
+        }),
+      });
+  
+      const data = await res.json();
+  
+      if (!data.success) {
+        throw new Error(data.message || "Email failed");
+      }
+  
+      toast({
+        title: "Invoice Sent",
+        description: "The invoice has been emailed successfully.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Email failed",
+        description: err.message || "Could not send the email.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  
 
   const formatCurrency = (amount: number) => {
     return formatCurrencyUtil(amount, currency);
@@ -819,7 +882,7 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
               <Download className="mr-2 h-4 w-4" /> 
               {isPrinting ? 'Preparing...' : 'Download PDF'}
             </Button>
-            <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send {documentType}</Button>
+            {/* <Button onClick={handleSend}><Send className="mr-2 h-4 w-4" /> Send {documentType}</Button> */}
         </CardFooter>
       </div>
     </div>

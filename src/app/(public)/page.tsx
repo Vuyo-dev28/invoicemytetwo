@@ -1,14 +1,52 @@
-"use client"
-import { useState } from 'react';
+"use client";
+
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, Zap, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
-import { Analytics } from "@vercel/analytics/react"; // ✅ Import Analytics
+import { Analytics } from "@vercel/analytics/react";
 
+const logos = [
+  "/android.png",
+  "/meta.png",
+  "/microsoft.png",
+  "/google.png",
+  "/youtube.png",
+];
+
+// Logo Carousel Component
+function LogoCarousel() {
+  return (
+    <div className="overflow-hidden relative py-12">
+      <div className="flex animate-marquee gap-12 w-max">
+        {logos.concat(logos).map((logo, index) => (
+          <div key={index} className="flex-shrink-0">
+            <Image
+              src={logo}
+              alt={`Company logo ${index}`}
+              width={150}
+              height={80}
+              className="object-contain"
+            />
+          </div>
+        ))}
+      </div>
+
+      <style jsx>{`
+        .animate-marquee {
+          display: flex;
+          animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+      `}</style>
+    </div>
+  );
+}
 
 export default function Home() {
   return (
@@ -53,6 +91,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Logo Carousel */}
+      <LogoCarousel />
 
       {/* Features Section */}
       <div className="relative z-10 w-full py-20 px-4">
@@ -133,6 +174,8 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+
         </div>
       </div>
 

@@ -33,6 +33,7 @@ function LoginPageContent() {
           </Link>
 
           <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
+          <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/">Home</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/products">Products</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/about">About</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Pricing">Pricing</Link>

@@ -7,6 +7,7 @@ const publicPaths = [
     '/',
     '/login',
     '/signup',
+    '/pricing',
     '/signup/business-details', // ✅ Allow access to business details page
     '/about',
     '/support',

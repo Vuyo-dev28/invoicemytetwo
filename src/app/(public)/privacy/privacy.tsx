@@ -42,7 +42,7 @@ export default function privacy() {
 
         <h3 className="text-xl font-semibold mt-6 mb-2">5. Contact Us</h3>
         <p className="text-muted-foreground">
-          For any privacy concerns, contact us at <a href="mailto:support@invoicemyte.com" className="text-primary underline">support@invoicemyte.com</a>.
+          For any privacy concerns, contact us at <a href="mailto:invoicemyte@gmail.com" className="text-primary underline">invoicemyte@gmail.com</a>.
         </p>
       </section>
 
@@ -81,7 +81,7 @@ export default function privacy() {
         </p>
 
         <p className="text-muted-foreground mt-8">
-          For any questions about these Terms, contact us at <a href="mailto:support@invoicemyte.com" className="text-primary underline">support@invoicemyte.com</a>.
+          For any questions about these Terms, contact us at <a href="mailto:invoicemyte@gmail.com" className="text-primary underline">invoicemyte@gmail.com</a>.
         </p>
       </section>
     </div>

@@ -5,21 +5,36 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { to, subject, html } = body;
+    const { to, subject, html, link } = await req.json();
 
-    const data = await resend.emails.send({
-      from: "Your App <invoicemyte@gmail.com>",
+    if (!to) {
+      return NextResponse.json({ success: false, error: "Missing recipient email" });
+    }
+
+    const emailHtml = `
+      <div>
+        ${html}
+        <p>You can view your document online here:</p>
+        <p><a href="${link}" target="_blank">${link}</a></p>
+      </div>
+    `;
+
+    const { error } = await resend.emails.send({
+      from: "Invoicemyte <noreply@invoicemyte.online>",
       to,
       subject,
-      html,
+      html: emailHtml,
     });
 
-    return NextResponse.json({ success: true, data });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, error },
-      { status: 500 }
-    );
+    if (error) {
+      console.error(error);
+      return NextResponse.json({ success: false, error });
+    }
+
+    return NextResponse.json({ success: true });
+
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ success: false });
   }
 }
