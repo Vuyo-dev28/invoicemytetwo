@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   if (!subscription_id) return NextResponse.json({ error: "Missing subscription_id" }, { status: 400 });
 
   const PAYPAL_API_URL = process.env.PAYPAL_API_URL;
-  const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID;
   const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET;
 
   const basicAuth = Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString("base64");

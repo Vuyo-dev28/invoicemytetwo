@@ -18,7 +18,7 @@ interface PayPalBtnProps {
 
 export default function PayPalBtn({ userId }: PayPalBtnProps) {
   const paypalRef = useRef<HTMLDivElement>(null);
-  const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
+  const clientId = process.env.PAYPAL_CLIENT_ID;
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [saving, setSaving] = useState(false);
 
