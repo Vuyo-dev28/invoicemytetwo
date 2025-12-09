@@ -1,5 +1,5 @@
 'use client';
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,8 @@ function LoginPageContent() {
   const searchParams = useSearchParams();
   const message = searchParams.get("message");
 
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
     <div className="relative flex flex-col min-h-screen items-center justify-center p-4 
     before:absolute before:inset-0 before:bg-gradient-to-br before:from-primary/30 before:via-primary/20 before:to-transparent before:blur-3xl before:opacity-40 overflow-hidden">
@@ -31,16 +33,7 @@ function LoginPageContent() {
               InvoiceMyte
             </span>
           </Link>
-
-          <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-          <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/">Home</Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/products">Products</Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/about">About</Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Pricing">Pricing</Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Support">Support</Link>
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/login">Log In</Link>
-            <Button asChild><Link href="/signup">Get started</Link></Button>
-          </nav>
+          <nav className="ml-auto flex gap-4 sm:gap-6 items-center"></nav>
         </div>
       </header>
 
@@ -56,7 +49,7 @@ function LoginPageContent() {
                 <Label htmlFor="email">Email</Label>
                 <Input id="email" name="email" type="email" placeholder="you@example.com" required />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password">Password</Label>
                   <Link
@@ -66,7 +59,21 @@ function LoginPageContent() {
                     Forgot your password?
                   </Link>
                 </div>
-                <Input id="password" name="password" type="password" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute right-2 top-1/2 -translate-y-1/2"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </Button>
               </div>
 
               {message && (
@@ -83,13 +90,20 @@ function LoginPageContent() {
         </Card>
 
         <div className="mt-5 text-center text-xs text-muted-foreground relative z-10">
-          <a href="/privacy" className="underline">Privacy</a> - <a href="/privacy" className="underline">Terms</a>
+            By signing up or signing in, you agree to our{" "}
+            <Link href="/privacy" className="underline hover:text-primary">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="/terms" className="underline hover:text-primary">
+              Terms
+            </Link>.
         </div>
+
       </div>
     </div>
   );
 }
-
 
 export default function LoginPage() {
   return (

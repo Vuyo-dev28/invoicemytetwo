@@ -509,41 +509,71 @@ export function InvoiceForm({ clients, items, documentType, initialInvoice = nul
             <div className="flex items-center gap-2">
                  <h1 className="text-2xl font-bold">{initialInvoice ? `Edit ${documentType}` : `New ${documentType}`}</h1>
             </div>
-             <div className="flex items-center gap-4">
-                 <div className={cn(
-                    "flex items-center space-x-2 rounded-lg p-1",
-                    !initialInvoice && "[background-size:200%_100%] [background-image:linear-gradient(to_right,hsl(var(--muted))_50%,hsl(var(--primary))_50%)] animate-pulse-bg-once"
-                 )}>
-                    <Label htmlFor="form-type" className={formType === 'basic' ? 'text-foreground' : 'text-muted-foreground'}>Basic</Label>
-                    <Switch id="form-type" checked={formType === 'advanced'} onCheckedChange={(checked) => setFormType(checked ? 'advanced' : 'basic')} />
-                    <Label htmlFor="form-type" className={formType === 'advanced' ? 'text-foreground' : 'text-muted-foreground'}>Advanced</Label>
-                </div>
-                <div className="flex items-center gap-2">
-                    <Label htmlFor="template">Template</Label>
-                    <Select value={template} onValueChange={(value) => setTemplate(value as Template)}>
-                        <SelectTrigger id="template" className="w-[180px]">
-                        <SelectValue placeholder="Select a template" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="swiss">Swiss</SelectItem>
-                          <SelectItem value="formal">Formal</SelectItem>
-                          <SelectItem value="playful">Playful</SelectItem>
-                          <SelectItem value="tech">Tech</SelectItem>
-                          <SelectItem value="elegant">Elegant</SelectItem>
-                          <SelectItem value="modern">Modern</SelectItem>
-                          <SelectItem value="minimalist">Minimalist</SelectItem>
-                          <SelectItem value="creative">Creative</SelectItem>
-                          <SelectItem value="corporate">Corporate</SelectItem>
-                          <SelectItem value="friendly">Friendly</SelectItem>
-                          <SelectItem value="bold">Bold</SelectItem>
-                          <SelectItem value="vintage">Vintage</SelectItem>
-                          <SelectItem value="geometric">Geometric</SelectItem>
-                          <SelectItem value="industrial">Industrial</SelectItem>
-                          <SelectItem value="luxury">Luxury</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
+            <div
+  className="
+    flex flex-col gap-4 
+    sm:flex-row sm:items-center sm:justify-between
+  "
+>
+  {/* FORM TYPE SWITCH */}
+  <div
+    className={cn(
+      "flex items-center space-x-2 rounded-lg p-1",
+      !initialInvoice &&
+        "[background-size:200%_100%] [background-image:linear-gradient(to_right,hsl(var(--muted))_50%,hsl(var(--primary))_50%)] animate-pulse-bg-once"
+    )}
+  >
+    <Label
+      htmlFor="form-type"
+      className={formType === "basic" ? "text-foreground" : "text-muted-foreground"}
+    >
+      Basic
+    </Label>
+
+    <Switch
+      id="form-type"
+      checked={formType === "advanced"}
+      onCheckedChange={(checked) => setFormType(checked ? "advanced" : "basic")}
+    />
+
+    <Label
+      htmlFor="form-type"
+      className={formType === "advanced" ? "text-foreground" : "text-muted-foreground"}
+    >
+      Advanced
+    </Label>
+  </div>
+
+  {/* TEMPLATE SELECTOR */}
+  <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
+    <Label htmlFor="template">Template</Label>
+
+    <Select value={template} onValueChange={(value) => setTemplate(value as Template)}>
+      <SelectTrigger id="template" className="w-full sm:w-[180px]">
+        <SelectValue placeholder="Select a template" />
+      </SelectTrigger>
+
+      <SelectContent>
+        <SelectItem value="swiss">Swiss</SelectItem>
+        <SelectItem value="formal">Formal</SelectItem>
+        <SelectItem value="playful">Playful</SelectItem>
+        <SelectItem value="tech">Tech</SelectItem>
+        <SelectItem value="elegant">Elegant</SelectItem>
+        <SelectItem value="modern">Modern</SelectItem>
+        <SelectItem value="minimalist">Minimalist</SelectItem>
+        <SelectItem value="creative">Creative</SelectItem>
+        <SelectItem value="corporate">Corporate</SelectItem>
+        <SelectItem value="friendly">Friendly</SelectItem>
+        <SelectItem value="bold">Bold</SelectItem>
+        <SelectItem value="vintage">Vintage</SelectItem>
+        <SelectItem value="geometric">Geometric</SelectItem>
+        <SelectItem value="industrial">Industrial</SelectItem>
+        <SelectItem value="luxury">Luxury</SelectItem>
+      </SelectContent>
+    </Select>
+  </div>
+</div>
+
         </CardContent>
       </Card>
       

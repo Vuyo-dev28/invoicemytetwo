@@ -44,12 +44,12 @@ export default function SignupPage() {
           </Link>
 
           <nav className="ml-auto flex gap-4 sm:gap-6 items-center">
-            <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/products">Products</Link>
+            {/* <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/products">Products</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/about">About</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Pricing">Pricing</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/Support">Support</Link>
             <Link className="text-sm font-medium text-muted-foreground hover:text-primary" href="/login">Log In</Link>
-            <Button asChild><Link href="/signup">Get started</Link></Button>
+            <Button asChild><Link href="/signup">Get started</Link></Button> */}
           </nav>
         </div>
       </header>
@@ -121,6 +121,8 @@ export default function SignupPage() {
             </p>
           )}
 
+
+
           {/* Server-side error */}
           {message && (
             <p className="p-3 bg-red-100 text-red-600 text-center text-sm rounded">
@@ -130,8 +132,18 @@ export default function SignupPage() {
 
           <Button type="submit" className="w-full">Sign Up</Button>
         </form>
+        
       </div>
-
+      <div className="mt-5 text-center text-xs text-muted-foreground relative z-10">
+            By signing up or signing in, you agree to our{" "}
+            <Link href="/privacy" className="underline hover:text-primary">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="/terms" className="underline hover:text-primary">
+              Terms
+            </Link>.
+        </div>
     </div>
   );
 }

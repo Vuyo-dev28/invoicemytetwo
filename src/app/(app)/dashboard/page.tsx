@@ -29,32 +29,30 @@ const WelcomeBanner = () => {
     };
 
     return (
-        <Alert className="mb-6 bg-primary/10 border-primary/20 text-primary-foreground">
-             <Info className="h-4 w-4 text-primary" />
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 w-full">
-                <div>
-                    <AlertTitle className="font-bold text-primary">Welcome to InvoiceMyte!</AlertTitle>
-                    <AlertDescription className="text-primary/90">
-                        Get started by setting up your company details. This will auto-fill your documents.
-                    </AlertDescription>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Button asChild variant="link" className="text-primary hover:text-primary/80">
-                        <Link href="/settings">
-                            Go to Settings <Settings className="ml-2 h-4 w-4" />
-                        </Link>
-                    </Button>
+<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+    <div>
+        <AlertTitle className="font-bold text-primary">Welcome to InvoiceMyte!</AlertTitle>
+        <AlertDescription className="text-primary/90">
+            Get started by setting up your company details. This will auto-fill your documents.
+        </AlertDescription>
+    </div>
+    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
+        <Button asChild variant="link" className="text-primary hover:text-primary/80 w-full sm:w-auto text-center">
+            <Link href="/settings">
+                Go to Settings <Settings className="ml-2 h-4 w-4" />
+            </Link>
+        </Button>
 
-                    <Button 
-                        variant="default" 
-                        className="bg-primary text-white hover:bg-primary/90"
-                        onClick={handleStartTrial}
-                    >
-                        Start Free Trial
-                    </Button>
-                </div>
-            </div>
-        </Alert>
+        <Button 
+            variant="default" 
+            className="bg-primary text-white hover:bg-primary/90 w-full sm:w-auto"
+            onClick={handleStartTrial}
+        >
+            Start Free Trial
+        </Button>
+    </div>
+</div>
+
     );
 };
 
