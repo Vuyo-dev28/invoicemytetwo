@@ -38,7 +38,7 @@ export default async function SettingsPage() {
           <SettingsPanel company={profile} />
           <div className="p-4 border rounded-lg">
             <h2 className="text-lg font-semibold mb-2">Theme</h2>
-            <ThemeSwitcher />
+            {/* <ThemeSwitcher /> */}
           </div>
         </div>
       </div>
