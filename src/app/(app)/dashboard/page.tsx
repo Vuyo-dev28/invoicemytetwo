@@ -31,10 +31,22 @@ const WelcomeBanner = () => {
     return (
 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
     <div>
-        <AlertTitle className="font-bold text-primary">Welcome to InvoiceMyte!</AlertTitle>
-        <AlertDescription className="text-primary/90">
-            Get started by setting up your company details. This will auto-fill your documents.
+    <AlertTitle className="font-bold text-primary">
+        Welcome to InvoiceMyte!
+    </AlertTitle>
+
+        {/* Mobile only warning */}
+        <div className="sm:hidden mt-2 inline-flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1.5 rounded-md text-sm font-medium">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L4.34 18c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        Please open on PC for the best experience.
+        </div>
+
+        <AlertDescription className="text-primary/90 mt-3">
+        Get started by setting up your company details. This will auto-fill your documents.
         </AlertDescription>
+
     </div>
     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
         <Button asChild variant="link" className="text-primary hover:text-primary/80 w-full sm:w-auto text-center">
